@@ -3,11 +3,6 @@
 import sys
 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 #
 # [The "BSD licence"]
@@ -118,7 +113,7 @@ class Parser(antlr.LLkParser):
             if _cnt3 < 1:
                 raise antlr.NoViableAltException(self.LT(1), self.getFilename())
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as  ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_0)
@@ -165,7 +160,7 @@ class Parser(antlr.LLkParser):
             templateName = name.getText()
             groupI.defineTemplate(templateName, formalArgs, opt != None)
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as  ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_1)
@@ -192,7 +187,7 @@ class Parser(antlr.LLkParser):
                     break
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as  ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_2)
@@ -222,21 +217,21 @@ _tokenNames = [
 ### generate bit set
 def mk_tokenSet_0(): 
     ### var1
-    data = [ 2L, 0L]
+    data = [ 2, 0]
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### generate bit set
 def mk_tokenSet_1(): 
     ### var1
-    data = [ 162L, 0L]
+    data = [ 162, 0]
     return data
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 ### generate bit set
 def mk_tokenSet_2(): 
     ### var1
-    data = [ 512L, 0L]
+    data = [ 512, 0]
     return data
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
     

@@ -93,7 +93,7 @@ class StringTemplateGroupInterface(object):
             parser = InterfaceParser.Parser(lexer)
             parser.groupInterface(self)
 
-        except RuntimeError, exc: #FIXME:  Exception
+        except RuntimeError as exc: #FIXME:  Exception
             name = self.name or "<unknown>"
             self.error("problem parsing group "+name+": "+str(exc), exc)
 

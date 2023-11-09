@@ -3,16 +3,11 @@
 import sys
 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 from stringtemplate3.language.CatIterator import CatList
 from stringtemplate3.language.StringTemplateAST import StringTemplateAST
 
-from StringIO import StringIO
+from io import StringIO
 
 class NameValuePair(object):
 
@@ -109,7 +104,7 @@ class Walker(antlr.TreeParser):
             _t = self._retTree
             numCharsWritten = self.chunk.writeAttribute(self.this, e, self.out)
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -184,7 +179,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -275,7 +270,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -376,7 +371,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -440,7 +435,7 @@ class Walker(antlr.TreeParser):
             if name:
                value = self.chunk.getTemplateInclude(self.this, name, args)
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -520,7 +515,7 @@ class Walker(antlr.TreeParser):
             _t = _t21
             _t = _t.getNextSibling()
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -582,7 +577,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -673,7 +668,7 @@ class Walker(antlr.TreeParser):
             _t = _t26
             _t = _t.getNextSibling()
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -697,7 +692,7 @@ class Walker(antlr.TreeParser):
             _t = _t24
             _t = _t.getNextSibling()
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -738,7 +733,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -757,7 +752,7 @@ class Walker(antlr.TreeParser):
             value=self.expr(_t)
             _t = self._retTree
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -814,7 +809,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -863,7 +858,7 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -913,7 +908,7 @@ class Walker(antlr.TreeParser):
                self.this.rawSetArgumentAttribute(embedded, \
                    argumentContext, soleArgName, e)
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
                 _t = _t.getNextSibling()
@@ -972,6 +967,6 @@ _tokenNames = [
 ### generate bit set
 def mk_tokenSet_0(): 
     ### var1
-    data = [ 60180949680L, 0L]
+    data = [ 60180949680, 0]
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())

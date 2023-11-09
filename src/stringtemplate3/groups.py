@@ -174,7 +174,7 @@ class StringTemplateGroup(object):
         #  default: no refreshing from disk
         #
         self.refreshInterval = sys.maxint/1000
-        self.lastCheckedDisk = 0L
+        self.lastCheckedDisk = 0
         
         if name is not None:
             assert isinstance(name, basestring)
@@ -477,7 +477,7 @@ class StringTemplateGroup(object):
                     br.close()
 
             # FIXME: eek, that's ugly
-            except Exception, e:
+            except Exception as e:
                 raise
             
             return template
@@ -519,13 +519,13 @@ class StringTemplateGroup(object):
             try:
                 try:
                     template = self.loadTemplate(name, br)
-                except IOError, ioe:
+                except IOError as ioe:
                     self.error("Problem reading template file: "+fileName, ioe)
 
             finally:
                 try:
                     br.close()
-                except IOError, ioe2:
+                except IOError as ioe2:
                     self.error('Cannot close template file: ' + pathName, ioe2)
 
             return template
@@ -660,7 +660,7 @@ class StringTemplateGroup(object):
             parser = GroupParser.Parser(lexer)
             parser.group(self)
             # sys.stderr.write("read group\n" + str(self))
-        except "foo", e: # FIXME: Exception, e:
+        except "foo" as e:  # FIXME: Exception, e:
             name = "<unknown>"
             if self.name:
                 name = self.name
@@ -725,7 +725,7 @@ class StringTemplateGroup(object):
         if self.userSpecifiedWriter:
             try:
                 stw = self.userSpecifiedWriter(w)
-            except RuntimeError, e: #FIXME Exception, e:
+            except RuntimeError as e:  #FIXME Exception, e:
                 self.error('problems getting StringTemplateWriter', e)
 
         if not stw:

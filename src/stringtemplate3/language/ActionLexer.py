@@ -3,11 +3,6 @@
 import sys
 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
 import stringtemplate3
@@ -176,10 +171,10 @@ class Lexer(antlr.CharScanner) :
                             ### return token to caller
                             return self._returnToken
                         ### handle lexical errors ....
-                        except antlr.RecognitionException, e:
-                            raise antlr.TokenStreamRecognitionException(e)
+                        except antlr.RecognitionException as rce:
+                            raise antlr.TokenStreamRecognitionException(rce)
                     ### handle char stream errors ...
-                    except antlr.CharStreamException,cse:
+                    except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
                         else:
@@ -351,7 +346,7 @@ class Lexer(antlr.CharScanner) :
             try:
                 pass
                 self.mTEMPLATE_ARGS(False)
-            except antlr.RecognitionException, pe:
+            except antlr.RecognitionException as pe:
                 synPredMatched70 = False
             self.rewind(_m70)
             self.inputState.guessing -= 1
@@ -736,61 +731,61 @@ class Lexer(antlr.CharScanner) :
 
 ### generate bit set
 def mk_tokenSet_0(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-17179869192L
-    data[1] =-268435457L
+    data = [0] * 2048 ### init list
+    data[0] = -17179869192
+    data[1] = -268435457
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### generate bit set
 def mk_tokenSet_1(): 
-    data = [0L] * 1025 ### init list
-    data[0] =4294977024L
-    data[1] =576460745995190270L
+    data = [0] * 1025 ### init list
+    data[0] =4294977024
+    data[1] =576460745995190270
     return data
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 ### generate bit set
 def mk_tokenSet_2(): 
-    data = [0L] * 1025 ### init list
-    data[0] =288107235144377856L
-    data[1] =1729382250602037246L
+    data = [0] * 1025 ### init list
+    data[0] =288107235144377856
+    data[1] =1729382250602037246
     return data
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 ### generate bit set
 def mk_tokenSet_3(): 
-    data = [0L] * 1025 ### init list
-    data[0] =4294977024L
+    data = [0] * 1025 ### init list
+    data[0] =4294977024
     return data
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 ### generate bit set
 def mk_tokenSet_4(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-8L
-    data[1] =-2882303761785552897L
+    data = [0] * 2048 ### init list
+    data[0] =-8
+    data[1] =-2882303761785552897
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 ### generate bit set
 def mk_tokenSet_5(): 
-    data = [0L] * 1025 ### init list
-    data[0] =17596481021440L
+    data = [0] * 1025 ### init list
+    data[0] =17596481021440
     return data
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
 ### generate bit set
 def mk_tokenSet_6(): 
-    data = [0L] * 1025 ### init list
-    data[0] =17596481021440L
-    data[1] =576460745995190270L
+    data = [0] * 1025 ### init list
+    data[0] =17596481021440
+    data[1] =576460745995190270
     return data
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
     
@@ -803,8 +798,8 @@ if __name__ == '__main__' :
     ### create lexer - shall read from stdin
     try:
         for token in ActionLexer.Lexer():
-            print token
+            print(token)
             
-    except antlr.TokenStreamException, e:
-        print "error: exception caught while lexing: ", e
+    except antlr.TokenStreamException as tse:
+        print("error: exception caught while lexing: ", tse)
 ### __main__ header action <<< 

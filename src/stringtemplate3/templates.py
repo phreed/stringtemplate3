@@ -28,11 +28,11 @@
 
 import sys
 import traceback
-from StringIO import StringIO
+from io import StringIO
 from copy import copy
 
 
-import antlr
+from face_conformance_app import antlr
 
 from stringtemplate3.language import (
     FormalArgument, UNKNOWN_ARGS,
@@ -830,7 +830,7 @@ class StringTemplate(object):
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
-        except Exception, e:
+        except Exception as e:
             name = "<unknown>"
             outerName = self.getOutermostName()
             if self.name:
@@ -855,9 +855,9 @@ class StringTemplate(object):
                 else:
                     a = ASTExpr(self, tree, options)
 
-        except antlr.RecognitionException, re:
+        except antlr.RecognitionException as re:
             self.error('Can\'t parse chunk: ' + str(action), re)
-        except antlr.TokenStreamException, tse:
+        except antlr.TokenStreamException as tse:
             self.error('Can\'t parse chunk: ' + str(action), tse)
 
         return a
@@ -1443,7 +1443,7 @@ class StringTemplate(object):
         wr.lineWidth = lineWidth
         try:
             self.write(wr)
-        except IOError, io:
+        except IOError as io:
             self.error("Got IOError writing to writer" + \
                        str(wr.__class__.__name__))
             

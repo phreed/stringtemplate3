@@ -1,6 +1,6 @@
 
-from StringIO import StringIO
-import antlr
+from io import StringIO
+#import faceantlr
 
 from stringtemplate3.utils import deprecated
 from stringtemplate3.language.Expr import Expr
@@ -161,7 +161,7 @@ class ASTExpr(Expr):
         try:
             # eval and write out tree
             n = evaluator.action(self.exprTree)
-        except antlr.RecognitionException, re:
+        except antlr.RecognitionException as re:
             this.error('can\'t evaluate tree: ' + self.exprTree.toStringList(),
                        re)
         out.popIndentation()
@@ -427,17 +427,17 @@ class ASTExpr(Expr):
                 methodName = 'is' + methodSuffix
                 try:
                     m = getattr(o, methodName)
-                except AttributeError, ae:
+                except AttributeError as ae:
                     # try for a visible field
                     try:
                         try:
                             return getattr(o, propertyName)
-                        except AttributeError, ae2:
+                        except AttributeError as ae2:
                             this.error('Can\'t get property ' + propertyName +
                                        ' using method get/is' + methodSuffix +
                                        ' or direct field access from ' +
                                        o.__class__.__name__ + ' instance', ae2)
-                    except AttributeError, ae:
+                    except AttributeError as ae:
                         this.error('Class ' + o.__class__.__name__ +
                                    ' has no such attribute: ' + propertyName +
                                    ' in template context ' +
@@ -446,11 +446,11 @@ class ASTExpr(Expr):
             if m is not None:
                 try:
                     value = m()
-                except Exception, e:
+                except Exception as ex:
                     this.error('Can\'t get property ' + propertyName +
                                ' using method get/is' + methodSuffix +
                                ' or direct field access from ' +
-                               o.__class__.__name__ + ' instance', e)
+                               o.__class__.__name__ + ' instance', ex)
 
         return value
 
@@ -611,7 +611,7 @@ class ASTExpr(Expr):
                     
                 return n
             
-        except IOError, io:
+        except IOError as io:
             this.error('problem writing object: ' + o, io)
         return n
 
@@ -638,7 +638,7 @@ class ASTExpr(Expr):
             try:
                 evaluator.action(expr) # eval tree
 
-            except antlr.RecognitionException, re:
+            except antlr.RecognitionException as re:
                 this.error(
                     "can't evaluate tree: "+self.exprTree.toStringList(), re
                     )
@@ -688,7 +688,7 @@ class ASTExpr(Expr):
             ac = eval_.argList(argumentsAST, this, this.argumentContext)
             this.argumentContext = ac
 
-        except antlr.RecognitionException, re:
+        except antlr.RecognitionException as re:
             this.error('can\'t evaluate tree: ' + argumentsAST.toStringList(),
                        re)
 

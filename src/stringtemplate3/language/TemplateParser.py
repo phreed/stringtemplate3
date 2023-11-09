@@ -3,11 +3,6 @@
 import sys
 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 import stringtemplate3
 from stringtemplate3.language.ChunkToken import ChunkToken
@@ -100,7 +95,7 @@ class Parser(antlr.LLkParser):
                         break
                     
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as  ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_0)
@@ -240,7 +235,7 @@ class Parser(antlr.LLkParser):
                     raise antlr.NoViableAltException(self.LT(1), self.getFilename())
                 
         
-        except antlr.RecognitionException, ex:
+        except antlr.RecognitionException as  ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_1)
@@ -278,14 +273,14 @@ _tokenNames = [
 ### generate bit set
 def mk_tokenSet_0(): 
     ### var1
-    data = [ 1792L, 0L]
+    data = [ 1792, 0]
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### generate bit set
 def mk_tokenSet_1(): 
     ### var1
-    data = [ 8176L, 0L]
+    data = [ 8176, 0]
     return data
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
     
