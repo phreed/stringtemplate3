@@ -3,11 +3,6 @@
 import sys
 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 #
 # [The "BSD licence"]
@@ -141,8 +136,8 @@ class Lexer(antlr.CharScanner) :
                             ### return token to caller
                             return self._returnToken
                         ### handle lexical errors ....
-                        except antlr.RecognitionException as  e:
-                            raise antlr.TokenStreamRecognitionException(e)
+                        except antlr.RecognitionException as rce:
+                            raise antlr.TokenStreamRecognitionException(rce)
                     ### handle char stream errors ...
                     except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
@@ -372,7 +367,7 @@ class Lexer(antlr.CharScanner) :
 def mk_tokenSet_0(): 
     data = [0] * 2048 ### init list
     data[0] =-9217
-    for x in xrange(1, 1023):
+    for x in range(1, 1023):
         data[x] = -1
     data[1023] =9223372036854775807
     return data
