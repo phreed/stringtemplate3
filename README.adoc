@@ -1,0 +1,52 @@
+= StringTemplate3
+Fredrick eisele <https://github.com/phreed[@phreed]>
+// settings:
+:idprefix:
+:idseparator: -
+ifndef::env-github[:icons: font]
+ifdef::env-github[]
+:status:
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :paperclip:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+// Variables:
+:release-version: 2.0.20
+// URLs:
+:url-org: https://github.com/phreed
+:url-project: {url-org}/StringTemplate3
+// images:
+
+{url-project}[StringTemplate3] provides a python wrapper for https://github.com/antlr/stringtemplate4
+
+== StringTemplate3 Ecosystem
+
+
+== Requirements
+
+
+== Installation
+
+=== Package managers
+
+
+==== Pip
+
+==== Conda
+
+== Usage
+
+== Contributing
+
+New contributors are always welcome!
+If you discover errors or omissions in the source code, documentation, or website content, please don't hesitate to submit an issue or open a pull request with a fix.
+
+== Getting Help
+
+== Changelog
+
+ifeval::[{safe-mode-level} < 20]
+include::docs/change_log.adoc[tag=compact,leveloffset=+1]
+endif::[]

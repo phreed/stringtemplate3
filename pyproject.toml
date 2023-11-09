@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stringtemplate3"
+version = "2023.11.1"
+authors = [
+  { name="Terence Parr", email="parrt AT antlr.org" },
+  { name="Marq Kole", email="marq.kole AT philips.com" },
+  { name="Benjamin Niemann", email="pink@odahoda.de" },
+  { name="Fredrick Eisele", email="fredrick.eisele@gmail.com" },
+]
+maintainers = [
+  { name="Benjamin Niemann", email="pink@odahoda.de" },
+  { name="Fredrick Eisele", email="fredrick.eisele@gmail.com" },
+]
+description = "A wrapper for StringTemplate: a powerful template engine with strict model-view separation"
+readme = "docs/description.txt"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing"
+]
+dependencies = [
+    "antlr4-python3-runtime"
+]
+
+[project.urls]
+"Homepage" = "https://www.stringtemplate.org/"
+"Bug Reports" = "https://github.com/phreed/stringtemplate3/issues"
+"Source" = "https://github.com/phreed/stringtemplate3"
+
+
+

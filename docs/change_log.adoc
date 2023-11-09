@@ -1,0 +1,6 @@
+= Change Log
+
+// tag::compact[]
+2023-11-09 initialized from https://pypi.org/project/stringtemplate3/#description
+// end::compact[]
+

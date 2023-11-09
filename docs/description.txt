@@ -1,0 +1,8 @@
+ST (StringTemplate) is a template engine for generating source code,
+web pages, emails, or any other formatted text output.
+ST is particularly good at multi-targeted code generators,
+multiple site skins, and internationalization/localization.
+It evolved over years of effort developing jGuru.com.
+ST also generates this website and powers the ANTLR v3 code generator.
+Its distinguishing characteristic is that
+it strictly enforces model-view separation unlike other engines.
