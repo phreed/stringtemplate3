@@ -32,7 +32,7 @@ from io import StringIO
 from copy import copy
 
 
-from face_conformance_app import antlr
+import antlr
 
 from stringtemplate3.language import (
     FormalArgument, UNKNOWN_ARGS,
