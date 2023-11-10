@@ -8,7 +8,7 @@ from . import ASTExpr
 
 # The following results in a circular dependency
 # from ..templates import StringTemplate
-### header action <<<
+### header action <<< 
 ### preamble action>>>
 
 ### preamble action <<<
