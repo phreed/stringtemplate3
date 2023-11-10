@@ -2,11 +2,13 @@
 ### import antlr and other modules ..
 from .. import antlr
 
-### header action >>> 
+### header action >>>
 from . import StringTemplateAST
 from . import ASTExpr
-from ..templates import StringTemplate
-### header action <<< 
+
+# The following results in a circular dependency
+# from ..templates import StringTemplate
+### header action <<<
 ### preamble action>>>
 
 ### preamble action <<<
@@ -483,7 +485,7 @@ class Parser(antlr.LLkParser):
             self.addASTChild(currentAST, t_AST)
             self.match(ANONYMOUS_TEMPLATE)
             if not self.inputState.guessing:
-                anonymous = stringtemplate3.StringTemplate()
+                anonymous = StringTemplate()
                 anonymous.group = self.this.group
                 anonymous.enclosingInstance = self.this
                 anonymous.template = t.getText()

@@ -4,7 +4,7 @@ import sys
 from .. import antlr
 
 ### header action >>> 
-from ASTExpr import *
+from .ASTExpr import *
 import traceback
 ### header action <<< 
 ### preamble action>>>

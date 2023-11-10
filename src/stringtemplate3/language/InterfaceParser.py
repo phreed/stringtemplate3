@@ -36,14 +36,14 @@ from .. import antlr
 import sys
 import traceback
 
-from stringtemplate3.language.FormalArgument import FormalArgument
+from . import FormalArgument
 ### header action <<< 
 ### preamble action>>>
 
 ### preamble action <<<
 
 ### import antlr.Token 
-from antlr import Token
+from ..antlr import Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

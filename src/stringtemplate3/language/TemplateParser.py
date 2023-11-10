@@ -3,9 +3,7 @@
 import sys
 from .. import antlr
 
-### header action >>> 
-from ... import stringtemplate3
-from . import ChunkToken
+### header action >>>
 from . import StringRef
 from . import NewlineRef
 ### header action <<< 

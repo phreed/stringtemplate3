@@ -36,7 +36,7 @@ from .. import antlr
 import sys
 import traceback
 
-from stringtemplate3.language.FormalArgument import FormalArgument
+from . import FormalArgument
 
 ### header action <<<
 ### preamble action >>> 
@@ -48,7 +48,7 @@ literals[u"interface"] = 4
 literals[u"optional"] = 7
 
 ### import antlr.Token
-from antlr import Token
+from ..antlr import Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

@@ -43,8 +43,8 @@ from .language import (
 )
 from .language.FormalArgument import UNKNOWN_ARGS
 
-from writers import StringTemplateWriter
-from utils import deprecated
+from .writers import StringTemplateWriter
+from .utils import deprecated
 
 
 class STAttributeList(list):
