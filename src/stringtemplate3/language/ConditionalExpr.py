@@ -1,8 +1,8 @@
-from . import antlr
+from .. import antlr
 
-from stringtemplate3.language import ASTExpr
-from stringtemplate3.language import ActionEvaluator
-from stringtemplate3.utils import deprecated
+from . import ASTExpr
+from . import ActionEvaluator
+from ..utils import deprecated
 
 
 class ElseIfClauseData(object):
@@ -20,7 +20,6 @@ class ConditionalExpr(ASTExpr):
         self.elseIfSubtemplates = None
         self.elseSubtemplate = None
 
-
     @deprecated
     def setSubtemplate(self, subtemplate):
         self.subtemplate = subtemplate
@@ -28,7 +27,6 @@ class ConditionalExpr(ASTExpr):
     @deprecated
     def getSubtemplate(self):
         return self.subtemplate
-
 
     @deprecated
     def setElseSubtemplate(self, elseSubtemplate):
@@ -38,14 +36,12 @@ class ConditionalExpr(ASTExpr):
     def getElseSubtemplate(self):
         return self.elseSubtemplate
 
-
     def addElseIfSubtemplate(self, conditionalTree, subtemplate):
         if self.elseIfSubtemplates is None:
             self.elseIfSubtemplates = []
 
         d = ElseIfClauseData(conditionalTree, subtemplate)
         self.elseIfSubtemplates.append(d)
-
 
     def write(self, this, out):
         """
@@ -56,7 +52,7 @@ class ConditionalExpr(ASTExpr):
 
         if self.exprTree is None or this is None or out is None:
             return 0
-        
+
         evaluator = ActionEvaluator.Walker()
         evaluator.initialize(this, self, out)
         n = 0
@@ -77,12 +73,12 @@ class ConditionalExpr(ASTExpr):
                 n = self.writeSubTemplate(this, out, self.subtemplate)
                 testedTrue = True
 
-            elif ( self.elseIfSubtemplates is not None and
-                   len(self.elseIfSubtemplates) > 0 ):
+            elif (self.elseIfSubtemplates is not None and
+                  len(self.elseIfSubtemplates) > 0):
                 for elseIfClause in self.elseIfSubtemplates:
                     try:
                         includeSubtemplate = evaluator.ifCondition(elseIfClause.expr.exprTree)
-                    except KeyError as  ke:
+                    except KeyError as ke:
                         includeSubtemplate = False
                     if includeSubtemplate:
                         n = self.writeSubTemplate(this, out, elseIfClause.st)
@@ -93,14 +89,13 @@ class ConditionalExpr(ASTExpr):
                 # evaluate ELSE clause if present and IF/ELSEIF conditions
                 # failed
                 n = self.writeSubTemplate(this, out, self.elseSubtemplate)
-                        
-        except antlr.RecognitionException as  re:
+
+        except antlr.RecognitionException as re:
             this.error(
                 "can't evaluate tree: " + self.exprTree.toStringList(), re
-                )
+            )
 
         return n
-
 
     def writeSubTemplate(self, this, out, subtemplate):
         # To evaluate the IF chunk, make a new instance whose enclosingInstance

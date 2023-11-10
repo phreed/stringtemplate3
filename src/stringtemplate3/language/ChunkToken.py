@@ -1,5 +1,6 @@
-from . import antlr
-from stringtemplate3.utils import deprecated
+from .. import antlr
+from ..utils import deprecated
+
 
 class ChunkToken(antlr.CommonToken):
     """
@@ -8,8 +9,8 @@ class ChunkToken(antlr.CommonToken):
     the indentation to the parser, which will add it to the
     ASTExpr created for the $...$ attribute reference.
     """
-    
-    def __init__(self, type = None, text = '', indentation = ''):
+
+    def __init__(self, type=None, text='', indentation=''):
         antlr.CommonToken.__init__(self, type=type, text=text)
         self.indentation = indentation
 

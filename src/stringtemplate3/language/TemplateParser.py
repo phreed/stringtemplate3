@@ -1,27 +1,28 @@
 ### $ANTLR 2.7.7 (2006-11-01): "template.g" -> "TemplateParser.py"$
 ### import antlr and other modules ..
 import sys
-from . import antlr
+from .. import antlr
 
 ### header action >>> 
-import stringtemplate3
-from stringtemplate3.language.ChunkToken import ChunkToken
-from stringtemplate3.language.StringRef import StringRef
-from stringtemplate3.language.NewlineRef import NewlineRef
+from ... import stringtemplate3
+from . import ChunkToken
+from . import StringRef
+from . import NewlineRef
 ### header action <<< 
 ### preamble action>>>
 
 ### preamble action <<<
 
 ### import antlr.Token 
-from antlr import Token
+from ..antlr import Token
+
 ### >>>The Known Token Types <<<
-SKIP                = antlr.SKIP
-INVALID_TYPE        = antlr.INVALID_TYPE
-EOF_TYPE            = antlr.EOF_TYPE
-EOF                 = antlr.EOF
+SKIP = antlr.SKIP
+INVALID_TYPE = antlr.INVALID_TYPE
+EOF_TYPE = antlr.EOF_TYPE
+EOF = antlr.EOF
 NULL_TREE_LOOKAHEAD = antlr.NULL_TREE_LOOKAHEAD
-MIN_USER_TYPE       = antlr.MIN_USER_TYPE
+MIN_USER_TYPE = antlr.MIN_USER_TYPE
 LITERAL = 4
 NEWLINE = 5
 ACTION = 6
@@ -50,28 +51,30 @@ COMMENT = 23
 class Parser(antlr.LLkParser):
     ### user action >>>
     def reportError(self, e):
-       group = self.this.group
-       if group == stringtemplate3.StringTemplate.defaultGroup:
-           self.this.error("template parse error; template context is "+self.this.enclosingInstanceStackString, e)
-    
-       else:
-           self.this.error("template parse error in group "+self.this.group.name+" line "+str(self.this.groupFileLine)+"; template context is "+self.this.enclosingInstanceStackString, e)
+        group = self.this.group
+        if group == StringTemplate.defaultGroup:
+            self.this.error("template parse error; template context is " + self.this.enclosingInstanceStackString, e)
+
+        else:
+            self.this.error("template parse error in group " + self.this.group.name + " line " + str(
+                self.this.groupFileLine) + "; template context is " + self.this.enclosingInstanceStackString, e)
+
     ### user action <<<
-    
+
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
         ### __init__ header action >>> 
         self.this = None
         ### __init__ header action <<< 
-        
+
     def template(self,
-        this
-    ):    
-        
+                 this
+                 ):
+
         s = None
         nl = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             while True:
                 la1 = self.LA(1)
@@ -81,36 +84,35 @@ class Parser(antlr.LLkParser):
                     pass
                     s = self.LT(1)
                     self.match(LITERAL)
-                    this.addChunk(StringRef(this,s.getText()))
+                    this.addChunk(StringRef(this, s.getText()))
                 elif la1 and la1 in [NEWLINE]:
                     pass
                     nl = self.LT(1)
                     self.match(NEWLINE)
                     if self.LA(1) != ELSE and self.LA(1) != ENDIF:
-                       this.addChunk(NewlineRef(this,nl.getText()))
-                elif la1 and la1 in [ACTION,IF,REGION_REF,REGION_DEF]:
+                        this.addChunk(NewlineRef(this, nl.getText()))
+                elif la1 and la1 in [ACTION, IF, REGION_REF, REGION_DEF]:
                     pass
                     self.action(this)
                 else:
-                        break
-                    
-        
-        except antlr.RecognitionException as  ex:
+                    break
+
+
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_0)
-        
-    
+
     def action(self,
-        this
-    ):    
-        
+               this
+               ):
+
         a = None
         i = None
         ei = None
         rr = None
         rd = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -135,7 +137,7 @@ class Parser(antlr.LLkParser):
                 self.template(subtemplate)
                 if c: c.subtemplate = subtemplate
                 while True:
-                    if (self.LA(1)==ELSEIF):
+                    if (self.LA(1) == ELSEIF):
                         pass
                         ei = self.LT(1)
                         self.match(ELSEIF)
@@ -143,13 +145,13 @@ class Parser(antlr.LLkParser):
                         # create and precompile the subtemplate
                         elseIfSubtemplate = stringtemplate3.StringTemplate(group=this.group)
                         elseIfSubtemplate.enclosingInstance = this
-                        elseIfSubtemplate.name = ei.getText()+"_subtemplate"
+                        elseIfSubtemplate.name = ei.getText() + "_subtemplate"
                         self.template(elseIfSubtemplate)
                         if c is not None:
-                           c.addElseIfSubtemplate(ec, elseIfSubtemplate)
+                            c.addElseIfSubtemplate(ec, elseIfSubtemplate)
                     else:
                         break
-                    
+
                 la1 = self.LA(1)
                 if False:
                     pass
@@ -165,8 +167,8 @@ class Parser(antlr.LLkParser):
                 elif la1 and la1 in [ENDIF]:
                     pass
                 else:
-                        raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                    
+                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
                 self.match(ENDIF)
             elif la1 and la1 in [REGION_REF]:
                 pass
@@ -180,34 +182,34 @@ class Parser(antlr.LLkParser):
                 # watch out for <@super.r()>; that does NOT def implicit region
                 # convert to <super.region__enclosingTemplate__r()>
                 if regionName.startswith("super."):
-                   #System.out.println("super region ref "+regionName);
-                   regionRef = regionName[len("super."):len(regionName)]
-                   templateScope = this.group.getUnMangledTemplateName(this.name)
-                   scopeST = this.group.lookupTemplate(templateScope)
-                   if scopeST is None:
-                       this.group.error("reference to region within undefined template: "+
-                           templateScope)
-                       err = True
-                
-                   if not scopeST.containsRegionName(regionRef):
-                       this.group.error("template "+templateScope+" has no region called "+
-                           regionRef)
-                       err = True
-                
-                   else:
-                       mangledRef = this.group.getMangledRegionName(templateScope, regionRef)
-                       mangledRef = "super." + mangledRef
-                
+                    # System.out.println("super region ref "+regionName);
+                    regionRef = regionName[len("super."):len(regionName)]
+                    templateScope = this.group.getUnMangledTemplateName(this.name)
+                    scopeST = this.group.lookupTemplate(templateScope)
+                    if scopeST is None:
+                        this.group.error("reference to region within undefined template: " +
+                                         templateScope)
+                        err = True
+
+                    if not scopeST.containsRegionName(regionRef):
+                        this.group.error("template " + templateScope + " has no region called " +
+                                         regionRef)
+                        err = True
+
+                    else:
+                        mangledRef = this.group.getMangledRegionName(templateScope, regionRef)
+                        mangledRef = "super." + mangledRef
+
                 else:
-                   regionST = this.group.defineImplicitRegionTemplate(this, regionName)
-                   mangledRef = regionST.name
-                
+                    regionST = this.group.defineImplicitRegionTemplate(this, regionName)
+                    mangledRef = regionST.name
+
                 if not err:
-                   # treat as regular action: mangled template include
-                   indent = rr.indentation
-                   c = this.parseAction(mangledRef+"()")
-                   c.indentation = indent
-                   this.addChunk(c)
+                    # treat as regular action: mangled template include
+                    indent = rr.indentation
+                    c = this.parseAction(mangledRef + "()")
+                    c.indentation = indent
+                    this.addChunk(c)
             elif la1 and la1 in [REGION_DEF]:
                 pass
                 rd = self.LT(1)
@@ -215,72 +217,75 @@ class Parser(antlr.LLkParser):
                 combinedNameTemplateStr = rd.getText()
                 indexOfDefSymbol = combinedNameTemplateStr.find("::=")
                 if indexOfDefSymbol >= 1:
-                   regionName = combinedNameTemplateStr[0:indexOfDefSymbol]
-                   template = combinedNameTemplateStr[indexOfDefSymbol+3:len(combinedNameTemplateStr)]
-                   regionST = this.group.defineRegionTemplate(
-                       this,
-                       regionName,
-                       template,
-                       stringtemplate3.REGION_EMBEDDED
-                       )
-                   # treat as regular action: mangled template include
-                   indent = rd.indentation
-                   c = this.parseAction(regionST.name + "()")
-                   c.indentation = indent
-                   this.addChunk(c)
-                
+                    regionName = combinedNameTemplateStr[0:indexOfDefSymbol]
+                    template = combinedNameTemplateStr[indexOfDefSymbol + 3:len(combinedNameTemplateStr)]
+                    regionST = this.group.defineRegionTemplate(
+                        this,
+                        regionName,
+                        template,
+                        stringtemplate3.REGION_EMBEDDED
+                    )
+                    # treat as regular action: mangled template include
+                    indent = rd.indentation
+                    c = this.parseAction(regionST.name + "()")
+                    c.indentation = indent
+                    this.addChunk(c)
+
                 else:
-                   this.error("embedded region definition screwed up")
+                    this.error("embedded region definition screwed up")
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
-        except antlr.RecognitionException as  ex:
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
+        except antlr.RecognitionException as ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_1)
-        
-    
+
 
 _tokenNames = [
-    "<0>", 
-    "EOF", 
-    "<2>", 
-    "NULL_TREE_LOOKAHEAD", 
-    "LITERAL", 
-    "NEWLINE", 
-    "ACTION", 
-    "IF", 
-    "ELSEIF", 
-    "ELSE", 
-    "ENDIF", 
-    "REGION_REF", 
-    "REGION_DEF", 
-    "NL", 
-    "EXPR", 
-    "TEMPLATE", 
-    "IF_EXPR", 
-    "ESC_CHAR", 
-    "ESC", 
-    "HEX", 
-    "SUBTEMPLATE", 
-    "NESTED_PARENS", 
-    "INDENT", 
+    "<0>",
+    "EOF",
+    "<2>",
+    "NULL_TREE_LOOKAHEAD",
+    "LITERAL",
+    "NEWLINE",
+    "ACTION",
+    "IF",
+    "ELSEIF",
+    "ELSE",
+    "ENDIF",
+    "REGION_REF",
+    "REGION_DEF",
+    "NL",
+    "EXPR",
+    "TEMPLATE",
+    "IF_EXPR",
+    "ESC_CHAR",
+    "ESC",
+    "HEX",
+    "SUBTEMPLATE",
+    "NESTED_PARENS",
+    "INDENT",
     "COMMENT"
 ]
-    
+
 
 ### generate bit set
-def mk_tokenSet_0(): 
+def mk_tokenSet_0():
     ### var1
-    data = [ 1792, 0]
+    data = [1792, 0]
     return data
+
+
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
+
 ### generate bit set
-def mk_tokenSet_1(): 
+def mk_tokenSet_1():
     ### var1
-    data = [ 8176, 0]
+    data = [8176, 0]
     return data
+
+
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
-    

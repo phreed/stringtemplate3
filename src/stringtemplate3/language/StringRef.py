@@ -1,5 +1,5 @@
-
 from stringtemplate3.language.Expr import Expr
+
 
 class StringRef(Expr):
     """
@@ -10,7 +10,6 @@ class StringRef(Expr):
         super(StringRef, self).__init__(enclosingTemplate)
         self.str = text
 
-
     def write(self, this, out):
         """
         Just print out the string; no reference to self because this
@@ -18,13 +17,12 @@ class StringRef(Expr):
         never wrap because they are not part of an <...> expression.
         <"foo"; wrap="\n"> should wrap though if necessary.
         """
-        
+
         if self.str is not None:
             return out.write(self.str)
 
         return 0
 
-    
     def __str__(self):
         if self.str:
             return self.str

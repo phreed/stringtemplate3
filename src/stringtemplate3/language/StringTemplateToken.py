@@ -1,9 +1,9 @@
+from .. import antlr
 
-from . import antlr
 
 class StringTemplateToken(antlr.CommonToken):
 
-    def __init__(self, type = 0, text = '', args = None):
+    def __init__(self, type=0, text='', args=None):
         super(StringTemplateToken, self).__init__(type=type, text=text)
         ## Track any args for anonymous templates like
         #  <tokens,rules:{t,r | <t> then <r>}>
@@ -17,6 +17,6 @@ class StringTemplateToken(antlr.CommonToken):
 
     def __str__(self):
         return super(StringTemplateToken, self).__str__() + \
-               '; args=' + str(self.args)
+            '; args=' + str(self.args)
 
     __repr__ = __str__
