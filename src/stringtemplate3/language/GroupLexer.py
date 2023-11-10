@@ -660,8 +660,8 @@ if __name__ == '__main__' :
     ### create lexer - shall read from stdin
     try:
         for token in GroupLexer.Lexer():
-            print token
+            print(token)
             
     except antlr.TokenStreamException as  e:
-        print "error: exception caught while lexing: ", e
+        print("error: exception caught while lexing: ", e)
 ### __main__ header action <<< 

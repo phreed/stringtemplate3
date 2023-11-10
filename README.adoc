@@ -19,7 +19,7 @@ endif::[]
 :url-project: {url-org}/StringTemplate3
 // images:
 
-{url-project}[StringTemplate3] provides a python wrapper for https://github.com/antlr/stringtemplate4
+{url-project}[StringTemplate3] provides a python3 implementation of https://github.com/antlr/stringtemplate4
 
 == StringTemplate3 Ecosystem
 
