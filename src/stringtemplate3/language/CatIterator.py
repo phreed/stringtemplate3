@@ -1,5 +1,5 @@
 
-from StringIO import StringIO
+from io import StringIO
 
 ## Given a list of lists, return the combined elements one by one.
 #

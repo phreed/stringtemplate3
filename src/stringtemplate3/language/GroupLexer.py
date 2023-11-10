@@ -1,7 +1,7 @@
 ### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupLexer.py"$
 ### import antlr and other modules ..
 import sys
-import antlr
+from . import antlr
 
 ### header action >>> 
 from ASTExpr import *

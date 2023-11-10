@@ -30,9 +30,9 @@ import sys
 import traceback
 import imp
 import time
-from StringIO import StringIO
+from io import StringIO
 
-import antlr
+from . import antlr
 
 from stringtemplate3.language import (
     AngleBracketTemplateLexer,

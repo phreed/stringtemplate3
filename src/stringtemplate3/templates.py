@@ -32,7 +32,7 @@ from io import StringIO
 from copy import copy
 
 
-import antlr
+from . import antlr
 
 from stringtemplate3.language import (
     FormalArgument, UNKNOWN_ARGS,

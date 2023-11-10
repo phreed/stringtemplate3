@@ -1,5 +1,5 @@
 
-import antlr
+from . import antlr
 
 class StringTemplateToken(antlr.CommonToken):
 

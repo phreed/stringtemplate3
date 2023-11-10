@@ -4,8 +4,6 @@
 ## get sys module
 import sys
 
-from local_module.pyparsing import unicode
-
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 ###                     global symbols                             ###
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
@@ -56,7 +54,8 @@ def ifelse(cond, _then, _else):
 
 
 def is_string_type(x):
-    return (isinstance(x, str) or isinstance(x, unicode))
+    """all strings in python3 are unicode"""
+    return isinstance(x, str) or isinstance(x, bytes)
 
 
 def assert_string_type(x):
@@ -1566,19 +1565,19 @@ class BitSet(object):
 
     def __init__(self, data=None):
         if not data:
-            BitSet.__init__(self, [long(0)])
+            BitSet.__init__(self, [int(0)])
             return
         if isinstance(data, int):
-            BitSet.__init__(self, [long(data)])
+            BitSet.__init__(self, [int(data)])
             return
-        if isinstance(data, long):
+        if isinstance(data, int):
             BitSet.__init__(self, [data])
             return
         if not isinstance(data, list):
             raise TypeError("BitSet requires integer, long, or " +
                             "list argument")
         for x in data:
-            if not isinstance(x, long):
+            if not isinstance(x, int):
                 raise TypeError(self, "List argument item is " +
                                 "not a long: %s" % (x))
         self.data = data
@@ -1662,6 +1661,11 @@ def illegalarg_ex(func):
     raise ValueError(
         "%s is only valid if parser is built for debugging" %
         (func.func_name))
+
+
+class RuntimeException(Exception):
+    """A custom exception"""
+    pass
 
 
 def runtime_ex(func):
@@ -1782,31 +1786,31 @@ class Parser(object):
 
     def addMessageListener(self, l):
         if not self.ignoreInvalidDebugCalls:
-            illegalarg_ex(addMessageListener)
+            illegalarg_ex(self.addMessageListener)
 
     def addParserListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addParserListener)
+            illegalarg_ex(self.addParserListener)
 
     def addParserMatchListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addParserMatchListener)
+            illegalarg_ex(self.addParserMatchListener)
 
     def addParserTokenListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addParserTokenListener)
+            illegalarg_ex(self.addParserTokenListener)
 
     def addSemanticPredicateListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addSemanticPredicateListener)
+            illegalarg_ex(self.addSemanticPredicateListener)
 
     def addSyntacticPredicateListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addSyntacticPredicateListener)
+            illegalarg_ex(self.addSyntacticPredicateListener)
 
     def addTraceListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            illegalarg_ex(addTraceListener)
+            illegalarg_ex(self.addTraceListener)
 
     def consume(self):
         raise NotImplementedError()
@@ -1887,37 +1891,37 @@ class Parser(object):
     def matchNot(self, t):
         if self.LA(1) == t:
             raise MismatchedTokenException(
-                tokenNames, self.LT(1), t, True, self.getFilename())
+                self.tokenNames, self.LT(1), t, True, self.getFilename())
         else:
             self.consume()
 
     def removeMessageListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeMessageListener)
+            runtime_ex(self.removeMessageListener)
 
     def removeParserListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeParserListener)
+            runtime_ex(self.removeParserListener)
 
     def removeParserMatchListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeParserMatchListener)
+            runtime_ex(self.removeParserMatchListener)
 
     def removeParserTokenListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeParserTokenListener)
+            runtime_ex(self.removeParserTokenListener)
 
     def removeSemanticPredicateListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeSemanticPredicateListener)
+            runtime_ex(self.removeSemanticPredicateListener)
 
     def removeSyntacticPredicateListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeSyntacticPredicateListener)
+            runtime_ex(self.removeSyntacticPredicateListener)
 
     def removeTraceListener(self, l):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(removeTraceListener)
+            runtime_ex(self.removeTraceListener)
 
     def reportError(self, x):
         fmt = "syntax error:"
@@ -1933,7 +1937,7 @@ class Parser(object):
         else:
             print(sys.stderr, fmt, str(x))
 
-    def reportWarning(self, s):
+    def reportWarning(self, x):
         f = self.getFilename()
         if f:
             print("%s:warning: %s" % (f, str(x)))
@@ -1954,7 +1958,7 @@ class Parser(object):
 
     def setDebugMode(self, debugMode):
         if (not self.ignoreInvalidDebugCalls):
-            runtime_ex(setDebugMode)
+            runtime_ex(self.setDebugMode)
 
     def setFilename(self, f):
         self.inputState.filename = f
@@ -2129,7 +2133,7 @@ class TreeParser(object):
 
     def matchNot(self, t, ttype):
         if not t or (t == ASTNULL) or (t.getType() == ttype):
-            raise MismatchedTokenException(getTokenNames(), t, ttype, True)
+            raise MismatchedTokenException(self.getTokenNames(), t, ttype, True)
 
     def reportError(self, ex):
         print(sys.stderr, "error:", ex)

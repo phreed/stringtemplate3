@@ -1,11 +1,9 @@
 ### $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
 ### import antlr and other modules ..
-import sys
-import antlr
+from .. import antlr
 
 ### header action >>> 
 from stringtemplate3.language.CatIterator import CatList
-from stringtemplate3.language.StringTemplateAST import StringTemplateAST
 
 from io import StringIO
 
@@ -17,7 +15,6 @@ class NameValuePair(object):
 ### header action <<< 
 
 ### import antlr.Token 
-from antlr import Token
 ### >>>The Known Token Types <<<
 SKIP                = antlr.SKIP
 INVALID_TYPE        = antlr.INVALID_TYPE

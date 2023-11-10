@@ -26,7 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from StringIO import StringIO
+from io import StringIO
 
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser

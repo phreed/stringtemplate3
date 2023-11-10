@@ -1,7 +1,7 @@
 ### $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionLexer.py"$
 ### import antlr and other modules ..
 import sys
-import antlr
+from .. import antlr
 
 ### header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
@@ -791,8 +791,6 @@ _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
     
 ### __main__ header action >>> 
 if __name__ == '__main__' :
-    import sys
-    import antlr
     import ActionLexer
     
     ### create lexer - shall read from stdin
