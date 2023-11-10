@@ -1,6 +1,6 @@
 __all__ = ['language']
 
-__version__ = "3.1"
+__version__ = "2023.11.1"
 
 ## track probable issues like setting attribute that is not referenced.
 #  Set to true to make StringTemplate check your work as it evaluates

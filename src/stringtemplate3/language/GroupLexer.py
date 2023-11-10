@@ -1,18 +1,19 @@
 ### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupLexer.py"$
 ### import antlr and other modules ..
-import sys
+
 from .. import antlr
 
 ### header action >>>
-### header action <<< 
-### preamble action >>> 
+### header action <<<
 
+### preamble action >>>
 ### preamble action <<< 
 ### >>>The Literals<<<
-literals = {}
-literals[u"default"] = 21
-literals[u"group"] = 4
-literals[u"implements"] = 7
+literals = {
+    u"default": 21,
+    u"group": 4,
+    u"implements": 7
+}
 
 ### import antlr.Token
 from ..antlr import Token
@@ -625,8 +626,8 @@ class Lexer(antlr.CharScanner):
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
 
-### generate bit set
 def mk_tokenSet_0():
+    """ generate bit set """
     data = [0] * 2048  ### init list
     data[0] = -17179869185
     for x in range(1, 1023):
@@ -638,8 +639,8 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
 def mk_tokenSet_1():
+    """ generate bit set """
     data = [0] * 2048  ### init list
     data[0] = -17179869185
     data[1] = -268435457
@@ -652,8 +653,8 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
 def mk_tokenSet_2():
+    """  generate bit set """
     data = [0] * 2048  ### init list
     data[0] = -9217
     for x in range(1, 1023):
