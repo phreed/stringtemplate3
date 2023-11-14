@@ -20,29 +20,60 @@ endif::[]
 
 {url-project}[StringTemplate3] provides a python3 implementation of https://github.com/antlr/stringtemplate4
 
-== StringTemplate3 Ecosystem
+== StringTemplate3
 
+include::docs/description.txt[]
 
 == Requirements
 
+As this is a pure Python project it needs Python3.
 
-== Installation
+== Building
+
+The following mamba environment was used.
+
+[source,shell]
+----
+mamba install -c conda-forge python-build
+mamba install -c conda-forge twine
+mamba install -c conda-forge pip
+mamba install -c conda-forge pytest
+----
 
 === Package managers
 
+The two main package managers for Python are `pip` and `conda`.
+(I use the mamba variant.)
 
 ==== Pip
 
+* https://packaging.python.org/en/latest/tutorials/packaging-projects/
+
+.testing the package
+* https://test.pypi.org/help/#apitoken
+
+[source,shell]
+----
+python -m build --wheel src
+----
+
+[source,shell]
+----
+python -m twine upload --repository pypi dist/*
+----
+
 ==== Conda
 
-== Usage
 
 == Contributing
 
-New contributors are always welcome!
-If you discover errors or omissions in the source code, documentation, or website content, please don't hesitate to submit an issue or open a pull request with a fix.
-
-== Getting Help
+Contributors are welcome but this is largely a discontinued project.
+It provides a path for the discontinued `stringtemplate3` python port.
+It should be used as a last resort.
+The `stringtemplate4` project should be preferred.
+That being said, if you discover errors or omissions in the source code,
+documentation, or website content,
+please do not hesitate to submit an issue or open a pull request with a fix.
 
 == Changelog
 

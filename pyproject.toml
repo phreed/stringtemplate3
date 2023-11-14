@@ -4,16 +4,15 @@ build-backend = "setuptools.build_meta"
 
 # https://packaging.python.org/en/latest/
 [project]
-name = "stringtemplate3"
+name = "stringtemplate3x"
 version = "2023.11.1"
 authors = [
-  { name="Terence Parr", email="parrt AT antlr.org" },
-  { name="Marq Kole", email="marq.kole AT philips.com" },
+  { name="Terence Parr", email="parrt@antlr.org" },
+  { name="Marq Kole", email="marq.kole@philips.com" },
   { name="Benjamin Niemann", email="pink@odahoda.de" },
   { name="Fredrick Eisele", email="fredrick.eisele@gmail.com" },
 ]
 maintainers = [
-  { name="Benjamin Niemann", email="pink@odahoda.de" },
   { name="Fredrick Eisele", email="fredrick.eisele@gmail.com" },
 ]
 description = "A wrapper for StringTemplate: a powerful template engine with strict model-view separation"
