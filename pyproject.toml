@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Text Processing"
 ]
 dependencies = [
-    "antlr4-python3-runtime"
+#    "antlr4-python3-runtime"
 ]
 
 [project.urls]

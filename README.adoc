@@ -64,6 +64,10 @@ python -m twine upload --repository pypi dist/*
 
 ==== Conda
 
+[source,shell]
+----
+grayskull pypi --strict-conda-forge stringtemplate3x
+----
 
 == Contributing
 
