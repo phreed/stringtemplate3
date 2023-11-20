@@ -3,6 +3,10 @@ from __future__ import print_function
 ## details..........Copyright (C) Wolfgang Haefelinger, 2004.
 
 ## get sys module
+from builtins import hex
+from builtins import str
+from builtins import range
+from builtins import object
 import sys
 from io import IOBase
 
@@ -877,7 +881,7 @@ class TokenStreamIterator(object):
             return
         raise TypeError("TokenStreamIterator requires TokenStream object")
 
-    def next(self):
+    def __next__(self):
         assert self.inst
         item = self.inst.nextToken()
         if not item or item.isEOF():
@@ -1055,7 +1059,7 @@ class TokenStreamHiddenTokenFilter(TokenStreamBasicFilter):
 ###                       StringBuffer                             ###
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 
-class StringBuffer:
+class StringBuffer(object):
     def __init__(self, string=None):
         if string:
             self.text = list(string)
@@ -1535,7 +1539,7 @@ class CharScanner(TokenStream):
 ###                   CharScannerIterator                          ###
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 
-class CharScannerIterator:
+class CharScannerIterator(object):
 
     def __init__(self, inst):
         if isinstance(inst, CharScanner):
@@ -1543,7 +1547,7 @@ class CharScannerIterator:
             return
         raise TypeError("CharScannerIterator requires CharScanner object")
 
-    def next(self):
+    def __next__(self):
         assert self.inst
         item = self.inst.nextToken()
         if not item or item.isEOF():
