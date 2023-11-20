@@ -1,6 +1,6 @@
 
 from builtins import str
-import antlr
+from stringtemplate3 import antlr
 
 class StringTemplateToken(antlr.CommonToken):
 

@@ -5,13 +5,8 @@ standard_library.install_aliases()
 from builtins import str
 from builtins import object
 import sys
-import antlr
+from stringtemplate3 import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
 ### header action >>> 
 from stringtemplate3.language.CatIterator import CatList
 from stringtemplate3.language.StringTemplateAST import StringTemplateAST
@@ -26,7 +21,7 @@ class NameValuePair(object):
 ### header action <<< 
 
 ### import antlr.Token 
-from antlr import Token
+from stringtemplate3.antlr import Token
 ### >>>The Known Token Types <<<
 SKIP                = antlr.SKIP
 INVALID_TYPE        = antlr.INVALID_TYPE
@@ -581,7 +576,7 @@ class Walker(antlr.TreeParser):
                 self.match(_t,NOTHING)
                 _t = _t.getNextSibling()
                 nullSingleton = [None]
-                element.append(nullSingleton)
+                elements.append(nullSingleton)
             else:
                     raise antlr.NoViableAltException(_t)
                 

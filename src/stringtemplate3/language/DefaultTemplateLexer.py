@@ -6,13 +6,9 @@ from builtins import chr
 from builtins import str
 from builtins import range
 import sys
-import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
+from stringtemplate3 import antlr
+
 ### header action >>> 
 import stringtemplate3
 from stringtemplate3.language.ChunkToken import ChunkToken
@@ -27,7 +23,7 @@ literals = {}
 
 
 ### import antlr.Token 
-from antlr import Token
+from stringtemplate3.antlr import Token
 ### >>>The Known Token Types <<<
 SKIP                = antlr.SKIP
 INVALID_TYPE        = antlr.INVALID_TYPE

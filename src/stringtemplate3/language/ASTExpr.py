@@ -5,7 +5,8 @@ from builtins import str
 from builtins import range
 from past.builtins import basestring
 from io import StringIO
-import antlr
+
+from stringtemplate3 import antlr
 
 from stringtemplate3.utils import deprecated
 from stringtemplate3.language.Expr import Expr

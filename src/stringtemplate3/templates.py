@@ -40,7 +40,7 @@ from copy import copy
 import antlr
 
 from stringtemplate3.language import (
-    FormalArgument, UNKNOWN_ARGS,
+    FormalArgument,
     ChunkToken,
     ASTExpr, StringTemplateAST,
     TemplateParser,
@@ -48,6 +48,7 @@ from stringtemplate3.language import (
     ConditionalExpr, NewlineRef,
     StringTemplateToken,
     )
+from stringtemplate3.language.FormalArgument import UNKNOWN_ARGS
 
 from stringtemplate3.writers import StringTemplateWriter
 from stringtemplate3.utils import deprecated

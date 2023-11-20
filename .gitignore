@@ -1,4 +1,8 @@
 /src/stringtemplate3/*.py.bak
 /src/stringtemplate3/language/*.py.bak
+*.bak
 
 .idea/
+build/
+dist/
+src/*.egg-info

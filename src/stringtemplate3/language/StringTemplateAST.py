@@ -1,5 +1,5 @@
 
-import antlr
+from stringtemplate3 import antlr
 
 class StringTemplateAST(antlr.CommonAST):
 

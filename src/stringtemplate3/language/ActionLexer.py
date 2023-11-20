@@ -5,13 +5,9 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 import sys
-import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
+from stringtemplate3 import antlr
+
 ### header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
 import stringtemplate3
@@ -33,7 +29,7 @@ literals[u"elseif"] = 18
 
 
 ### import antlr.Token 
-from antlr import Token
+from stringtemplate3.antlr import Token
 ### >>>The Known Token Types <<<
 SKIP                = antlr.SKIP
 INVALID_TYPE        = antlr.INVALID_TYPE

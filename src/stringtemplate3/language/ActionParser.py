@@ -2,13 +2,9 @@
 ### import antlr and other modules ..
 from builtins import str
 import sys
-import antlr
 
-version = sys.version.split()[0]
-if version < '2.2.1':
-    False = 0
-if version < '2.3':
-    True = not False
+from stringtemplate3 import antlr
+
 ### header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
 import stringtemplate3
@@ -18,7 +14,7 @@ import stringtemplate3
 ### preamble action <<<
 
 ### import antlr.Token 
-from antlr import Token
+from stringtemplate3.antlr import Token
 ### >>>The Known Token Types <<<
 SKIP                = antlr.SKIP
 INVALID_TYPE        = antlr.INVALID_TYPE
