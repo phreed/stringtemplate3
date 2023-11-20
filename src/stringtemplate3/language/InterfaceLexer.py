@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceLexer.py"$
 ### import antlr and other modules ..
 import sys
@@ -141,10 +143,10 @@ class Lexer(antlr.CharScanner) :
                             ### return token to caller
                             return self._returnToken
                         ### handle lexical errors ....
-                        except antlr.RecognitionException, e:
+                        except antlr.RecognitionException as e:
                             raise antlr.TokenStreamRecognitionException(e)
                     ### handle char stream errors ...
-                    except antlr.CharStreamException,cse:
+                    except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
                         else:
@@ -370,11 +372,11 @@ class Lexer(antlr.CharScanner) :
 
 ### generate bit set
 def mk_tokenSet_0(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-9217L
+    data = [0] * 2048 ### init list
+    data[0] =-9217
     for x in xrange(1, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
     
@@ -382,13 +384,13 @@ _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 if __name__ == '__main__' :
     import sys
     import antlr
-    import InterfaceLexer
+    from . import InterfaceLexer
     
     ### create lexer - shall read from stdin
     try:
         for token in InterfaceLexer.Lexer():
-            print token
+            print(token)
             
-    except antlr.TokenStreamException, e:
-        print "error: exception caught while lexing: ", e
+    except antlr.TokenStreamException as e:
+        print("error: exception caught while lexing: ", e)
 ### __main__ header action <<< 

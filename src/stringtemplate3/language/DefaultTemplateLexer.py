@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "template.g" -> "DefaultTemplateLexer.py"$
 ### import antlr and other modules ..
 import sys
@@ -136,10 +138,10 @@ class Lexer(antlr.CharScanner) :
                             ### return token to caller
                             return self._returnToken
                         ### handle lexical errors ....
-                        except antlr.RecognitionException, e:
+                        except antlr.RecognitionException as e:
                             raise antlr.TokenStreamRecognitionException(e)
                     ### handle char stream errors ...
-                    except antlr.CharStreamException,cse:
+                    except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
                         else:
@@ -1002,123 +1004,123 @@ class Lexer(antlr.CharScanner) :
 
 ### generate bit set
 def mk_tokenSet_0(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-68719485954L
+    data = [0] * 2048 ### init list
+    data[0] =-68719485954
     for x in xrange(1, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### generate bit set
 def mk_tokenSet_1(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-68719476738L
+    data = [0] * 2048 ### init list
+    data[0] =-68719476738
     for x in xrange(1, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 ### generate bit set
 def mk_tokenSet_2(): 
-    data = [0L] * 1025 ### init list
-    data[0] =4294967296L
-    data[1] =14707067533131776L
+    data = [0] * 1025 ### init list
+    data[0] =4294967296
+    data[1] =14707067533131776
     return data
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 ### generate bit set
 def mk_tokenSet_3(): 
-    data = [0L] * 1025 ### init list
-    data[0] =287948969894477824L
-    data[1] =541434314878L
+    data = [0] * 1025 ### init list
+    data[0] =287948969894477824
+    data[1] =541434314878
     return data
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 ### generate bit set
 def mk_tokenSet_4(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-2199023255554L
+    data = [0] * 2048 ### init list
+    data[0] =-2199023255554
     for x in xrange(1, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 ### generate bit set
 def mk_tokenSet_5(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-1168231104514L
+    data = [0] * 2048 ### init list
+    data[0] =-1168231104514
     for x in xrange(1, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
 ### generate bit set
 def mk_tokenSet_6(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-3298534892546L
-    data[1] =-576460752571858945L
+    data = [0] * 2048 ### init list
+    data[0] =-3298534892546
+    data[1] =-576460752571858945
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
 ### generate bit set
 def mk_tokenSet_7(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-1152921521786716162L
-    data[1] =-576460752303423489L
+    data = [0] * 2048 ### init list
+    data[0] =-1152921521786716162
+    data[1] =-576460752303423489
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_7 = antlr.BitSet(mk_tokenSet_7())
 
 ### generate bit set
 def mk_tokenSet_8(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-2305851874026202114L
-    data[1] =-576460752571858945L
+    data = [0] * 2048 ### init list
+    data[0] =-2305851874026202114
+    data[1] =-576460752571858945
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_8 = antlr.BitSet(mk_tokenSet_8())
 
 ### generate bit set
 def mk_tokenSet_9(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-2L
-    data[1] =-2882303761785552897L
+    data = [0] * 2048 ### init list
+    data[0] =-2
+    data[1] =-2882303761785552897
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_9 = antlr.BitSet(mk_tokenSet_9())
 
 ### generate bit set
 def mk_tokenSet_10(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-17179869186L
-    data[1] =-268435457L
+    data = [0] * 2048 ### init list
+    data[0] =-17179869186
+    data[1] =-268435457
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_10 = antlr.BitSet(mk_tokenSet_10())
 
 ### generate bit set
 def mk_tokenSet_11(): 
-    data = [0L] * 2048 ### init list
-    data[0] =-3298534883330L
-    data[1] =-268435457L
+    data = [0] * 2048 ### init list
+    data[0] =-3298534883330
+    data[1] =-268435457
     for x in xrange(2, 1023):
-        data[x] = -1L
-    data[1023] =9223372036854775807L
+        data[x] = -1
+    data[1023] =9223372036854775807
     return data
 _tokenSet_11 = antlr.BitSet(mk_tokenSet_11())
     
@@ -1126,13 +1128,13 @@ _tokenSet_11 = antlr.BitSet(mk_tokenSet_11())
 if __name__ == '__main__' :
     import sys
     import antlr
-    import DefaultTemplateLexer
+    from . import DefaultTemplateLexer
     
     ### create lexer - shall read from stdin
     try:
         for token in DefaultTemplateLexer.Lexer():
-            print token
+            print(token)
             
-    except antlr.TokenStreamException, e:
-        print "error: exception caught while lexing: ", e
+    except antlr.TokenStreamException as e:
+        print("error: exception caught while lexing: ", e)
 ### __main__ header action <<< 

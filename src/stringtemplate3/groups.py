@@ -173,8 +173,8 @@ class StringTemplateGroup(object):
         ## How long before tossing out all templates in seconds.
         #  default: no refreshing from disk
         #
-        self.refreshInterval = sys.maxint/1000
-        self.lastCheckedDisk = 0L
+        self.refreshInterval = sys.maxsize/1000
+        self.lastCheckedDisk = 0
         
         if name is not None:
             assert isinstance(name, basestring)
@@ -477,7 +477,7 @@ class StringTemplateGroup(object):
                     br.close()
 
             # FIXME: eek, that's ugly
-            except Exception, e:
+            except Exception as e:
                 raise
             
             return template
@@ -519,13 +519,13 @@ class StringTemplateGroup(object):
             try:
                 try:
                     template = self.loadTemplate(name, br)
-                except IOError, ioe:
+                except IOError as ioe:
                     self.error("Problem reading template file: "+fileName, ioe)
 
             finally:
                 try:
                     br.close()
-                except IOError, ioe2:
+                except IOError as ioe2:
                     self.error('Cannot close template file: ' + pathName, ioe2)
 
             return template
@@ -642,7 +642,7 @@ class StringTemplateGroup(object):
     ## Get the ST for 'name' in this group only
     #
     def getTemplateDefinition(self, name):
-        if self.templates.has_key(name):
+        if name in self.templates:
             return self.templates[name]
 
     ## Is there *any* definition for template 'name' in this template
@@ -660,7 +660,7 @@ class StringTemplateGroup(object):
             parser = GroupParser.Parser(lexer)
             parser.group(self)
             # sys.stderr.write("read group\n" + str(self))
-        except "foo", e: # FIXME: Exception, e:
+        except "foo" as e: # FIXME: Exception, e:
             name = "<unknown>"
             if self.name:
                 name = self.name
@@ -725,7 +725,7 @@ class StringTemplateGroup(object):
         if self.userSpecifiedWriter:
             try:
                 stw = self.userSpecifiedWriter(w)
-            except RuntimeError, e: #FIXME Exception, e:
+            except RuntimeError as e: #FIXME Exception, e:
                 self.error('problems getting StringTemplateWriter', e)
 
         if not stw:
@@ -757,7 +757,7 @@ class StringTemplateGroup(object):
             # no renderers; consult super group
             return self.superGroup.getAttributeRenderer(attributeClassType)
 
-        if self.attributeRenderers.has_key(attributeClassType):
+        if attributeClassType in self.attributeRenderers:
             return self.attributeRenderers[attributeClassType]
 
         elif self.superGroup is not None:
@@ -772,7 +772,7 @@ class StringTemplateGroup(object):
                 return None
             return self.superGroup.getMap(name)
         m = None
-        if self.maps.has_key(name):
+        if name in self.maps:
             m = self.maps[name]
         if (not m) and self.superGroup:
             m = self.superGroup.getMap(name)

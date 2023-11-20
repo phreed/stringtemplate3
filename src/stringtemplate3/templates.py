@@ -127,7 +127,7 @@ class Aggregate(object):
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
         if isinstance(self.master, StringTemplate):
-            if self.properties.has_key(propName):
+            if propName in self.properties:
                 return self.properties[propName]
             return None
         raise AttributeError
@@ -136,7 +136,7 @@ class Aggregate(object):
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
         if isinstance(self.master, StringTemplate):
-            return self.properties.has_key(propName)
+            return propName in self.properties
         raise AttributeError
 
 
@@ -765,14 +765,14 @@ class StringTemplate(object):
 
         # is it here?
         o = None
-        if this.attributes and this.attributes.has_key(attribute):
+        if this.attributes and attribute in this.attributes:
             o = this.attributes[attribute]
             return o
 
         # nope, check argument context in case embedded
         if not o:
             argContext = this.argumentContext
-            if argContext and argContext.has_key(attribute):
+            if argContext and attribute in argContext:
                 o = argContext[attribute]
                 return o
 
@@ -830,7 +830,7 @@ class StringTemplate(object):
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
-        except Exception, e:
+        except Exception as e:
             name = "<unknown>"
             outerName = self.getOutermostName()
             if self.name:
@@ -855,9 +855,9 @@ class StringTemplate(object):
                 else:
                     a = ASTExpr(self, tree, options)
 
-        except antlr.RecognitionException, re:
+        except antlr.RecognitionException as re:
             self.error('Can\'t parse chunk: ' + str(action), re)
-        except antlr.TokenStreamException, tse:
+        except antlr.TokenStreamException as tse:
             self.error('Can\'t parse chunk: ' + str(action), tse)
 
         return a
@@ -958,7 +958,7 @@ class StringTemplate(object):
         return self.formalArguments[name]
 
     def hasFormalArgument(self, name):
-        return self.formalArguments.has_key(name)
+        return name in self.formalArguments
 
     def defineEmptyFormalArgumentList(self):
         self.formalArgumentKeys = []
@@ -1443,7 +1443,7 @@ class StringTemplate(object):
         wr.lineWidth = lineWidth
         try:
             self.write(wr)
-        except IOError, io:
+        except IOError as io:
             self.error("Got IOError writing to writer" + \
                        str(wr.__class__.__name__))
             
