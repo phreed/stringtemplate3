@@ -15,13 +15,14 @@ import stringtemplate3
 
 ### import antlr.Token 
 from stringtemplate3.antlr import Token
+
 ### >>>The Known Token Types <<<
-SKIP                = antlr.SKIP
-INVALID_TYPE        = antlr.INVALID_TYPE
-EOF_TYPE            = antlr.EOF_TYPE
-EOF                 = antlr.EOF
+SKIP = antlr.SKIP
+INVALID_TYPE = antlr.INVALID_TYPE
+EOF_TYPE = antlr.EOF_TYPE
+EOF = antlr.EOF
 NULL_TREE_LOOKAHEAD = antlr.NULL_TREE_LOOKAHEAD
-MIN_USER_TYPE       = antlr.MIN_USER_TYPE
+MIN_USER_TYPE = antlr.MIN_USER_TYPE
 APPLY = 4
 MULTI_APPLY = 5
 ARGS = 6
@@ -68,14 +69,16 @@ WS_CHAR = 43
 class Parser(antlr.LLkParser):
     ### user action >>>
     def reportError(self, e):
-       group = self.this.group
-       if group == stringtemplate3.StringTemplate.defaultGroup:
-           self.this.error("action parse error; template context is "+self.this.enclosingInstanceStackString, e)
-    
-       else:
-           self.this.error("action parse error in group "+self.this.group.name+" line "+str(self.this.groupFileLine)+"; template context is "+self.this.enclosingInstanceStackString, e)
+        group = self.this.group
+        if group == stringtemplate3.StringTemplate.defaultGroup:
+            self.this.error("action parse error; template context is " + self.this.enclosingInstanceStackString, e)
+
+        else:
+            self.this.error("action parse error in group " + self.this.group.name + " line " + str(
+                self.this.groupFileLine) + "; template context is " + self.this.enclosingInstanceStackString, e)
+
     ### user action <<<
-    
+
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
@@ -84,22 +87,24 @@ class Parser(antlr.LLkParser):
         self.astFactory.setASTNodeClass(stringtemplate3.language.StringTemplateAST)
         ### __init__ header action >>> 
         if len(args) > 1 and isinstance(args[1], stringtemplate3.StringTemplate):
-           self.this = args[1]
+            self.this = args[1]
         else:
-           raise ValueError("ActionParser requires a StringTemplate instance")
+            raise ValueError("ActionParser requires a StringTemplate instance")
         ### __init__ header action <<< 
-        
-    def action(self):    
+
+    def action(self):
         opts = None
-        
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         action_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
-            elif la1 and la1 in [EOF,SEMI,LPAREN,COMMA,ID,COLON,PLUS,LITERAL_first,LITERAL_rest,LITERAL_last,LITERAL_length,LITERAL_strip,LITERAL_trunc,LITERAL_super,ANONYMOUS_TEMPLATE,STRING,INT,LBRACK]:
+            elif la1 and la1 in [EOF, SEMI, LPAREN, COMMA, ID, COLON, PLUS, LITERAL_first, LITERAL_rest, LITERAL_last,
+                                 LITERAL_length, LITERAL_strip, LITERAL_trunc, LITERAL_super, ANONYMOUS_TEMPLATE,
+                                 STRING, INT, LBRACK]:
                 pass
                 self.templatesExpr()
                 self.addASTChild(currentAST, self.returnAST)
@@ -109,13 +114,13 @@ class Parser(antlr.LLkParser):
                 elif la1 and la1 in [SEMI]:
                     pass
                     self.match(SEMI)
-                    opts=self.optionList()
+                    opts = self.optionList()
                     self.addASTChild(currentAST, self.returnAST)
                 elif la1 and la1 in [EOF]:
                     pass
                 else:
-                        raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                    
+                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
                 action_AST = currentAST.root
             elif la1 and la1 in [CONDITIONAL]:
                 pass
@@ -137,9 +142,9 @@ class Parser(antlr.LLkParser):
                 self.match(RPAREN)
                 action_AST = currentAST.root
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -147,18 +152,18 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_0)
             else:
                 raise ex
-        
+
         self.returnAST = action_AST
         return opts
-    
-    def templatesExpr(self):    
-        
+
+    def templatesExpr(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         templatesExpr_AST = None
         c = None
         c_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             synPredMatched10 = False
             if (_tokenSet_1.member(self.LA(1))) and (_tokenSet_2.member(self.LA(2))):
                 _m10 = self.mark()
@@ -181,7 +186,7 @@ class Parser(antlr.LLkParser):
                 self.expr()
                 self.addASTChild(currentAST, self.returnAST)
                 while True:
-                    if (self.LA(1)==COLON):
+                    if (self.LA(1) == COLON):
                         pass
                         c = self.LT(1)
                         c_AST = self.astFactory.create(c)
@@ -192,22 +197,22 @@ class Parser(antlr.LLkParser):
                         self.template()
                         self.addASTChild(currentAST, self.returnAST)
                         while True:
-                            if (self.LA(1)==COMMA):
+                            if (self.LA(1) == COMMA):
                                 pass
                                 self.match(COMMA)
                                 self.template()
                                 self.addASTChild(currentAST, self.returnAST)
                             else:
                                 break
-                            
+
                     else:
                         break
-                    
+
                 templatesExpr_AST = currentAST.root
             else:
                 raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-            
-        
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -215,20 +220,20 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_5)
             else:
                 raise ex
-        
+
         self.returnAST = templatesExpr_AST
-    
-    def optionList(self):    
+
+    def optionList(self):
         opts = {}
-        
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         optionList_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.option(opts)
             while True:
-                if (self.LA(1)==COMMA):
+                if (self.LA(1) == COMMA):
                     pass
                     tmp9_AST = None
                     tmp9_AST = self.astFactory.create(self.LT(1))
@@ -236,8 +241,8 @@ class Parser(antlr.LLkParser):
                     self.option(opts)
                 else:
                     break
-                
-        
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -245,20 +250,21 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_0)
             else:
                 raise ex
-        
+
         self.returnAST = optionList_AST
         return opts
-    
-    def ifCondition(self):    
-        
+
+    def ifCondition(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         ifCondition_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
-            elif la1 and la1 in [LPAREN,RPAREN,ID,PLUS,LITERAL_first,LITERAL_rest,LITERAL_last,LITERAL_length,LITERAL_strip,LITERAL_trunc,LITERAL_super,ANONYMOUS_TEMPLATE,STRING,INT,LBRACK]:
+            elif la1 and la1 in [LPAREN, RPAREN, ID, PLUS, LITERAL_first, LITERAL_rest, LITERAL_last, LITERAL_length,
+                                 LITERAL_strip, LITERAL_trunc, LITERAL_super, ANONYMOUS_TEMPLATE, STRING, INT, LBRACK]:
                 pass
                 self.ifAtom()
                 self.addASTChild(currentAST, self.returnAST)
@@ -273,9 +279,9 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, self.returnAST)
                 ifCondition_AST = currentAST.root
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -283,20 +289,20 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_6)
             else:
                 raise ex
-        
+
         self.returnAST = ifCondition_AST
-    
+
     def option(self,
-        opts
-    ):    
-        
+               opts
+               ):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         option_AST = None
         i = None
         i_AST = None
         e_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             i = self.LT(1)
             i_AST = self.astFactory.create(i)
@@ -315,18 +321,18 @@ class Parser(antlr.LLkParser):
                 e_AST = self.returnAST
                 self.addASTChild(currentAST, self.returnAST)
                 if not self.inputState.guessing:
-                    v=e_AST
-            elif la1 and la1 in [EOF,COMMA]:
+                    v = e_AST
+            elif la1 and la1 in [EOF, COMMA]:
                 pass
                 if not self.inputState.guessing:
                     v = stringtemplate3.language.ASTExpr.EMPTY_OPTION
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
             if not self.inputState.guessing:
                 opts[i_AST.getText()] = v
             option_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -334,20 +340,20 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_7)
             else:
                 raise ex
-        
+
         self.returnAST = option_AST
-    
-    def expr(self):    
-        
+
+    def expr(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         expr_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.primaryExpr()
             self.addASTChild(currentAST, self.returnAST)
             while True:
-                if (self.LA(1)==PLUS):
+                if (self.LA(1) == PLUS):
                     pass
                     tmp12_AST = None
                     tmp12_AST = self.astFactory.create(self.LT(1))
@@ -357,9 +363,9 @@ class Parser(antlr.LLkParser):
                     self.addASTChild(currentAST, self.returnAST)
                 else:
                     break
-                
+
             expr_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -367,30 +373,30 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_8)
             else:
                 raise ex
-        
+
         self.returnAST = expr_AST
-    
-    def parallelArrayTemplateApplication(self):    
-        
+
+    def parallelArrayTemplateApplication(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         parallelArrayTemplateApplication_AST = None
         c = None
         c_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
-            _cnt17= 0
+            _cnt17 = 0
             while True:
-                if (self.LA(1)==COMMA):
+                if (self.LA(1) == COMMA):
                     pass
                     self.match(COMMA)
                     self.expr()
                     self.addASTChild(currentAST, self.returnAST)
                 else:
                     break
-                
+
                 _cnt17 += 1
             if _cnt17 < 1:
                 raise antlr.NoViableAltException(self.LT(1), self.getFilename())
@@ -403,15 +409,16 @@ class Parser(antlr.LLkParser):
             if not self.inputState.guessing:
                 parallelArrayTemplateApplication_AST = currentAST.root
                 parallelArrayTemplateApplication_AST = \
-                   antlr.make(self.astFactory.create(MULTI_APPLY,"MULTI_APPLY"), parallelArrayTemplateApplication_AST)
+                    antlr.make(self.astFactory.create(MULTI_APPLY, "MULTI_APPLY"), parallelArrayTemplateApplication_AST)
                 currentAST.root = parallelArrayTemplateApplication_AST
-                if (parallelArrayTemplateApplication_AST != None) and (parallelArrayTemplateApplication_AST.getFirstChild() != None):
+                if (parallelArrayTemplateApplication_AST != None) and (
+                        parallelArrayTemplateApplication_AST.getFirstChild() != None):
                     currentAST.child = parallelArrayTemplateApplication_AST.getFirstChild()
                 else:
                     currentAST.child = parallelArrayTemplateApplication_AST
                 currentAST.advanceChildToEnd()
             parallelArrayTemplateApplication_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -419,20 +426,20 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_5)
             else:
                 raise ex
-        
+
         self.returnAST = parallelArrayTemplateApplication_AST
-    
-    def template(self):    
-        
+
+    def template(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         template_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             la1 = self.LA(1)
             if False:
                 pass
-            elif la1 and la1 in [LPAREN,ID,LITERAL_super]:
+            elif la1 and la1 in [LPAREN, ID, LITERAL_super]:
                 pass
                 self.namedTemplate()
                 self.addASTChild(currentAST, self.returnAST)
@@ -441,8 +448,8 @@ class Parser(antlr.LLkParser):
                 self.anonymousTemplate()
                 self.addASTChild(currentAST, self.returnAST)
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
             if not self.inputState.guessing:
                 template_AST = currentAST.root
                 template_AST = antlr.make(self.astFactory.create(TEMPLATE), template_AST)
@@ -453,7 +460,7 @@ class Parser(antlr.LLkParser):
                     currentAST.child = template_AST
                 currentAST.advanceChildToEnd()
             template_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -461,17 +468,17 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_9)
             else:
                 raise ex
-        
+
         self.returnAST = template_AST
-    
-    def anonymousTemplate(self):    
-        
+
+    def anonymousTemplate(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         anonymousTemplate_AST = None
         t = None
         t_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             t = self.LT(1)
             t_AST = self.astFactory.create(t)
@@ -485,7 +492,7 @@ class Parser(antlr.LLkParser):
                 anonymous.defineFormalArgument(t.args)
                 t_AST.setStringTemplate(anonymous)
             anonymousTemplate_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -493,20 +500,20 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_9)
             else:
                 raise ex
-        
+
         self.returnAST = anonymousTemplate_AST
-    
-    def ifAtom(self):    
-        
+
+    def ifAtom(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         ifAtom_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
             ifAtom_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -514,27 +521,28 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_6)
             else:
                 raise ex
-        
+
         self.returnAST = ifAtom_AST
-    
-    def primaryExpr(self):    
-        
+
+    def primaryExpr(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         primaryExpr_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
-            elif la1 and la1 in [EOF,SEMI,RPAREN,COMMA,COLON,PLUS,RBRACK]:
+            elif la1 and la1 in [EOF, SEMI, RPAREN, COMMA, COLON, PLUS, RBRACK]:
                 pass
                 primaryExpr_AST = currentAST.root
-            elif la1 and la1 in [LITERAL_first,LITERAL_rest,LITERAL_last,LITERAL_length,LITERAL_strip,LITERAL_trunc]:
+            elif la1 and la1 in [LITERAL_first, LITERAL_rest, LITERAL_last, LITERAL_length, LITERAL_strip,
+                                 LITERAL_trunc]:
                 pass
                 self.function()
                 self.addASTChild(currentAST, self.returnAST)
                 while True:
-                    if (self.LA(1)==DOT):
+                    if (self.LA(1) == DOT):
                         pass
                         tmp14_AST = None
                         tmp14_AST = self.astFactory.create(self.LT(1))
@@ -554,11 +562,11 @@ class Parser(antlr.LLkParser):
                             self.valueExpr()
                             self.addASTChild(currentAST, self.returnAST)
                         else:
-                                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                            
+                            raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
                     else:
                         break
-                    
+
                 primaryExpr_AST = currentAST.root
             elif la1 and la1 in [LBRACK]:
                 pass
@@ -567,7 +575,8 @@ class Parser(antlr.LLkParser):
                 primaryExpr_AST = currentAST.root
             else:
                 synPredMatched25 = False
-                if (self.LA(1)==LPAREN or self.LA(1)==ID or self.LA(1)==LITERAL_super) and (_tokenSet_10.member(self.LA(2))):
+                if (self.LA(1) == LPAREN or self.LA(1) == ID or self.LA(1) == LITERAL_super) and (
+                _tokenSet_10.member(self.LA(2))):
                     _m25 = self.mark()
                     synPredMatched25 = True
                     self.inputState.guessing += 1
@@ -588,7 +597,7 @@ class Parser(antlr.LLkParser):
                     self.atom()
                     self.addASTChild(currentAST, self.returnAST)
                     while True:
-                        if (self.LA(1)==DOT):
+                        if (self.LA(1) == DOT):
                             pass
                             tmp16_AST = None
                             tmp16_AST = self.astFactory.create(self.LT(1))
@@ -608,21 +617,21 @@ class Parser(antlr.LLkParser):
                                 self.valueExpr()
                                 self.addASTChild(currentAST, self.returnAST)
                             else:
-                                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                                
+                                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
                         else:
                             break
-                        
+
                     primaryExpr_AST = currentAST.root
-                elif (self.LA(1)==LPAREN) and (_tokenSet_13.member(self.LA(2))):
+                elif (self.LA(1) == LPAREN) and (_tokenSet_13.member(self.LA(2))):
                     pass
                     self.valueExpr()
                     self.addASTChild(currentAST, self.returnAST)
                     primaryExpr_AST = currentAST.root
                 else:
                     raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -630,11 +639,11 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_14)
             else:
                 raise ex
-        
+
         self.returnAST = primaryExpr_AST
-    
-    def templateInclude(self):    
-        
+
+    def templateInclude(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         templateInclude_AST = None
@@ -642,7 +651,7 @@ class Parser(antlr.LLkParser):
         id_AST = None
         qid = None
         qid_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -664,7 +673,7 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, qid_AST)
                 self.match(ID)
                 if not self.inputState.guessing:
-                    qid_AST.setText("super."+qid_AST.getText())
+                    qid_AST.setText("super." + qid_AST.getText())
                 self.argList()
                 self.addASTChild(currentAST, self.returnAST)
             elif la1 and la1 in [LPAREN]:
@@ -672,11 +681,11 @@ class Parser(antlr.LLkParser):
                 self.indirectTemplate()
                 self.addASTChild(currentAST, self.returnAST)
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
             if not self.inputState.guessing:
                 templateInclude_AST = currentAST.root
-                templateInclude_AST = antlr.make(self.astFactory.create(INCLUDE,"include"), templateInclude_AST)
+                templateInclude_AST = antlr.make(self.astFactory.create(INCLUDE, "include"), templateInclude_AST)
                 currentAST.root = templateInclude_AST
                 if (templateInclude_AST != None) and (templateInclude_AST.getFirstChild() != None):
                     currentAST.child = templateInclude_AST.getFirstChild()
@@ -684,7 +693,7 @@ class Parser(antlr.LLkParser):
                     currentAST.child = templateInclude_AST
                 currentAST.advanceChildToEnd()
             templateInclude_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -692,15 +701,15 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_14)
             else:
                 raise ex
-        
+
         self.returnAST = templateInclude_AST
-    
-    def atom(self):    
-        
+
+    def atom(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         atom_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -733,9 +742,9 @@ class Parser(antlr.LLkParser):
                 self.match(ANONYMOUS_TEMPLATE)
                 atom_AST = currentAST.root
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -743,17 +752,17 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_12)
             else:
                 raise ex
-        
+
         self.returnAST = atom_AST
-    
-    def valueExpr(self):    
-        
+
+    def valueExpr(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         valueExpr_AST = None
         eval = None
         eval_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             eval = self.LT(1)
             eval_AST = self.astFactory.create(eval)
@@ -766,7 +775,7 @@ class Parser(antlr.LLkParser):
                 eval_AST.setType(VALUE)
                 eval_AST.setText("value")
             valueExpr_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -774,15 +783,15 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_12)
             else:
                 raise ex
-        
+
         self.returnAST = valueExpr_AST
-    
-    def function(self):    
-        
+
+    def function(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         function_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -824,8 +833,8 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, tmp30_AST)
                 self.match(LITERAL_trunc)
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
             self.singleArg()
             self.addASTChild(currentAST, self.returnAST)
             if not self.inputState.guessing:
@@ -838,7 +847,7 @@ class Parser(antlr.LLkParser):
                     currentAST.child = function_AST
                 currentAST.advanceChildToEnd()
             function_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -846,17 +855,17 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_12)
             else:
                 raise ex
-        
+
         self.returnAST = function_AST
-    
-    def list_(self):    
-        
+
+    def list_(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         list__AST = None
         lb = None
         lb_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             lb = self.LT(1)
             lb_AST = self.astFactory.create(lb)
@@ -868,17 +877,17 @@ class Parser(antlr.LLkParser):
             self.listElement()
             self.addASTChild(currentAST, self.returnAST)
             while True:
-                if (self.LA(1)==COMMA):
+                if (self.LA(1) == COMMA):
                     pass
                     self.match(COMMA)
                     self.listElement()
                     self.addASTChild(currentAST, self.returnAST)
                 else:
                     break
-                
+
             self.match(RBRACK)
             list__AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -886,22 +895,22 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_14)
             else:
                 raise ex
-        
+
         self.returnAST = list__AST
-    
-    def nonAlternatingTemplateExpr(self):    
-        
+
+    def nonAlternatingTemplateExpr(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         nonAlternatingTemplateExpr_AST = None
         c = None
         c_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
             while True:
-                if (self.LA(1)==COLON):
+                if (self.LA(1) == COLON):
                     pass
                     c = self.LT(1)
                     c_AST = self.astFactory.create(c)
@@ -913,9 +922,9 @@ class Parser(antlr.LLkParser):
                     self.addASTChild(currentAST, self.returnAST)
                 else:
                     break
-                
+
             nonAlternatingTemplateExpr_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -923,15 +932,15 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_15)
             else:
                 raise ex
-        
+
         self.returnAST = nonAlternatingTemplateExpr_AST
-    
-    def singleArg(self):    
-        
+
+    def singleArg(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         singleArg_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             self.match(LPAREN)
             self.nonAlternatingTemplateExpr()
@@ -939,7 +948,7 @@ class Parser(antlr.LLkParser):
             self.match(RPAREN)
             if not self.inputState.guessing:
                 singleArg_AST = currentAST.root
-                singleArg_AST = antlr.make(self.astFactory.create(SINGLEVALUEARG,"SINGLEVALUEARG"), singleArg_AST)
+                singleArg_AST = antlr.make(self.astFactory.create(SINGLEVALUEARG, "SINGLEVALUEARG"), singleArg_AST)
                 currentAST.root = singleArg_AST
                 if (singleArg_AST != None) and (singleArg_AST.getFirstChild() != None):
                     currentAST.child = singleArg_AST.getFirstChild()
@@ -947,7 +956,7 @@ class Parser(antlr.LLkParser):
                     currentAST.child = singleArg_AST
                 currentAST.advanceChildToEnd()
             singleArg_AST = currentAST.root
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -955,17 +964,17 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_12)
             else:
                 raise ex
-        
+
         self.returnAST = singleArg_AST
-    
-    def namedTemplate(self):    
-        
+
+    def namedTemplate(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         namedTemplate_AST = None
         qid = None
         qid_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -987,7 +996,7 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, qid_AST)
                 self.match(ID)
                 if not self.inputState.guessing:
-                    qid_AST.setText("super."+qid_AST.getText())
+                    qid_AST.setText("super." + qid_AST.getText())
                 self.argList()
                 self.addASTChild(currentAST, self.returnAST)
                 namedTemplate_AST = currentAST.root
@@ -997,9 +1006,9 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, self.returnAST)
                 namedTemplate_AST = currentAST.root
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -1007,22 +1016,22 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_9)
             else:
                 raise ex
-        
+
         self.returnAST = namedTemplate_AST
-    
-    def argList(self):    
-        
+
+    def argList(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         argList_AST = None
-        try:      ## for error handling
-            if (self.LA(1)==LPAREN) and (self.LA(2)==RPAREN):
+        try:  ## for error handling
+            if (self.LA(1) == LPAREN) and (self.LA(2) == RPAREN):
                 pass
                 self.match(LPAREN)
                 self.match(RPAREN)
                 if not self.inputState.guessing:
                     argList_AST = currentAST.root
-                    argList_AST = self.astFactory.create(ARGS,"ARGS")
+                    argList_AST = self.astFactory.create(ARGS, "ARGS")
                     currentAST.root = argList_AST
                     if (argList_AST != None) and (argList_AST.getFirstChild() != None):
                         currentAST.child = argList_AST.getFirstChild()
@@ -1031,7 +1040,7 @@ class Parser(antlr.LLkParser):
                     currentAST.advanceChildToEnd()
             else:
                 synPredMatched52 = False
-                if (self.LA(1)==LPAREN) and (_tokenSet_16.member(self.LA(2))):
+                if (self.LA(1) == LPAREN) and (_tokenSet_16.member(self.LA(2))):
                     _m52 = self.mark()
                     synPredMatched52 = True
                     self.inputState.guessing += 1
@@ -1047,24 +1056,24 @@ class Parser(antlr.LLkParser):
                     self.singleArg()
                     self.addASTChild(currentAST, self.returnAST)
                     argList_AST = currentAST.root
-                elif (self.LA(1)==LPAREN) and (self.LA(2)==ID or self.LA(2)==DOTDOTDOT):
+                elif (self.LA(1) == LPAREN) and (self.LA(2) == ID or self.LA(2) == DOTDOTDOT):
                     pass
                     self.match(LPAREN)
                     self.argumentAssignment()
                     self.addASTChild(currentAST, self.returnAST)
                     while True:
-                        if (self.LA(1)==COMMA):
+                        if (self.LA(1) == COMMA):
                             pass
                             self.match(COMMA)
                             self.argumentAssignment()
                             self.addASTChild(currentAST, self.returnAST)
                         else:
                             break
-                        
+
                     self.match(RPAREN)
                     if not self.inputState.guessing:
                         argList_AST = currentAST.root
-                        argList_AST = antlr.make(self.astFactory.create(ARGS,"ARGS"), argList_AST)
+                        argList_AST = antlr.make(self.astFactory.create(ARGS, "ARGS"), argList_AST)
                         currentAST.root = argList_AST
                         if (argList_AST != None) and (argList_AST.getFirstChild() != None):
                             currentAST.child = argList_AST.getFirstChild()
@@ -1074,8 +1083,8 @@ class Parser(antlr.LLkParser):
                     argList_AST = currentAST.root
                 else:
                     raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -1083,19 +1092,18 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_14)
             else:
                 raise ex
-        
+
         self.returnAST = argList_AST
-    
 
     ###/** Match (foo)() and (foo+".terse")() */
-    def indirectTemplate(self):    
-        
+    def indirectTemplate(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         indirectTemplate_AST = None
         e_AST = None
         args_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             pass
             tmp43_AST = None
             tmp43_AST = self.astFactory.create(self.LT(1))
@@ -1109,14 +1117,14 @@ class Parser(antlr.LLkParser):
             args_AST = self.returnAST
             if not self.inputState.guessing:
                 indirectTemplate_AST = currentAST.root
-                indirectTemplate_AST = antlr.make(self.astFactory.create(VALUE,"value"), e_AST, args_AST)
+                indirectTemplate_AST = antlr.make(self.astFactory.create(VALUE, "value"), e_AST, args_AST)
                 currentAST.root = indirectTemplate_AST
                 if (indirectTemplate_AST != None) and (indirectTemplate_AST.getFirstChild() != None):
                     currentAST.child = indirectTemplate_AST.getFirstChild()
                 else:
                     currentAST.child = indirectTemplate_AST
                 currentAST.advanceChildToEnd()
-        
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -1124,25 +1132,25 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_14)
             else:
                 raise ex
-        
+
         self.returnAST = indirectTemplate_AST
-    
-    def listElement(self):    
-        
+
+    def listElement(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         listElement_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             if (_tokenSet_17.member(self.LA(1))) and (_tokenSet_4.member(self.LA(2))):
                 pass
                 self.expr()
                 self.addASTChild(currentAST, self.returnAST)
                 listElement_AST = currentAST.root
-            elif (self.LA(1)==COMMA or self.LA(1)==RBRACK) and (_tokenSet_18.member(self.LA(2))):
+            elif (self.LA(1) == COMMA or self.LA(1) == RBRACK) and (_tokenSet_18.member(self.LA(2))):
                 pass
                 if not self.inputState.guessing:
                     listElement_AST = currentAST.root
-                    listElement_AST = self.astFactory.create(NOTHING,"NOTHING")
+                    listElement_AST = self.astFactory.create(NOTHING, "NOTHING")
                     currentAST.root = listElement_AST
                     if (listElement_AST != None) and (listElement_AST.getFirstChild() != None):
                         currentAST.child = listElement_AST.getFirstChild()
@@ -1152,8 +1160,8 @@ class Parser(antlr.LLkParser):
                 listElement_AST = currentAST.root
             else:
                 raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-            
-        
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -1161,15 +1169,15 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_19)
             else:
                 raise ex
-        
+
         self.returnAST = listElement_AST
-    
-    def argumentAssignment(self):    
-        
+
+    def argumentAssignment(self):
+
         self.returnAST = None
         currentAST = antlr.ASTPair()
         argumentAssignment_AST = None
-        try:      ## for error handling
+        try:  ## for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -1194,9 +1202,9 @@ class Parser(antlr.LLkParser):
                 self.match(DOTDOTDOT)
                 argumentAssignment_AST = currentAST.root
             else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-                
-        
+                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+
+
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
@@ -1204,198 +1212,256 @@ class Parser(antlr.LLkParser):
                 self.consumeUntil(_tokenSet_15)
             else:
                 raise ex
-        
+
         self.returnAST = argumentAssignment_AST
-    
-    
+
     def buildTokenTypeASTClassMap(self):
         self.tokenTypeToASTClassMap = None
 
+
 _tokenNames = [
-    "<0>", 
-    "EOF", 
-    "<2>", 
-    "NULL_TREE_LOOKAHEAD", 
-    "APPLY", 
-    "MULTI_APPLY", 
-    "ARGS", 
-    "INCLUDE", 
-    "\"if\"", 
-    "VALUE", 
-    "TEMPLATE", 
-    "FUNCTION", 
-    "SINGLEVALUEARG", 
-    "LIST", 
-    "NOTHING", 
-    "SEMI", 
-    "LPAREN", 
-    "RPAREN", 
-    "\"elseif\"", 
-    "COMMA", 
-    "ID", 
-    "ASSIGN", 
-    "COLON", 
-    "NOT", 
-    "PLUS", 
-    "DOT", 
-    "\"first\"", 
-    "\"rest\"", 
-    "\"last\"", 
-    "\"length\"", 
-    "\"strip\"", 
-    "\"trunc\"", 
-    "\"super\"", 
-    "ANONYMOUS_TEMPLATE", 
-    "STRING", 
-    "INT", 
-    "LBRACK", 
-    "RBRACK", 
-    "DOTDOTDOT", 
-    "TEMPLATE_ARGS", 
-    "NESTED_ANONYMOUS_TEMPLATE", 
-    "ESC_CHAR", 
-    "WS", 
+    "<0>",
+    "EOF",
+    "<2>",
+    "NULL_TREE_LOOKAHEAD",
+    "APPLY",
+    "MULTI_APPLY",
+    "ARGS",
+    "INCLUDE",
+    "\"if\"",
+    "VALUE",
+    "TEMPLATE",
+    "FUNCTION",
+    "SINGLEVALUEARG",
+    "LIST",
+    "NOTHING",
+    "SEMI",
+    "LPAREN",
+    "RPAREN",
+    "\"elseif\"",
+    "COMMA",
+    "ID",
+    "ASSIGN",
+    "COLON",
+    "NOT",
+    "PLUS",
+    "DOT",
+    "\"first\"",
+    "\"rest\"",
+    "\"last\"",
+    "\"length\"",
+    "\"strip\"",
+    "\"trunc\"",
+    "\"super\"",
+    "ANONYMOUS_TEMPLATE",
+    "STRING",
+    "INT",
+    "LBRACK",
+    "RBRACK",
+    "DOTDOTDOT",
+    "TEMPLATE_ARGS",
+    "NESTED_ANONYMOUS_TEMPLATE",
+    "ESC_CHAR",
+    "WS",
     "WS_CHAR"
 ]
-    
+
 
 ### generate bit set
-def mk_tokenSet_0(): 
+def mk_tokenSet_0():
     ### var1
-    data = [ 2, 0]
+    data = [2, 0]
     return data
+
+
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
+
 ### generate bit set
-def mk_tokenSet_1(): 
+def mk_tokenSet_1():
     ### var1
-    data = [ 137390260224, 0]
+    data = [137390260224, 0]
     return data
+
+
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
+
 ### generate bit set
-def mk_tokenSet_2(): 
+def mk_tokenSet_2():
     ### var1
-    data = [ 274867093504, 0]
+    data = [274867093504, 0]
     return data
+
+
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
+
 ### generate bit set
-def mk_tokenSet_3(): 
+def mk_tokenSet_3():
     ### var1
-    data = [ 137394094082, 0]
+    data = [137394094082, 0]
     return data
+
+
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
+
 ### generate bit set
-def mk_tokenSet_4(): 
+def mk_tokenSet_4():
     ### var1
-    data = [ 274867126274, 0]
+    data = [274867126274, 0]
     return data
+
+
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
+
 ### generate bit set
-def mk_tokenSet_5(): 
+def mk_tokenSet_5():
     ### var1
-    data = [ 163842, 0]
+    data = [163842, 0]
     return data
+
+
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
+
 ### generate bit set
-def mk_tokenSet_6(): 
+def mk_tokenSet_6():
     ### var1
-    data = [ 131072, 0]
+    data = [131072, 0]
     return data
+
+
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
+
 ### generate bit set
-def mk_tokenSet_7(): 
+def mk_tokenSet_7():
     ### var1
-    data = [ 524290, 0]
+    data = [524290, 0]
     return data
+
+
 _tokenSet_7 = antlr.BitSet(mk_tokenSet_7())
 
+
 ### generate bit set
-def mk_tokenSet_8(): 
+def mk_tokenSet_8():
     ### var1
-    data = [ 137443835906, 0]
+    data = [137443835906, 0]
     return data
+
+
 _tokenSet_8 = antlr.BitSet(mk_tokenSet_8())
 
+
 ### generate bit set
-def mk_tokenSet_9(): 
+def mk_tokenSet_9():
     ### var1
-    data = [ 4882434, 0]
+    data = [4882434, 0]
     return data
+
+
 _tokenSet_9 = antlr.BitSet(mk_tokenSet_9())
 
+
 ### generate bit set
-def mk_tokenSet_10(): 
+def mk_tokenSet_10():
     ### var1
-    data = [ 137428140032, 0]
+    data = [137428140032, 0]
     return data
+
+
 _tokenSet_10 = antlr.BitSet(mk_tokenSet_10())
 
+
 ### generate bit set
-def mk_tokenSet_11(): 
+def mk_tokenSet_11():
     ### var1
-    data = [ 60130590720, 0]
+    data = [60130590720, 0]
     return data
+
+
 _tokenSet_11 = antlr.BitSet(mk_tokenSet_11())
 
+
 ### generate bit set
-def mk_tokenSet_12(): 
+def mk_tokenSet_12():
     ### var1
-    data = [ 137494167554, 0]
+    data = [137494167554, 0]
     return data
+
+
 _tokenSet_12 = antlr.BitSet(mk_tokenSet_12())
 
+
 ### generate bit set
-def mk_tokenSet_13(): 
+def mk_tokenSet_13():
     ### var1
-    data = [ 137394585600, 0]
+    data = [137394585600, 0]
     return data
+
+
 _tokenSet_13 = antlr.BitSet(mk_tokenSet_13())
 
+
 ### generate bit set
-def mk_tokenSet_14(): 
+def mk_tokenSet_14():
     ### var1
-    data = [ 137460613122, 0]
+    data = [137460613122, 0]
     return data
+
+
 _tokenSet_14 = antlr.BitSet(mk_tokenSet_14())
 
+
 ### generate bit set
-def mk_tokenSet_15(): 
+def mk_tokenSet_15():
     ### var1
-    data = [ 655360, 0]
+    data = [655360, 0]
     return data
+
+
 _tokenSet_15 = antlr.BitSet(mk_tokenSet_15())
 
+
 ### generate bit set
-def mk_tokenSet_16(): 
+def mk_tokenSet_16():
     ### var1
-    data = [ 137394061312, 0]
+    data = [137394061312, 0]
     return data
+
+
 _tokenSet_16 = antlr.BitSet(mk_tokenSet_16())
 
+
 ### generate bit set
-def mk_tokenSet_17(): 
+def mk_tokenSet_17():
     ### var1
-    data = [ 274829213696, 0]
+    data = [274829213696, 0]
     return data
+
+
 _tokenSet_17 = antlr.BitSet(mk_tokenSet_17())
 
-### generate bit set
-def mk_tokenSet_18(): 
-    ### var1
-    data = [ 274833571842, 0]
-    return data
-_tokenSet_18 = antlr.BitSet(mk_tokenSet_18())
 
 ### generate bit set
-def mk_tokenSet_19(): 
+def mk_tokenSet_18():
     ### var1
-    data = [ 137439477760, 0]
+    data = [274833571842, 0]
     return data
+
+
+_tokenSet_18 = antlr.BitSet(mk_tokenSet_18())
+
+
+### generate bit set
+def mk_tokenSet_19():
+    ### var1
+    data = [137439477760, 0]
+    return data
+
+
 _tokenSet_19 = antlr.BitSet(mk_tokenSet_19())
-    

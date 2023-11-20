@@ -28,6 +28,7 @@ from __future__ import division
 #
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
@@ -45,15 +46,15 @@ from stringtemplate3.language import (
     AngleBracketTemplateLexer,
     DefaultTemplateLexer,
     GroupLexer, GroupParser,
-    )
+)
 
 from stringtemplate3.utils import deprecated
 from stringtemplate3.errors import (
     DEFAULT_ERROR_LISTENER
-    )
+)
 from stringtemplate3.templates import (
     StringTemplate, REGION_IMPLICIT
-    )
+)
 from stringtemplate3.writers import AutoIndentWriter
 from stringtemplate3.interfaces import StringTemplateGroupInterface
 
@@ -89,13 +90,13 @@ class StringTemplateGroup(object):
     define supergroups within a group and have it load that group
     automatically.
     """
-    
+
     ## Track all groups by name; maps name to StringTemplateGroup
     nameToGroupMap = {}
 
     ## Track all interfaces by name; maps name to StringTemplateGroupInterface
     nameToInterfaceMap = {}
-    
+
     ## If a group file indicates it derives from a supergroup, how do we
     #  find it?  Shall we make it so the initial StringTemplateGroup file
     #  can be loaded via this loader?  Right now we pass a Reader to ctor
@@ -106,7 +107,7 @@ class StringTemplateGroup(object):
     #  same separator.  If the instance has templateLexerClass set
     #  then it is used as an override.
     defaultTemplateLexerClass = DefaultTemplateLexer.Lexer
-        
+
     def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None):
         ## What is the group name
         #
@@ -121,7 +122,7 @@ class StringTemplateGroup(object):
 
         ## How to pull apart a template into chunks?
         self._templateLexerClass = None
-        
+
         ## Under what directory should I look for templates?  If None,
         #  to look into the CLASSPATH for templates as resources.
         #
@@ -133,7 +134,7 @@ class StringTemplateGroup(object):
 
         ## Keep track of all interfaces implemented by this group.
         self.interfaces = []
-        
+
         ## When templates are files on the disk, the refresh interval is used
         #  to know when to reload.  When a Reader is passed to the ctor,
         #  it is a stream full of template definitions.  The former is used
@@ -155,7 +156,7 @@ class StringTemplateGroup(object):
 
         ## The set of templates to ignore when dumping start/stop debug strings
         self.noDebugStartStopStrings = None
-        
+
         ## A Map<class,object> that allows people to register a renderer for
         #  a particular kind of object to be displayed for any template in this
         #  group.  For example, a date should be formatted differently depending
@@ -176,13 +177,13 @@ class StringTemplateGroup(object):
             self.listener = errors
         else:
             self.listener = DEFAULT_ERROR_LISTENER
-            
+
         ## How long before tossing out all templates in seconds.
         #  default: no refreshing from disk
         #
-        self.refreshInterval = old_div(sys.maxsize,1000)
+        self.refreshInterval = old_div(sys.maxsize, 1000)
         self.lastCheckedDisk = 0
-        
+
         if name is not None:
             assert isinstance(name, basestring)
             self.name = name
@@ -193,14 +194,13 @@ class StringTemplateGroup(object):
             StringTemplateGroup.nameToGroupMap[self.name] = self
 
             self.templateLexerClass = lexer
-            
+
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
             self.superGroup = superGroup
 
-
         if file is not None:
             assert hasattr(file, 'read')
-            
+
             self.templatesDefinedInGroupFile = True
 
             if lexer is not None:
@@ -215,7 +215,6 @@ class StringTemplateGroup(object):
             assert self.name is not None
             StringTemplateGroup.nameToGroupMap[self.name] = self
             self.verifyInterfaceImplementations()
-
 
     def getTemplateLexerClass(self):
         """
@@ -234,7 +233,7 @@ class StringTemplateGroup(object):
                 self._templateLexerClass = {
                     'default': DefaultTemplateLexer.Lexer,
                     'angle-bracket': AngleBracketTemplateLexer.Lexer,
-                    }[lexer]
+                }[lexer]
             except KeyError:
                 raise ValueError('Unknown lexer id %r' % lexer)
 
@@ -245,12 +244,11 @@ class StringTemplateGroup(object):
             raise TypeError(
                 "Lexer must be string or lexer class, got %r"
                 % type(lexer).__name__
-                )
+            )
 
     templateLexerClass = property(getTemplateLexerClass, setTemplateLexerClass)
     getTemplateLexerClass = deprecated(getTemplateLexerClass)
     setTemplateLexerClass = deprecated(setTemplateLexerClass)
-
 
     @deprecated
     def getName(self):
@@ -260,11 +258,10 @@ class StringTemplateGroup(object):
     def setName(self, name):
         self.name = name
 
-
     def setSuperGroup(self, superGroup):
         if superGroup is None or isinstance(superGroup, StringTemplateGroup):
             self._superGroup = superGroup
-            
+
         elif isinstance(superGroup, basestring):
             # Called by group parser when ": supergroupname" is found.
             # This method forces the supergroup's lexer to be same as lexer
@@ -292,7 +289,7 @@ class StringTemplateGroup(object):
             raise TypeError(
                 "Need StringTemplateGroup or string, got %s"
                 % type(superGroup).__name__
-                )
+            )
 
     def getSuperGroup(self):
         return self._superGroup
@@ -300,7 +297,6 @@ class StringTemplateGroup(object):
     superGroup = property(getSuperGroup, setSuperGroup)
     getSuperGroup = deprecated(getSuperGroup)
     setSuperGroup = deprecated(setSuperGroup)
-    
 
     def getGroupHierarchyStackString(self):
         """Walk up group hierarchy and show top down to this group"""
@@ -313,7 +309,6 @@ class StringTemplateGroup(object):
 
         return '[' + ' '.join(groupNames) + ']'
 
-
     @deprecated
     def getRootDir(self):
         return self.rootDir
@@ -321,7 +316,6 @@ class StringTemplateGroup(object):
     @deprecated
     def setRootDir(self, rootDir):
         self.rootDir = rootDir
-
 
     def implementInterface(self, interface):
         """
@@ -350,11 +344,9 @@ class StringTemplateGroup(object):
             elif self.groupLoader is None:
                 self.listener.error("no group loader registered", None)
 
-
     ## StringTemplate object factory; each group can have its own.
     def createStringTemplate(self):
         return StringTemplate()
-
 
     def getInstanceOf(self, name, enclosingInstance=None, attributes=None):
         """
@@ -369,12 +361,12 @@ class StringTemplateGroup(object):
         st = self.lookupTemplate(name, enclosingInstance)
         if st is not None:
             st = st.getInstanceOf()
-            
+
             if attributes is not None:
                 st.attributes = attributes
-                
+
             return st
-        
+
         return None
 
     def getEmbeddedInstanceOf(self, name, enclosingInstance):
@@ -390,8 +382,8 @@ class StringTemplateGroup(object):
             # from which somebody did group.getInstanceOf("foo");
             st = enclosingInstance.nativeGroup.getInstanceOf(
                 name, enclosingInstance
-                )
-            
+            )
+
         else:
             st = self.getInstanceOf(name, enclosingInstance)
 
@@ -415,7 +407,7 @@ class StringTemplateGroup(object):
         if name.startswith('super.'):
             if self.superGroup:
                 dot = name.find('.')
-                name = name[dot+1:]
+                name = name[dot + 1:]
                 return self.superGroup.lookupTemplate(name, enclosingInstance)
             raise ValueError(self.name + ' has no super group; ' +
                              'invalid template: ' + name)
@@ -434,28 +426,28 @@ class StringTemplateGroup(object):
                 if st is not None:
                     st.group = self
 
-            if st: # found in superGroup
+            if st:  # found in superGroup
                 # insert into this group; refresh will allow super
                 # to change it's def later or this group to add
                 # an override.
                 self.templates[name] = st
-                
+
             else:
                 # not found; remember that this sucker doesn't exist
                 self.templates[name] = StringTemplateGroup.NOT_FOUND_ST
                 context = ""
                 if enclosingInstance is not None:
                     context = (
-                        "; context is "+
-                        enclosingInstance.enclosingInstanceStackString
-                        )
+                            "; context is " +
+                            enclosingInstance.enclosingInstanceStackString
+                    )
                 hier = self.getGroupHierarchyStackString()
-                context += "; group hierarchy is "+hier
+                context += "; group hierarchy is " + hier
                 raise ValueError(
                     "Can't load template " +
                     self.getFileNameFromTemplateName(name) +
                     context
-                    )
+                )
 
         elif st is StringTemplateGroup.NOT_FOUND_ST:
             return None
@@ -466,12 +458,11 @@ class StringTemplateGroup(object):
         if self.templatesDefinedInGroupFile:
             return
         if self.refreshInterval == 0 or \
-           (time.time() - self.lastCheckedDisk) >= \
-           self.refreshInterval:
+                (time.time() - self.lastCheckedDisk) >= \
+                self.refreshInterval:
             # throw away all pre-compiled references
             self.templates = {}
             self.lastCheckedDisk = time.time()
-
 
     def loadTemplate(self, name, src):
         if isinstance(src, basestring):
@@ -486,26 +477,25 @@ class StringTemplateGroup(object):
             # FIXME: eek, that's ugly
             except Exception as e:
                 raise
-            
+
             return template
-        
+
         elif hasattr(src, 'readlines'):
             buf = src.readlines()
-            
+
             # strip newlines etc.. from front/back since filesystem
             # may add newlines etc...
             pattern = str().join(buf).strip()
-            
+
             if not pattern:
-                self.error("no text in template '"+name+"'")
+                self.error("no text in template '" + name + "'")
                 return None
-            
+
             return self.defineTemplate(name, pattern)
-        
+
         raise TypeError(
             'loadTemplate should be called with a file or filename'
-            )
-
+        )
 
     ## Load a template whose name is derived from the template filename.
     #  If there is a rootDir, try to load the file from there.
@@ -527,7 +517,7 @@ class StringTemplateGroup(object):
                 try:
                     template = self.loadTemplate(name, br)
                 except IOError as ioe:
-                    self.error("Problem reading template file: "+fileName, ioe)
+                    self.error("Problem reading template file: " + fileName, ioe)
 
             finally:
                 try:
@@ -557,32 +547,31 @@ class StringTemplateGroup(object):
             name = name[:suffix]
         return name
 
-
     ## Define an examplar template; precompiled and stored
     #  with no attributes.  Remove any previous definition.
     #
     def defineTemplate(self, name, template):
         if name is not None and '.' in name:
             raise ValueError("cannot have '.' in template names")
-        
+
         st = self.createStringTemplate()
         st.name = name
         st.group = self
         st.nativeGroup = self
         st.template = template
         st.errorListener = self.listener
-        
+
         self.templates[name] = st
         return st
 
     def defineRegionTemplate(self, enclosingTemplate, regionName, template, type):
         """Track all references to regions <@foo>...<@end> or <@foo()>."""
-        
+
         if isinstance(enclosingTemplate, StringTemplate):
             enclosingTemplateName = self.getMangledRegionName(
                 enclosingTemplate.getOutermostName(),
                 regionName
-                )
+            )
             enclosingTemplate.getOutermostEnclosingInstance().addRegionName(regionName)
 
         else:
@@ -608,21 +597,19 @@ class StringTemplateGroup(object):
             name,
             "",
             REGION_IMPLICIT
-            )
+        )
 
     def getMangledRegionName(self, enclosingTemplateName, name):
         """
         The 'foo' of t() ::= '<@foo()>' is mangled to 'region__t__foo'
         """
-        return "region__"+enclosingTemplateName+"__"+name
+        return "region__" + enclosingTemplateName + "__" + name
 
-    
     def getUnMangledTemplateName(self, mangledName):
         """
         Return "t" from "region__t__foo"
         """
         return mangledName[len("region__"):mangledName.rindex("__")]
-
 
     ## Make name and alias for target.  Replace any previous def of name#
     def defineTemplateAlias(self, name, target):
@@ -641,9 +628,9 @@ class StringTemplateGroup(object):
                 # don't allow redef of @t.r() ::= "..." or <@r>...<@end>
                 if st.regionDefType == REGION_IMPLICIT:
                     return False
-                
+
             return True
-        
+
         return False
 
     ## Get the ST for 'name' in this group only
@@ -667,7 +654,7 @@ class StringTemplateGroup(object):
             parser = GroupParser.Parser(lexer)
             parser.group(self)
             # sys.stderr.write("read group\n" + str(self))
-        except "foo" as e: # FIXME: Exception, e:
+        except "foo" as e:  # FIXME: Exception, e:
             name = "<unknown>"
             if self.name:
                 name = self.name
@@ -679,21 +666,20 @@ class StringTemplateGroup(object):
         for interface in self.interfaces:
             missing = interface.getMissingTemplates(self)
             mismatched = interface.getMismatchedTemplates(self)
-            
+
             if missing:
                 self.error(
                     "group " + self.name +
                     " does not satisfy interface " + interface.name +
                     ": missing templates [" + ', '.join(["'%s'" % m for m in missing]) + ']'
-                    )
+                )
 
             if mismatched:
                 self.error(
                     "group " + self.name +
                     " does not satisfy interface " + interface.name +
                     ": mismatched arguments on these templates [" + ', '.join(["'%s'" % m for m in mismatched]) + ']'
-                    )
-
+                )
 
     @deprecated
     def getRefreshInterval(self):
@@ -708,7 +694,6 @@ class StringTemplateGroup(object):
     def setRefreshInterval(self, refreshInterval):
         self.refreshInterval = refreshInterval
 
-
     def setErrorListener(self, listener):
         self.listener = listener
 
@@ -719,7 +704,6 @@ class StringTemplateGroup(object):
     getErrorListener = deprecated(getErrorListener)
     setErrorListener = deprecated(setErrorListener)
 
-    
     ## Specify a StringTemplateWriter implementing class to use for
     #  filtering output
     def setStringTemplateWriter(self, c):
@@ -732,7 +716,7 @@ class StringTemplateGroup(object):
         if self.userSpecifiedWriter:
             try:
                 stw = self.userSpecifiedWriter(w)
-            except RuntimeError as e: #FIXME Exception, e:
+            except RuntimeError as e:  # FIXME Exception, e:
                 self.error('problems getting StringTemplateWriter', e)
 
         if not stw:
@@ -760,7 +744,7 @@ class StringTemplateGroup(object):
     def getAttributeRenderer(self, attributeClassType):
         if not self.attributeRenderers:
             if not self.superGroup:
-                return None # no renderers and no parent?  Stop.
+                return None  # no renderers and no parent?  Stop.
             # no renderers; consult super group
             return self.superGroup.getAttributeRenderer(attributeClassType)
 
@@ -770,7 +754,7 @@ class StringTemplateGroup(object):
         elif self.superGroup is not None:
             # no renderer registered for this class, check super group
             return self.superGroup.getAttributeRenderer(attributeClassType)
-        
+
         return None
 
     def getMap(self, name):
@@ -790,7 +774,7 @@ class StringTemplateGroup(object):
         Define a map for this group; not thread safe...do not keep adding
  	these while you reference them.
         """
-        
+
         self.maps[name] = mapping
 
     @classmethod
@@ -807,33 +791,31 @@ class StringTemplateGroup(object):
             return cls.groupLoader.loadGroup(name, superGroup, lexer)
 
         return None
-    
+
     @classmethod
     def loadInterface(cls, name):
         if cls.groupLoader is not None:
             return cls.groupLoader.loadInterface(name)
 
         return None
-    
-    def error(self, msg, e = None):
+
+    def error(self, msg, e=None):
         if self.listener:
             self.listener.error(msg, e)
         else:
             sys.stderr.write('StringTemplate: ' + msg + ': ' + e + '\n')
             traceback.print_exc()
-            
+
     def getTemplateNames(self):
         return list(self.templates.keys())
-
 
     def emitDebugStartStopStrings(self, emit):
         """
         Indicate whether ST should emit <templatename>...</templatename>
         strings for debugging around output for templates from this group.
         """
-        
-        self.debugTemplateOutput = emit
 
+        self.debugTemplateOutput = emit
 
     def doNotEmitDebugStringsForTemplate(self, templateName):
         if self.noDebugStartStopStrings is None:
@@ -841,18 +823,15 @@ class StringTemplateGroup(object):
 
         self.noDebugStartStopStrings.add(templateName)
 
-
     def emitTemplateStartDebugString(self, st, out):
         if (self.noDebugStartStopStrings is None or
-            st.name not in self.noDebugStartStopStrings ):
-            out.write("<"+st.name+">")
-
+                st.name not in self.noDebugStartStopStrings):
+            out.write("<" + st.name + ">")
 
     def emitTemplateStopDebugString(self, st, out):
         if (self.noDebugStartStopStrings is None or
-            st.name not in self.noDebugStartStopStrings ):
-            out.write("</"+st.name+">")
-
+                st.name not in self.noDebugStartStopStrings):
+            out.write("</" + st.name + ">")
 
     def toString(self, showTemplatePatterns=True):
         buf = StringIO()

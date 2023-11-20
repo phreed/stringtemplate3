@@ -1,6 +1,7 @@
 from builtins import object
 from stringtemplate3.utils import deprecated
 
+
 class Expr(object):
     """
     A string template expression embedded within the template.
@@ -10,7 +11,7 @@ class Expr(object):
     This list of Expr objects represents a "program" for the StringTemplate
     evaluator.
     """
-    
+
     def __init__(self, enclosingTemplate):
         ## The StringTemplate object surrounding this expr
         self.enclosingTemplate = enclosingTemplate
@@ -23,16 +24,13 @@ class Expr(object):
         #  reference that initiates construction of the nested template.
         self.indentation = ''
 
-
     def write(self, this, out):
         """How to write this node to output"""
         raise NotImplementedError
 
-
     @deprecated
     def getEnclosingTemplate(self):
         return self.enclosingTemplate
-
 
     @deprecated
     def getIndentation(self):

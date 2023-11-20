@@ -1,4 +1,3 @@
-
 # [The "BSD licence"]
 # Copyright (c) 2003-2006 Terence Parr
 # All rights reserved.
@@ -27,6 +26,7 @@
 #
 
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
@@ -34,7 +34,7 @@ from io import StringIO
 
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser
-    )
+)
 
 from stringtemplate3.utils import deprecated
 from stringtemplate3.errors import DEFAULT_ERROR_LISTENER
@@ -62,17 +62,17 @@ class StringTemplateGroupInterface(object):
     def __init__(self, file, errors=None, superInterface=None):
         """Create an interface from the input stream"""
 
-	## What is the group name
+        ## What is the group name
         self.name = None
 
         ## Maps template name to TemplateDefinition object
         self.templates = {}
 
-	## Are we derived from another group?  Templates not found in this
+        ## Are we derived from another group?  Templates not found in this
         # group will be searched for in the superGroup recursively.
         self.superInterface = superInterface
 
-	## Where to report errors.  All string templates in this group
+        ## Where to report errors.  All string templates in this group
         #  use this error handler by default.
         if errors is not None:
             self.listener = errors
@@ -80,7 +80,6 @@ class StringTemplateGroupInterface(object):
             self.listener = DEFAULT_ERROR_LISTENER
 
         self.parseInterface(file)
-
 
     @deprecated
     def getSuperInterface(self):
@@ -90,22 +89,19 @@ class StringTemplateGroupInterface(object):
     def setSuperInterface(self, superInterface):
         self.superInterface = superInterface
 
-
     def parseInterface(self, r):
         try:
             lexer = InterfaceLexer.Lexer(r)
             parser = InterfaceParser.Parser(lexer)
             parser.groupInterface(self)
 
-        except RuntimeError as exc: #FIXME:  Exception
+        except RuntimeError as exc:  # FIXME:  Exception
             name = self.name or "<unknown>"
-            self.error("problem parsing group "+name+": "+str(exc), exc)
-
+            self.error("problem parsing group " + name + ": " + str(exc), exc)
 
     def defineTemplate(self, name, formalArgs, optional):
         d = TemplateDefinition(name, formalArgs, optional)
         self.templates[d.name] = d
-
 
     def getMissingTemplates(self, group):
         """
@@ -123,7 +119,6 @@ class StringTemplateGroupInterface(object):
 
         return missing or None
 
-
     def getMismatchedTemplates(self, group):
         """
         Return a list of all template sigs that are present in the group, but
@@ -131,7 +126,7 @@ class StringTemplateGroupInterface(object):
         """
 
         mismatched = []
-        
+
         templates = list(self.templates.items())
         templates.sort()
         for name, d in templates:
@@ -139,9 +134,9 @@ class StringTemplateGroupInterface(object):
                 defST = group.getTemplateDefinition(d.name)
                 formalArgs = defST.formalArguments
                 ack = False
-                if ( (d.formalArgs is not None and formalArgs is None) or
-                     (d.formalArgs is None and formalArgs is not None) or
-                     (len(d.formalArgs) != len(formalArgs)) ):
+                if ((d.formalArgs is not None and formalArgs is None) or
+                        (d.formalArgs is None and formalArgs is not None) or
+                        (len(d.formalArgs) != len(formalArgs))):
                     ack = True
 
                 if not ack:
@@ -155,7 +150,6 @@ class StringTemplateGroupInterface(object):
 
         return mismatched or None
 
-
     @deprecated
     def getName(self):
         return self.name
@@ -164,11 +158,9 @@ class StringTemplateGroupInterface(object):
     def setName(self, name):
         self.name = name
 
-
     def error(self, msg, exc=None):
         if self.listener is not None:
             self.listener.error(msg, exc)
-
 
     def toString(self):
         buf = StringIO()
@@ -178,14 +170,13 @@ class StringTemplateGroupInterface(object):
         templates = list(self.templates.items())
         templates.sort()
         for name, d in templates:
-            buf.write( self.getTemplateSignature(d) )
+            buf.write(self.getTemplateSignature(d))
             buf.write(";\n")
 
         return buf.getvalue()
-    
+
     __str__ = toString
 
-    
     def getTemplateSignature(self, d):
         buf = StringIO()
         if d.optional:
@@ -203,4 +194,3 @@ class StringTemplateGroupInterface(object):
             buf.write("()")
 
         return buf.getvalue()
-
