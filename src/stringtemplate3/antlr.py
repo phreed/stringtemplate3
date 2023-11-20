@@ -271,11 +271,11 @@ class MismatchedCharException(RecognitionException):
             if self.mismatchType == MismatchedCharException.NOT_RANGE:
                 sb.append("NOT ")
             sb.append("in range: ")
-            appendCharName(sb, self.expecting)
+            self.appendCharName(sb, self.expecting)
             sb.append("..")
-            appendCharName(sb, self.upper)
+            self.appendCharName(sb, self.upper)
             sb.append(", found ")
-            appendCharName(sb, self.foundChar)
+            self.appendCharName(sb, self.foundChar)
         elif self.mismatchType in [MismatchedCharException.SET, MismatchedCharException.NOT_SET]:
             sb.append("expecting ")
             if self.mismatchType == MismatchedCharException.NOT_SET:
@@ -387,9 +387,9 @@ class MismatchedTokenException(RecognitionException):
             if self.mismatchType == MismatchedTokenException.NOT_RANGE:
                 sb.append("NOT ")
             sb.append("in range: ")
-            appendTokenName(sb, self.expecting)
+            self.appendTokenName(sb, self.expecting)
             sb.append("..")
-            appendTokenName(sb, self.upper)
+            self.appendTokenName(sb, self.upper)
             sb.append(", found " + self.tokenText)
         elif self.mismatchType in [MismatchedTokenException.SET, MismatchedTokenException.NOT_SET]:
             sb.append("expecting ")
@@ -1508,14 +1508,14 @@ class CharScanner(TokenStream):
             raise TryAgain()
         else:
             ### apply filter object
-            self.commit();
+            self.commit()
             try:
                 func = args[0]
                 args = args[1:]
                 func(*args)
             except RecognitionException as ex:
                 ## catastrophic failure
-                self.reportError(e);
+                self.reportError(ex);
                 self.consume();
             raise TryAgain()
 
@@ -2474,16 +2474,18 @@ class BaseAST(AST):
         pass
 
     ### static
+    @staticmethod
     def setVerboseStringConversion(verbose, names):
-        verboseStringConversion = verbose
-        tokenNames = names
+        BaseAST.verboseStringConversion = verbose
+        BaseAST.tokenNames = names
 
     setVerboseStringConversion = staticmethod(setVerboseStringConversion)
 
     ### Return an array of strings that maps token ID to it's text.
     ##  @since 2.7.3
+    @staticmethod
     def getTokenNames():
-        return tokenNames
+        return BaseAST.tokenNames
 
     def toString(self):
         return self.getText()
@@ -2620,8 +2622,8 @@ class ASTPair(object):
         return tmp
 
     def toString(self):
-        r = ifelse(not root, "null", self.root.getText())
-        c = ifelse(not child, "null", self.child.getText())
+        r = ifelse(not self.root, "null", self.root.getText())
+        c = ifelse(not self.child, "null", self.child.getText())
         return "[%s,%s]" % (r, c)
 
     __str__ = toString
@@ -2633,6 +2635,7 @@ class ASTPair(object):
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 
 class ASTFactory(object):
+
     def __init__(self, table=None):
         self._class = None
         self._classmap = ifelse(table, table, None)
