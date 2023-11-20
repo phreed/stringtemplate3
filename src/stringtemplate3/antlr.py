@@ -3,6 +3,7 @@
 
 ## get sys module
 import sys
+from io import IOBase
 
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 ###                     global symbols                             ###
@@ -1198,7 +1199,7 @@ class CharScanner(TokenStream):
         ## if arg1 is a file we wrap it by a char buffer (
         ## some additional checks?? No, can't do this in
         ## general).
-        if isinstance(arg1, file):
+        if isinstance(arg1, IOBase):
             self.setInput(CharBuffer(arg1))
             return
 

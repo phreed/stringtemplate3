@@ -4,8 +4,8 @@ import sys
 from .. import antlr
 
 ### header action >>>
-from . import StringRef
-from . import NewlineRef
+from .StringRef import StringRef
+from .NewlineRef import NewlineRef
 ### header action <<< 
 ### preamble action>>>
 

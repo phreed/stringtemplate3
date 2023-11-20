@@ -4,7 +4,7 @@ import sys
 from .. import antlr
 
 from . import TemplateParser
-from . import ChunkToken
+from .ChunkToken import ChunkToken
 
 ### >>>The Literals<<<
 literals = {}
