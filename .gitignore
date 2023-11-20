@@ -1,0 +1,4 @@
+/src/stringtemplate3/*.py.bak
+/src/stringtemplate3/language/*.py.bak
+
+.idea/

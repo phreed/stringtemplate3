@@ -1,5 +1,10 @@
 
-from StringIO import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from io import StringIO
 import antlr
 
 from stringtemplate3.utils import deprecated
@@ -35,7 +40,7 @@ def convertAnyCollectionToList(o):
     elif isinstance(o, tuple) or isinstance(o, set):
         list_ = list(o)
     elif isinstance(o, dict):
-        list_ = o.values()
+        list_ = list(o.values())
     elif isinstance(o, CatList):
         list_ = []
         for item in o.lists():
@@ -52,7 +57,7 @@ def convertAnythingToList(o):
     elif isinstance(o, tuple) or isinstance(o, set):
         list_ = list(o)
     elif isinstance(o, dict):
-        list_ = o.values()
+        list_ = list(o.values())
     elif isinstance(o, CatList):
         list_ = []
         for item in o.lists():
@@ -194,7 +199,7 @@ class ASTExpr(Expr):
             self.formatString = self.evaluateExpression(this, formatAST)
 
         if self.options is not None:
-            for option in self.options.keys():
+            for option in list(self.options.keys()):
                 if option not in self.supportedOptions:
                     this.warning("ignoring unsupported option: "+option)
                     
@@ -361,7 +366,7 @@ class ASTExpr(Expr):
                 # if exactly 1 arg or anonymous, give that the value of
                 # "it" as a convenience like they said
                 # $list:template(arg=it)$
-                argNames = formalArgs.keys()
+                argNames = list(formalArgs.keys())
                 soleArgName = argNames[0]
                 argumentContext[soleArgName] = ithValue
 
@@ -390,10 +395,10 @@ class ASTExpr(Expr):
         # property method.
         elif isinstance(o, dict):
             if propertyName == 'keys':
-                value = o.keys()
+                value = list(o.keys())
 
             elif propertyName == 'values':
-                value = o.values()
+                value = list(o.values())
 
             else:
                 value = o.get(propertyName, None)
@@ -489,7 +494,7 @@ class ASTExpr(Expr):
         elif b is None:
             return a
 
-        return unicode(a) + unicode(b)
+        return str(a) + str(b)
     
     ## Call a string template with args and return result.  Do not convert
     #  to a string yet.  It may need attributes that will be available after
@@ -579,7 +584,7 @@ class ASTExpr(Expr):
             if isiterable(o):
                 if isinstance(o, dict):
                     # for mapping we want to iterate over the values
-                    lst = o.values()
+                    lst = list(o.values())
                 else:
                     lst = o
 
@@ -602,7 +607,7 @@ class ASTExpr(Expr):
                 if renderer is not None:
                     v = renderer.toString(o, self.formatString)
                 else:
-                    v = unicode(o)
+                    v = str(o)
 
                 if self.wrapString is not None:
                     n = out.write(v, self.wrapString)

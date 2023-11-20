@@ -1,5 +1,6 @@
 ### $ANTLR 2.7.7 (2006-11-01): "template.g" -> "TemplateParser.py"$
 ### import antlr and other modules ..
+from builtins import str
 import sys
 import antlr
 

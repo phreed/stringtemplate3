@@ -2,6 +2,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionLexer.py"$
 ### import antlr and other modules ..
+from builtins import str
+from builtins import range
 import sys
 import antlr
 
@@ -741,7 +743,7 @@ def mk_tokenSet_0():
     data = [0] * 2048 ### init list
     data[0] =-17179869192
     data[1] =-268435457
-    for x in xrange(2, 1023):
+    for x in range(2, 1023):
         data[x] = -1
     data[1023] =9223372036854775807
     return data
@@ -775,7 +777,7 @@ def mk_tokenSet_4():
     data = [0] * 2048 ### init list
     data[0] =-8
     data[1] =-2882303761785552897
-    for x in xrange(2, 1023):
+    for x in range(2, 1023):
         data[x] = -1
     data[1023] =9223372036854775807
     return data

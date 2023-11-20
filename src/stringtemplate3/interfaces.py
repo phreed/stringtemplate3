@@ -26,7 +26,11 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from StringIO import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from io import StringIO
 
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser
@@ -111,7 +115,7 @@ class StringTemplateGroupInterface(object):
 
         missing = []
 
-        templates = self.templates.items()
+        templates = list(self.templates.items())
         templates.sort()
         for name, d in templates:
             if not d.optional and not group.isDefined(d.name):
@@ -128,7 +132,7 @@ class StringTemplateGroupInterface(object):
 
         mismatched = []
         
-        templates = self.templates.items()
+        templates = list(self.templates.items())
         templates.sort()
         for name, d in templates:
             if group.isDefined(d.name):
@@ -141,7 +145,7 @@ class StringTemplateGroupInterface(object):
                     ack = True
 
                 if not ack:
-                    for argName in formalArgs.keys():
+                    for argName in list(formalArgs.keys()):
                         if d.formalArgs.get(argName, None) == None:
                             ack = True
                             break
@@ -171,7 +175,7 @@ class StringTemplateGroupInterface(object):
         buf.write("interface ")
         buf.write(self.name)
         buf.write(";\n")
-        templates = self.templates.items()
+        templates = list(self.templates.items())
         templates.sort()
         for name, d in templates:
             buf.write( self.getTemplateSignature(d) )
@@ -190,7 +194,7 @@ class StringTemplateGroupInterface(object):
         buf.write(d.name)
         if d.formalArgs is not None:
             buf.write('(')
-            args = d.formalArgs.keys()
+            args = list(d.formalArgs.keys())
             args.sort()
             buf.write(", ".join(args))
             buf.write(')')

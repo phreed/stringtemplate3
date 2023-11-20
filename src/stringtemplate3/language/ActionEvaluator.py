@@ -1,5 +1,9 @@
 ### $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
 ### import antlr and other modules ..
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import sys
 import antlr
 
@@ -12,7 +16,7 @@ if version < '2.3':
 from stringtemplate3.language.CatIterator import CatList
 from stringtemplate3.language.StringTemplateAST import StringTemplateAST
 
-from StringIO import StringIO
+from io import StringIO
 
 class NameValuePair(object):
 
@@ -894,7 +898,7 @@ class Walker(antlr.TreeParser):
                error = False
                formalArgs = embedded.formalArguments
                if formalArgs:
-                   argNames = formalArgs.keys()
+                   argNames = list(formalArgs.keys())
                    if len(argNames) == 1:
                        soleArgName = argNames[0]
                        #sys.stderr.write("sole formal arg of " +

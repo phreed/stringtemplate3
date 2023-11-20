@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupParser.py"$
 ### import antlr and other modules ..
+from builtins import str
 import sys
 import antlr
 

@@ -1,3 +1,4 @@
+from builtins import object
 from stringtemplate3.utils import deprecated
 
 class Expr(object):

@@ -1,3 +1,4 @@
+from __future__ import division
 
 # [The "BSD licence"]
 # Copyright (c) 2003-2006 Terence Parr
@@ -26,11 +27,17 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import sys
 import traceback
 import imp
 import time
-from StringIO import StringIO
+from io import StringIO
 
 import antlr
 
@@ -173,7 +180,7 @@ class StringTemplateGroup(object):
         ## How long before tossing out all templates in seconds.
         #  default: no refreshing from disk
         #
-        self.refreshInterval = sys.maxsize/1000
+        self.refreshInterval = old_div(sys.maxsize,1000)
         self.lastCheckedDisk = 0
         
         if name is not None:
@@ -816,7 +823,7 @@ class StringTemplateGroup(object):
             traceback.print_exc()
             
     def getTemplateNames(self):
-        return self.templates.keys()
+        return list(self.templates.keys())
 
 
     def emitDebugStartStopStrings(self, emit):
@@ -850,12 +857,12 @@ class StringTemplateGroup(object):
     def toString(self, showTemplatePatterns=True):
         buf = StringIO()
         buf.write('group ' + str(self.name) + ';\n')
-        sortedNames = self.templates.keys()
+        sortedNames = list(self.templates.keys())
         sortedNames.sort()
         for tname in sortedNames:
             st = self.templates[tname]
             if st != StringTemplateGroup.NOT_FOUND_ST:
-                args = st.formalArguments.keys()
+                args = list(st.formalArguments.keys())
                 args.sort()
                 buf.write(str(tname) + '(' + ",".join(args) + ')')
                 if showTemplatePatterns:

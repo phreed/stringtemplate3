@@ -1,5 +1,7 @@
 
 # the following represent bit positions emulating a cardinality bitset.
+from builtins import str
+from builtins import object
 OPTIONAL = 1      # a?
 REQUIRED = 2      # a
 ZERO_OR_MORE = 4  # a*

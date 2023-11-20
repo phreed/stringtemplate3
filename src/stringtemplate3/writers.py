@@ -26,6 +26,8 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from past.builtins import basestring
+from builtins import object
 from stringtemplate3.utils import deprecated
 
 

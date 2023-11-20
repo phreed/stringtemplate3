@@ -2,6 +2,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceLexer.py"$
 ### import antlr and other modules ..
+from builtins import str
+from builtins import range
 import sys
 import antlr
 
@@ -374,7 +376,7 @@ class Lexer(antlr.CharScanner) :
 def mk_tokenSet_0(): 
     data = [0] * 2048 ### init list
     data[0] =-9217
-    for x in xrange(1, 1023):
+    for x in range(1, 1023):
         data[x] = -1
     data[1023] =9223372036854775807
     return data

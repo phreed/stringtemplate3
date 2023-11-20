@@ -26,9 +26,14 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import sys
 import traceback
-from StringIO import StringIO
+from io import StringIO
 from copy import copy
 
 
@@ -1108,7 +1113,7 @@ class StringTemplate(object):
             if p.attributes:
                 buf.write(", attributes=[")
                 i = 0
-                for attrName in p.attributes.keys():
+                for attrName in list(p.attributes.keys()):
                     if i > 0:
                         buf.write(", ")
                     i += 1
@@ -1155,7 +1160,7 @@ class StringTemplate(object):
 
     def getTemplateHeaderString(self, showAttributes):
         if showAttributes and self.attributes is not None:
-            return self.name + str(self.attributes.keys())
+            return self.name + str(list(self.attributes.keys()))
 
         return self.name
 
@@ -1193,7 +1198,7 @@ class StringTemplate(object):
         # compare, looking for SET BUT NOT REFERENCED ATTRIBUTES
         if not self.attributes:
             return
-        for name in self.attributes.keys():
+        for name in list(self.attributes.keys()):
             if self.referencedAttributes and \
                not name in self.referencedAttributes:
                 self.warning(self.name + ': set but not used: ' + name)
@@ -1256,7 +1261,7 @@ class StringTemplate(object):
         buf.write('attributes=[')
         if self.attributes:
             n = 0
-            for name in self.attributes.keys():
+            for name in list(self.attributes.keys()):
                 if n > 0:
                     buf.write(',')
                 buf.write(name + '=')
@@ -1281,10 +1286,10 @@ class StringTemplate(object):
 
         buf.write('  '*indent)  # indent
         buf.write(self.name)
-        buf.write(str(self.attributes.keys())) # FIXME: errr.. that's correct?
+        buf.write(str(list(self.attributes.keys()))) # FIXME: errr.. that's correct?
         buf.write(":\n")
         if self.attributes is not None:
-            attrNames = self.attributes.keys()
+            attrNames = list(self.attributes.keys())
             for name in attrNames:
                 value = self.attributes[name]
                 if isinstance(value, StringTemplate): # descend
@@ -1297,7 +1302,7 @@ class StringTemplate(object):
                                 buf.write(o.toStructureString(indent+1))
 
                     elif isinstance(value, dict):
-                        for o in value.values():
+                        for o in list(value.values()):
                             if isinstance(o, StringTemplate): # descend
                                 buf.write(o.toStructureString(indent+1))
 
@@ -1324,7 +1329,7 @@ class StringTemplate(object):
         edges = {}
         self.getDependencyGraph(edges, showAttributes)
         # for each source template
-        for src, targetNodes in edges.iteritems():
+        for src, targetNodes in edges.items():
             # for each target template
             for trg in targetNodes:
                 graphST.setAttribute("edges.{src,trg}", src, trg)
@@ -1352,7 +1357,7 @@ class StringTemplate(object):
         
         srcNode = self.getTemplateHeaderString(showAttributes)
         if self.attributes is not None:
-            for name, value in self.attributes.iteritems():
+            for name, value in self.attributes.items():
                 if isinstance(value, StringTemplate):
                     targetNode = value.getTemplateHeaderString(showAttributes)
                     self.putToMultiValuedMap(edges, srcNode, targetNode)
@@ -1367,7 +1372,7 @@ class StringTemplate(object):
                                 o.getDependencyGraph(edges, showAttributes) # descend
 
                     elif isinstance(value, dict):
-                        for o in value.values():
+                        for o in list(value.values()):
                             if isinstance(o, StringTemplate):
                                 targetNode = o.getTemplateHeaderString(showAttributes)
                                 self.putToMultiValuedMap(edges, srcNode, targetNode)
@@ -1411,7 +1416,7 @@ class StringTemplate(object):
             return
         out.write("attributes=[")
         n = 0
-        for name in self.attributes.keys():
+        for name in list(self.attributes.keys()):
             if n > 0:
                 out.write(',')
             value = self.attributes[name]

@@ -1,4 +1,5 @@
 
+from builtins import str
 import antlr
 
 class StringTemplateToken(antlr.CommonToken):

@@ -1,4 +1,5 @@
 
+from builtins import object
 import antlr
 
 from stringtemplate3.language import ASTExpr
