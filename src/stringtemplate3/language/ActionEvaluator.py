@@ -5,12 +5,10 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
-import sys
 from stringtemplate3 import antlr
 
 ### header action >>> 
 from stringtemplate3.language.CatIterator import CatList
-from stringtemplate3.language.StringTemplateAST import StringTemplateAST
 
 from io import StringIO
 
@@ -24,8 +22,7 @@ class NameValuePair(object):
 
 ### header action <<<
 
-### import antlr.Token 
-from stringtemplate3.antlr import Token
+### import antlr.Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

@@ -22,7 +22,7 @@ endif::[]
 
 == StringTemplate3 
 
-include::docs/description.txt[]
+include::docs/description.rst[]
 
 == Requirements
 
@@ -48,24 +48,74 @@ The two main package managers for Python are `pip` and `conda`.
 ==== Pip
 
 * https://packaging.python.org/en/latest/tutorials/packaging-projects/
+* https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html
+
+.build the package
+* https://github.com/pypa/build
+[source,shell]
+----
+python -m build --wheel
+----
+
+Before uploading anywhere the wheel file can be installed.
+.install the wheel locally
+[source,shell]
+----
+python -m pip install ./dist/stringtemplate3x-*-py3-*.whl
+----
+
+Before uploading to the official site upload to the test repository.
 
 .testing the package
 * https://test.pypi.org/help/#apitoken
 
 [source,shell]
 ----
-python -m build --wheel src
+python -m twine upload --repository testpypi dist/*
 ----
+
+Publishing to the official repository.
+
+.publish the package
+* https://pypi.org/help/#apitoken
 
 [source,shell]
 ----
 python -m twine upload --repository pypi dist/*
 ----
 
+===== Install
+
+.install from testpypi https://test.pypi.org/project/stringtemplate3x/
+[source,shell]
+----
+python -m pip install -i https://test.pypi.org/simple/ stringtemplate3x
+----
+
+.install from pypi https://pypi.org/project/stringtemplate3x/
+[source,shell]
+----
+python -m pip install stringtemplate3x
+----
+
 ==== Conda
+
+Note: handled in a separate project.
+Not yet implemented.
+
+===== Install
+
+.install from conda-forge https://anaconda.org/conda-forge/stringtemplate3
+[source,shell]
+----
+mamba install stringtemplate3
+----
 
 == Usage
 This will be handled via conda-forge which requires a separate feedstock project.
+
+
+
 
 == Contributing
 

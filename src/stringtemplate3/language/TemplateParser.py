@@ -1,13 +1,11 @@
 ### $ANTLR 2.7.7 (2006-11-01): "template.g" -> "TemplateParser.py"$
 ### import antlr and other modules ..
 from builtins import str
-import sys
 
 from stringtemplate3 import antlr
 
 ### header action >>> 
 import stringtemplate3
-from stringtemplate3.language.ChunkToken import ChunkToken
 from stringtemplate3.language.StringRef import StringRef
 from stringtemplate3.language.NewlineRef import NewlineRef
 ### header action <<< 
@@ -15,8 +13,7 @@ from stringtemplate3.language.NewlineRef import NewlineRef
 
 ### preamble action <<<
 
-### import antlr.Token 
-from stringtemplate3.antlr import Token
+### import antlr.Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

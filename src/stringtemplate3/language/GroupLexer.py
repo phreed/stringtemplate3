@@ -2,16 +2,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 ### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupLexer.py"$
 ### import antlr and other modules ..
-from builtins import str
-from builtins import range
-import sys
 
-from stringtemplate3 import antlr
-
-### header action >>> 
+### header action >>>
 from .ASTExpr import *
-import stringtemplate3
-import traceback
 
 ### header action <<<
 ### preamble action >>> 
@@ -24,7 +17,6 @@ literals[u"group"] = 4
 literals[u"implements"] = 7
 
 ### import antlr.Token
-from stringtemplate3.antlr import Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP
@@ -675,7 +667,6 @@ _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 ### __main__ header action >>> 
 if __name__ == '__main__':
-    import sys
     import antlr
     from . import GroupLexer
 

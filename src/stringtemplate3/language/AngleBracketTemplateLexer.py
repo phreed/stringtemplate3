@@ -5,13 +5,10 @@ from __future__ import absolute_import
 from builtins import chr
 from builtins import str
 from builtins import range
-import sys
 
 from stringtemplate3 import antlr
 
 ### header action >>> 
-import stringtemplate3
-import stringtemplate3.language.TemplateParser
 from stringtemplate3.language.ChunkToken import ChunkToken
 
 ### header action <<<
@@ -22,7 +19,6 @@ from stringtemplate3.language.ChunkToken import ChunkToken
 literals = {}
 
 ### import antlr.Token
-from stringtemplate3.antlr import Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP
@@ -1199,7 +1195,6 @@ _tokenSet_12 = antlr.BitSet(mk_tokenSet_12())
 
 ### __main__ header action >>> 
 if __name__ == '__main__':
-    import sys
     import antlr
     from . import AngleBracketTemplateLexer
 

@@ -1,10 +1,11 @@
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "stringtemplate3x"
-version = "2023.11.2"
 authors = [
   { name="Terence Parr", email="parrt-spam@antlr.org" },
   { name="Marq Kole", email="marq.kole-spam@philips.com" },
@@ -15,26 +16,35 @@ maintainers = [
   { name="Fredrick Eisele", email="fredrick.eisele@gmail.com" },
 ]
 description = "A wrapper for StringTemplate: a powerful template engine with strict model-view separation"
-readme = "docs/description.txt"
+readme = "docs/description.rst"
 requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Operating System :: OS Independent",
     "Development Status :: 2 - Pre-Alpha",
+#    "Development Status :: 3 - Alpha",
+#    "Development Status :: 4 - Beta",
 #    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing"
 ]
+license = {text = "BSD-2-Clause"}
 dependencies = [
 #    "antlr4-python3-runtime"
 ]
+dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://www.stringtemplate.org/"
 "Bug Reports" = "https://github.com/phreed/stringtemplate3/issues"
 "Source" = "https://github.com/phreed/stringtemplate3"
 
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html#setuptools-specific-configuration
+# the setup.py and setup.cfg are not needed
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
 
+[tool.setuptools_scm]
 

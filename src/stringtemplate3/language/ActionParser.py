@@ -1,20 +1,17 @@
 ### $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionParser.py"$
 ### import antlr and other modules ..
 from builtins import str
-import sys
 
 from stringtemplate3 import antlr
 
 ### header action >>> 
-from stringtemplate3.language.StringTemplateToken import StringTemplateToken
 import stringtemplate3
 ### header action <<< 
 ### preamble action>>>
 
 ### preamble action <<<
 
-### import antlr.Token 
-from stringtemplate3.antlr import Token
+### import antlr.Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

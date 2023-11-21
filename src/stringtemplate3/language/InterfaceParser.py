@@ -1,7 +1,6 @@
 ### $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceParser.py"$
 ### import antlr and other modules ..
 from builtins import str
-import sys
 
 from stringtemplate3 import antlr
 
@@ -44,8 +43,7 @@ from stringtemplate3.language.FormalArgument import FormalArgument
 
 ### preamble action <<<
 
-### import antlr.Token 
-from stringtemplate3.antlr import Token
+### import antlr.Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP

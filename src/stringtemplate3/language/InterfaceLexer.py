@@ -4,7 +4,6 @@ from __future__ import absolute_import
 ### import antlr and other modules ..
 from builtins import str
 from builtins import range
-import sys
 
 from stringtemplate3 import antlr
 
@@ -37,11 +36,6 @@ from stringtemplate3 import antlr
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 
-
-import sys
-import traceback
-
-from stringtemplate3.language.FormalArgument import FormalArgument
 
 ### header action <<<
 ### preamble action >>> 
@@ -384,7 +378,6 @@ _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### __main__ header action >>> 
 if __name__ == '__main__':
-    import sys
     import antlr
     from . import InterfaceLexer
 

@@ -4,13 +4,11 @@ from __future__ import absolute_import
 ### import antlr and other modules ..
 from builtins import str
 from builtins import range
-import sys
 
 from stringtemplate3 import antlr
 
 ### header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
-import stringtemplate3
 
 ### header action <<<
 ### preamble action >>> 
@@ -29,7 +27,6 @@ literals = {
     u"elseif": 18}
 
 ### import antlr.Token
-from stringtemplate3.antlr import Token
 
 ### >>>The Known Token Types <<<
 SKIP = antlr.SKIP
@@ -817,7 +814,6 @@ _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
 ### __main__ header action >>> 
 if __name__ == '__main__':
-    import sys
     import antlr
     from . import ActionLexer
 
