@@ -378,7 +378,7 @@ _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 ### __main__ header action >>> 
 if __name__ == '__main__':
-    import antlr
+    from stringtemplate3 import antlr
     from . import InterfaceLexer
 
     ### create lexer - shall read from stdin

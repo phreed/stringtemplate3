@@ -36,7 +36,7 @@ import traceback
 from io import StringIO
 from copy import copy
 
-import antlr
+from stringtemplate3 import antlr
 
 from stringtemplate3.language import (
     FormalArgument,
