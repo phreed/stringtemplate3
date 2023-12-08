@@ -1,19 +1,19 @@
-### $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionParser.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionParser.py"$
+# ## import antlr and other modules ..
 from builtins import str
 
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 import stringtemplate3
-### header action <<< 
-### preamble action>>>
+# ## header action <<< 
+# ## preamble action>>>
 
-### preamble action <<<
+# ## preamble action <<<
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -62,9 +62,9 @@ WS = 42
 WS_CHAR = 43
 
 
-###/** Parse the individual attribute expressions */
+# ##/** Parse the individual attribute expressions */
 class Parser(antlr.LLkParser):
-    ### user action >>>
+   # ## user action >>>
     def reportError(self, e):
         group = self.this.group
         if group == stringtemplate3.StringTemplate.defaultGroup:
@@ -74,7 +74,7 @@ class Parser(antlr.LLkParser):
             self.this.error("action parse error in group " + self.this.group.name + " line " + str(
                 self.this.groupFileLine) + "; template context is " + self.this.enclosingInstanceStackString, e)
 
-    ### user action <<<
+   # ## user action <<<
 
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
@@ -82,12 +82,12 @@ class Parser(antlr.LLkParser):
         self.buildTokenTypeASTClassMap()
         self.astFactory = antlr.ASTFactory(self.getTokenTypeToASTClassMap())
         self.astFactory.setASTNodeClass(stringtemplate3.language.StringTemplateAST)
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         if len(args) > 1 and isinstance(args[1], stringtemplate3.StringTemplate):
             self.this = args[1]
         else:
             raise ValueError("ActionParser requires a StringTemplate instance")
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
     def action(self):
         opts = None
@@ -95,7 +95,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         action_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -160,7 +160,7 @@ class Parser(antlr.LLkParser):
         templatesExpr_AST = None
         c = None
         c_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             synPredMatched10 = False
             if (_tokenSet_1.member(self.LA(1))) and (_tokenSet_2.member(self.LA(2))):
                 _m10 = self.mark()
@@ -226,7 +226,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         optionList_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.option(opts)
             while True:
@@ -256,7 +256,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         ifCondition_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -299,7 +299,7 @@ class Parser(antlr.LLkParser):
         i = None
         i_AST = None
         e_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             i = self.LT(1)
             i_AST = self.astFactory.create(i)
@@ -345,7 +345,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         expr_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.primaryExpr()
             self.addASTChild(currentAST, self.returnAST)
@@ -380,7 +380,7 @@ class Parser(antlr.LLkParser):
         parallelArrayTemplateApplication_AST = None
         c = None
         c_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
@@ -431,7 +431,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         template_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -475,7 +475,7 @@ class Parser(antlr.LLkParser):
         anonymousTemplate_AST = None
         t = None
         t_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             t = self.LT(1)
             t_AST = self.astFactory.create(t)
@@ -505,7 +505,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         ifAtom_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
@@ -526,7 +526,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         primaryExpr_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -648,7 +648,7 @@ class Parser(antlr.LLkParser):
         id_AST = None
         qid = None
         qid_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -706,7 +706,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         atom_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -759,7 +759,7 @@ class Parser(antlr.LLkParser):
         valueExpr_AST = None
         eval = None
         eval_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             eval = self.LT(1)
             eval_AST = self.astFactory.create(eval)
@@ -788,7 +788,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         function_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -862,7 +862,7 @@ class Parser(antlr.LLkParser):
         list__AST = None
         lb = None
         lb_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             lb = self.LT(1)
             lb_AST = self.astFactory.create(lb)
@@ -902,7 +902,7 @@ class Parser(antlr.LLkParser):
         nonAlternatingTemplateExpr_AST = None
         c = None
         c_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.expr()
             self.addASTChild(currentAST, self.returnAST)
@@ -937,7 +937,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         singleArg_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.match(LPAREN)
             self.nonAlternatingTemplateExpr()
@@ -971,7 +971,7 @@ class Parser(antlr.LLkParser):
         namedTemplate_AST = None
         qid = None
         qid_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -1021,7 +1021,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         argList_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             if (self.LA(1) == LPAREN) and (self.LA(2) == RPAREN):
                 pass
                 self.match(LPAREN)
@@ -1092,7 +1092,7 @@ class Parser(antlr.LLkParser):
 
         self.returnAST = argList_AST
 
-    ###/** Match (foo)() and (foo+".terse")() */
+   # ##/** Match (foo)() and (foo+".terse")() */
     def indirectTemplate(self):
 
         self.returnAST = None
@@ -1100,7 +1100,7 @@ class Parser(antlr.LLkParser):
         indirectTemplate_AST = None
         e_AST = None
         args_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             tmp43_AST = None
             tmp43_AST = self.astFactory.create(self.LT(1))
@@ -1137,7 +1137,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         listElement_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             if (_tokenSet_17.member(self.LA(1))) and (_tokenSet_4.member(self.LA(2))):
                 pass
                 self.expr()
@@ -1174,7 +1174,7 @@ class Parser(antlr.LLkParser):
         self.returnAST = None
         currentAST = antlr.ASTPair()
         argumentAssignment_AST = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -1264,9 +1264,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    ### var1
+   # ## var1
     data = [2, 0]
     return data
 
@@ -1274,9 +1274,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    ### var1
+   # ## var1
     data = [137390260224, 0]
     return data
 
@@ -1284,9 +1284,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    ### var1
+   # ## var1
     data = [274867093504, 0]
     return data
 
@@ -1294,9 +1294,9 @@ def mk_tokenSet_2():
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_3():
-    ### var1
+   # ## var1
     data = [137394094082, 0]
     return data
 
@@ -1304,9 +1304,9 @@ def mk_tokenSet_3():
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_4():
-    ### var1
+   # ## var1
     data = [274867126274, 0]
     return data
 
@@ -1314,9 +1314,9 @@ def mk_tokenSet_4():
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_5():
-    ### var1
+   # ## var1
     data = [163842, 0]
     return data
 
@@ -1324,9 +1324,9 @@ def mk_tokenSet_5():
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_6():
-    ### var1
+   # ## var1
     data = [131072, 0]
     return data
 
@@ -1334,9 +1334,9 @@ def mk_tokenSet_6():
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_7():
-    ### var1
+   # ## var1
     data = [524290, 0]
     return data
 
@@ -1344,9 +1344,9 @@ def mk_tokenSet_7():
 _tokenSet_7 = antlr.BitSet(mk_tokenSet_7())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_8():
-    ### var1
+   # ## var1
     data = [137443835906, 0]
     return data
 
@@ -1354,9 +1354,9 @@ def mk_tokenSet_8():
 _tokenSet_8 = antlr.BitSet(mk_tokenSet_8())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_9():
-    ### var1
+   # ## var1
     data = [4882434, 0]
     return data
 
@@ -1364,9 +1364,9 @@ def mk_tokenSet_9():
 _tokenSet_9 = antlr.BitSet(mk_tokenSet_9())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_10():
-    ### var1
+   # ## var1
     data = [137428140032, 0]
     return data
 
@@ -1374,9 +1374,9 @@ def mk_tokenSet_10():
 _tokenSet_10 = antlr.BitSet(mk_tokenSet_10())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_11():
-    ### var1
+   # ## var1
     data = [60130590720, 0]
     return data
 
@@ -1384,9 +1384,9 @@ def mk_tokenSet_11():
 _tokenSet_11 = antlr.BitSet(mk_tokenSet_11())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_12():
-    ### var1
+   # ## var1
     data = [137494167554, 0]
     return data
 
@@ -1394,9 +1394,9 @@ def mk_tokenSet_12():
 _tokenSet_12 = antlr.BitSet(mk_tokenSet_12())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_13():
-    ### var1
+   # ## var1
     data = [137394585600, 0]
     return data
 
@@ -1404,9 +1404,9 @@ def mk_tokenSet_13():
 _tokenSet_13 = antlr.BitSet(mk_tokenSet_13())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_14():
-    ### var1
+   # ## var1
     data = [137460613122, 0]
     return data
 
@@ -1414,9 +1414,9 @@ def mk_tokenSet_14():
 _tokenSet_14 = antlr.BitSet(mk_tokenSet_14())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_15():
-    ### var1
+   # ## var1
     data = [655360, 0]
     return data
 
@@ -1424,9 +1424,9 @@ def mk_tokenSet_15():
 _tokenSet_15 = antlr.BitSet(mk_tokenSet_15())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_16():
-    ### var1
+   # ## var1
     data = [137394061312, 0]
     return data
 
@@ -1434,9 +1434,9 @@ def mk_tokenSet_16():
 _tokenSet_16 = antlr.BitSet(mk_tokenSet_16())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_17():
-    ### var1
+   # ## var1
     data = [274829213696, 0]
     return data
 
@@ -1444,9 +1444,9 @@ def mk_tokenSet_17():
 _tokenSet_17 = antlr.BitSet(mk_tokenSet_17())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_18():
-    ### var1
+   # ## var1
     data = [274833571842, 0]
     return data
 
@@ -1454,9 +1454,9 @@ def mk_tokenSet_18():
 _tokenSet_18 = antlr.BitSet(mk_tokenSet_18())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_19():
-    ### var1
+   # ## var1
     data = [137439477760, 0]
     return data
 

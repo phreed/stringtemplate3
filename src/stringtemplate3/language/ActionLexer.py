@@ -1,20 +1,18 @@
-from __future__ import print_function
-from __future__ import absolute_import
-### $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionLexer.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "action.g" -> "ActionLexer.py"$
+# ## import antlr and other modules ..
 from builtins import str
 from builtins import range
 
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 from stringtemplate3.language.StringTemplateToken import StringTemplateToken
 
-### header action <<<
-### preamble action >>> 
+# ## header action <<<
+# ## preamble action >>> 
 
-### preamble action <<< 
-### >>>The Literals<<<
+# ## preamble action <<< 
+# ## >>>The Literals<<<
 literals = {
     u"super": 32,
     u"if": 8,
@@ -26,9 +24,9 @@ literals = {
     u"length": 29,
     u"elseif": 18}
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -78,8 +76,8 @@ WS_CHAR = 43
 
 
 class Lexer(antlr.CharScanner):
-    ### user action >>>
-    ### user action <<<
+    # ## user action >>>
+    # ## user action <<<
     def __init__(self, *argv, **kwargs):
         antlr.CharScanner.__init__(self, *argv, **kwargs)
         self.caseSensitiveLiterals = True
@@ -88,13 +86,13 @@ class Lexer(antlr.CharScanner):
 
     def nextToken(self):
         while True:
-            try:  ### try again ..
+            try:  # ## try again ..
                 while True:
                     _token = None
                     _ttype = INVALID_TYPE
                     self.resetText()
-                    try:  ## for char stream error handling
-                        try:  ##for lexical error handling
+                    try:  # # for char stream error handling
+                        try:  # #for lexical error handling
                             la1 = self.LA(1)
                             if False:
                                 pass
@@ -171,13 +169,13 @@ class Lexer(antlr.CharScanner):
                                     self.default(self.LA(1))
 
                             if not self._returnToken:
-                                raise antlr.TryAgain  ### found SKIP token
-                            ### return token to caller
+                                raise antlr.TryAgain  # ## found SKIP token
+                            # ## return token to caller
                             return self._returnToken
-                        ### handle lexical errors ....
+                        # ## handle lexical errors ....
                         except antlr.RecognitionException as e:
                             raise antlr.TokenStreamRecognitionException(e)
-                    ### handle char stream errors ...
+                    # ## handle char stream errors ...
                     except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
@@ -230,7 +228,7 @@ class Lexer(antlr.CharScanner):
             else:
                 break
 
-        ### option { testLiterals=true } 
+        # ## option { testLiterals=true }
         _ttype = self.testLiteralsTable(_ttype)
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
@@ -279,12 +277,13 @@ class Lexer(antlr.CharScanner):
         self.text.setLength(_saveIndex)
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
-    ###/** Match escape sequences, optionally translating them for strings, but not
-    ### *  for templates.  Do \} only when in {...} templates.
-    ### */
-    def mESC_CHAR(self, _createToken,
-                  doEscape
-                  ):
+    #
+    #
+    def mESC_CHAR(self, _createToken, doEscape):
+        """Match escape sequences
+        optionally translating them for strings,
+        but not for templates.  Do } only when in {...} templates.
+        """
         _ttype = 0
         _token = None
         _begin = self.text.length()
@@ -732,9 +731,9 @@ class Lexer(antlr.CharScanner):
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048  # ## init list
     data[0] = -17179869192
     data[1] = -268435457
     for x in range(2, 1023):
@@ -746,9 +745,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025  # ## init list
     data[0] = 4294977024
     data[1] = 576460745995190270
     return data
@@ -757,9 +756,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025  # ## init list
     data[0] = 288107235144377856
     data[1] = 1729382250602037246
     return data
@@ -768,9 +767,9 @@ def mk_tokenSet_2():
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_3():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025  # ## init list
     data[0] = 4294977024
     return data
 
@@ -778,9 +777,9 @@ def mk_tokenSet_3():
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_4():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048  # ## init list
     data[0] = -8
     data[1] = -2882303761785552897
     for x in range(2, 1023):
@@ -792,9 +791,9 @@ def mk_tokenSet_4():
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_5():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025  # ## init list
     data[0] = 17596481021440
     return data
 
@@ -802,9 +801,9 @@ def mk_tokenSet_5():
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_6():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025  # ## init list
     data[0] = 17596481021440
     data[1] = 576460745995190270
     return data
@@ -812,16 +811,16 @@ def mk_tokenSet_6():
 
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
-### __main__ header action >>> 
+# ## __main__ header action >>> 
 if __name__ == '__main__':
     from stringtemplate3 import antlr
     from . import ActionLexer
 
-    ### create lexer - shall read from stdin
+    # ## create lexer - shall read from stdin
     try:
         for token in ActionLexer.Lexer():
             print(token)
 
     except antlr.TokenStreamException as e:
         print("error: exception caught while lexing: ", e)
-### __main__ header action <<<
+# ## __main__ header action <<<

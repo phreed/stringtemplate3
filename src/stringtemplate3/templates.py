@@ -25,9 +25,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from future import standard_library
-
-standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
 from builtins import object
@@ -110,7 +107,7 @@ class Aggregate(object):
         self.properties = {}
         self.master = master
 
-    ## Allow StringTemplate to add values, but prevent the end
+    # # Allow StringTemplate to add values, but prevent the end
     #  user from doing so.
     #
     def __setitem__(self, propName, propValue):
@@ -186,7 +183,7 @@ class StringTemplate(object):
     out when you call StringTemplate.toString().
     """
 
-    ## Either:
+    # # Either:
     #    Create a blank template with no pattern and no attributes
     #  Or:
     #    Create an anonymous template.  It has no name just
@@ -199,19 +196,19 @@ class StringTemplate(object):
     def __init__(self, template=None, group=None, lexer=None, attributes=None):
         self.referencedAttributes = None
 
-        ## What's the name of self template?
+        # # What's the name of self template?
         self.name = ANONYMOUS_ST_NAME
 
         self.templateID = getNextTemplateCounter()
 
-        ## Enclosing instance if I'm embedded within another template.
+        # # Enclosing instance if I'm embedded within another template.
         #  IF-subtemplates are considered embedded as well.
         self._enclosingInstance = None
 
-        ## A list of embedded templates
+        # # A list of embedded templates
         self.embeddedInstances = None
 
-        ## If self template is an embedded template such as when you apply
+        # # If self template is an embedded template such as when you apply
         #  a template to an attribute, then the arguments passed to self
         #  template represent the argument context--a set of values
         #  computed by walking the argument assignment list.  For example,
@@ -229,7 +226,7 @@ class StringTemplate(object):
         #  attribute "i" is set to 1..n.
         self.argumentContext = None
 
-        ## If self template is embedded in another template, the arguments
+        # # If self template is embedded in another template, the arguments
         #  must be evaluated just before each application when applying
         #  template to a list of values.  The "it" attribute must change
         #  with each application so that $names:bold(item=it)$ works.  If
@@ -240,7 +237,7 @@ class StringTemplate(object):
         #  are re-evaluated with an initial context of:[it=...], [i=...].
         self.argumentsAST = None
 
-        ## When templates are defined in a group file format, the attribute
+        # # When templates are defined in a group file format, the attribute
         #  list is provided including information about attribute cardinality
         #  such as present, optional, ...  When self information is available,
         #  rawSetAttribute should do a quick existence check as should the
@@ -251,18 +248,18 @@ class StringTemplate(object):
         self.formalArgumentKeys = None
         self.formalArguments = UNKNOWN_ARGS
 
-        ## How many formal arguments to this template have default values
+        # # How many formal arguments to this template have default values
         #  specified?
         self.numberOfDefaultArgumentValues = 0
 
-        ## Normally, formal parameters hide any attributes inherited from the
+        # # Normally, formal parameters hide any attributes inherited from the
         #  enclosing template with the same name.  This is normally what you
         #  want, but makes it hard to invoke another template passing in all
         #  the data.  Use notation now: <otherTemplate(...)> to say "pass in
         #  all data".  Works great. Can also say <otherTemplate(foo="xxx",...)>
         self.passThroughAttributes = False
 
-        ## What group originally defined the prototype for self template?
+        # # What group originally defined the prototype for self template?
         #  This affects the set of templates I can refer to.  super.t() must
         #  always refer to the super of the original group.
         #
@@ -276,7 +273,7 @@ class StringTemplate(object):
         #  t ::= "super.t()3"
         self.nativeGroup = None
 
-        ## This template was created as part of what group?  Even if this
+        # # This template was created as part of what group?  Even if this
         #  template was created from a prototype in a supergroup, its group
         #  will be the subgroup.  That's the way polymorphism works.
         if group is not None:
@@ -288,17 +285,17 @@ class StringTemplate(object):
         if lexer is not None:
             self.group.templateLexerClass = lexer
 
-        ## If this template is defined within a group file, what line number?
+        # # If this template is defined within a group file, what line number?
         self._groupFileLine = None
 
-        ## Where to report errors
+        # # Where to report errors
         self.listener = None
 
-        ## The original, immutable pattern/language (not really used again
+        # # The original, immutable pattern/language (not really used again
         #  after initial "compilation", setup/parsing).
         self.pattern = None
 
-        ## Map an attribute name to its value(s).  These values are set by
+        # # Map an attribute name to its value(s).  These values are set by
         #  outside code via st[name] = value.  StringTemplate is like self in
         #  that a template is both the "class def" and "instance".  When you
         #  create a StringTemplate or setTemplate, the text is broken up into
@@ -307,7 +304,7 @@ class StringTemplate(object):
         #  You can have multiple.
         self.attributes = None
 
-        ## A Map<Class,Object> that allows people to register a renderer for
+        # # A Map<Class,Object> that allows people to register a renderer for
         #  a particular kind of object to be displayed in this template.  This
         #  overrides any renderer set for this template's group.
         #
@@ -316,12 +313,12 @@ class StringTemplate(object):
         #  Sometimes though you want to override the group's renderers.
         self.attributeRenderers = None
 
-        ## A list of alternating string and ASTExpr references.
+        # # A list of alternating string and ASTExpr references.
         #  This is compiled when the template is loaded/defined and walked to
         #  write out a template instance.
         self.chunks = None
 
-        ## If someone refs <@r()> in template t, an implicit
+        # # If someone refs <@r()> in template t, an implicit
         #
         # @t.r() ::= ""
         #
@@ -330,11 +327,11 @@ class StringTemplate(object):
         # this var and isEmbeddedRegion we can determine these cases.
         self.regionDefType = None
 
-        ## Does this template come from a <@region>...<@end> embedded in
+        # # Does this template come from a <@region>...<@end> embedded in
         # another template?
         self._isRegion = False
 
-        ## Set of implicit and embedded regions for this template */
+        # # Set of implicit and embedded regions for this template */
         self.regions = set()
 
         if template is not None:
@@ -585,7 +582,7 @@ class StringTemplate(object):
                 v.append(value)
 
         else:
-            ## Create an aggregate from the list of properties in aggrSpec and
+            # # Create an aggregate from the list of properties in aggrSpec and
             #  fill with values from values array.
             #
             aggrSpec = name
@@ -857,7 +854,7 @@ class StringTemplate(object):
     def setAttributes(self, attributes):
         self.attributes = attributes
 
-    ## Get a list of the strings and subtemplates and attribute
+    # # Get a list of the strings and subtemplates and attribute
     #  refs in a template.
     @deprecated
     def getChunks(self):

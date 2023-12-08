@@ -1,20 +1,19 @@
-from __future__ import absolute_import
-### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupParser.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupParser.py"$
+# ## import antlr and other modules ..
 import sys
 
-### header action >>>
+# ## header action >>>
 from .ASTExpr import *
 import stringtemplate3
 import traceback
-### header action <<< 
-### preamble action>>>
+# ## header action <<< 
+# ## preamble action>>>
 
-### preamble action <<<
+# ## preamble action <<<
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -48,29 +47,29 @@ NL = 27
 WS = 28
 
 
-###/** Match a group of template definitions beginning
-### *  with a group name declaration.  Templates are enclosed
-### *  in double-quotes or <<...>> quotes for multi-line templates.
-### *  Template names have arg lists that indicate the cardinality
-### *  of the attribute: present, optional, zero-or-more, one-or-more.
-### *  Here is a sample group file:
-###
-###        group nfa;
-###
-###        // an NFA has edges and states
-###        nfa(states,edges) ::= <<
-###        digraph NFA {
-###        rankdir=LR;
-###        <states; separator="\\n">
-###        <edges; separator="\\n">
-###        }
-###        >>
-###
-###        state(name) ::= "node [shape = circle]; <name>;"
-###
-### */
+# ##/** Match a group of template definitions beginning
+# ## *  with a group name declaration.  Templates are enclosed
+# ## *  in double-quotes or <<...>> quotes for multi-line templates.
+# ## *  Template names have arg lists that indicate the cardinality
+# ## *  of the attribute: present, optional, zero-or-more, one-or-more.
+# ## *  Here is a sample group file:
+# ##
+# ##        group nfa;
+# ##
+# ##        // an NFA has edges and states
+# ##        nfa(states,edges) ::= <<
+# ##        digraph NFA {
+# ##        rankdir=LR;
+# ##        <states; separator="\\n">
+# ##        <edges; separator="\\n">
+# ##        }
+# ##        >>
+# ##
+# ##        state(name) ::= "node [shape = circle]; <name>;"
+# ##
+# ## */
 class Parser(antlr.LLkParser):
-    ### user action >>>
+   # ## user action >>>
     def reportError(self, e):
         if self.group_:
             self.group_.error("template group parse error", e)
@@ -78,14 +77,14 @@ class Parser(antlr.LLkParser):
             sys.stderr.write("template group parse error: " + str(e) + '\n')
             traceback.print_exc()
 
-    ### user action <<<
+   # ## user action <<<
 
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         self.group_ = None
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
     def group(self,
               g
@@ -96,7 +95,7 @@ class Parser(antlr.LLkParser):
         i = None
         i2 = None
         self.group_ = g
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.match(LITERAL_group)
             name = self.LT(1)
@@ -176,7 +175,7 @@ class Parser(antlr.LLkParser):
         ignore = False
         templateName = None
         line = self.LT(1).getLine()
-        try:  ## for error handling
+        try:  # # for error handling
             if (self.LA(1) == ID or self.LA(1) == AT) and (self.LA(2) == ID or self.LA(2) == LPAREN):
                 pass
                 la1 = self.LA(1)
@@ -292,7 +291,7 @@ class Parser(antlr.LLkParser):
 
         name = None
         m = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             name = self.LT(1)
             self.match(ID)
@@ -314,7 +313,7 @@ class Parser(antlr.LLkParser):
              st
              ):
 
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.arg(st)
             while True:
@@ -339,7 +338,7 @@ class Parser(antlr.LLkParser):
         s = None
         bs = None
         defaultValue = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             name = self.LT(1)
             self.match(ID)
@@ -383,7 +382,7 @@ class Parser(antlr.LLkParser):
     def map(self):
         mapping = {}
 
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.match(LBRACK)
             self.mapPairs(mapping)
@@ -400,7 +399,7 @@ class Parser(antlr.LLkParser):
                  mapping
                  ):
 
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -444,7 +443,7 @@ class Parser(antlr.LLkParser):
                      ):
 
         key = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             key = self.LT(1)
             self.match(STRING)
@@ -461,7 +460,7 @@ class Parser(antlr.LLkParser):
                          mapping
                          ):
 
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.match(LITERAL_default)
             self.match(COLON)
@@ -479,7 +478,7 @@ class Parser(antlr.LLkParser):
         s1 = None
         s2 = None
         k = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -552,9 +551,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    ### var1
+   # ## var1
     data = [2, 0]
     return data
 
@@ -562,9 +561,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    ### var1
+   # ## var1
     data = [1058, 0]
     return data
 
@@ -572,9 +571,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    ### var1
+   # ## var1
     data = [8192, 0]
     return data
 
@@ -582,9 +581,9 @@ def mk_tokenSet_2():
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_3():
-    ### var1
+   # ## var1
     data = [8448, 0]
     return data
 
@@ -592,9 +591,9 @@ def mk_tokenSet_3():
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_4():
-    ### var1
+   # ## var1
     data = [1048576, 0]
     return data
 
@@ -602,9 +601,9 @@ def mk_tokenSet_4():
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_5():
-    ### var1
+   # ## var1
     data = [1048832, 0]
     return data
 

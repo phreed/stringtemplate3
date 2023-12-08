@@ -1,6 +1,7 @@
 = Change Log
 
 // tag::compact[]
+2023-12-0  remove `future` and replace `imp` with `importlib`
 2023-11-09 initialized from https://pypi.org/project/stringtemplate3/#description
 // end::compact[]
 

@@ -34,16 +34,15 @@ The following mamba environment was used.
 
 [source,shell]
 ----
-mamba install -c conda-forge python-build
-mamba install -c conda-forge twine
-mamba install -c conda-forge pip
-mamba install -c conda-forge pytest
+mamba create -n st3
+mamba install -c conda-forge python==3.11
+mamba install -c conda-forge python-build twine pip pytest
 ----
 
 === Package managers
 
 The two main package managers for Python are `pip` and `conda`.
-(I use the mamba variant.)
+(I use a mamba variant of conda.)
 
 ==== Pip
 

@@ -1,26 +1,24 @@
-from __future__ import print_function
-from __future__ import absolute_import
-### $ANTLR 2.7.7 (2006-11-01): "angle.bracket.template.g" -> "AngleBracketTemplateLexer.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "angle.bracket.template.g" -> "AngleBracketTemplateLexer.py"$
+# ## import antlr and other modules ..
 from builtins import chr
 from builtins import str
 from builtins import range
 
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 from stringtemplate3.language.ChunkToken import ChunkToken
 
-### header action <<<
-### preamble action >>> 
+# ## header action <<<
+# ## preamble action >>> 
 
-### preamble action <<< 
-### >>>The Literals<<<
+# ## preamble action <<< 
+# ## >>>The Literals<<<
 literals = {}
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -49,12 +47,12 @@ INDENT = 22
 COMMENT = 23
 
 
-###/** Break up an input text stream into chunks of either plain text
-### *  or template actions in "<...>".  Treat IF and ENDIF tokens
-### *  specially.
-### */
+# ##/** Break up an input text stream into chunks of either plain text
+# ## *  or template actions in "<...>".  Treat IF and ENDIF tokens
+# ## *  specially.
+# ## */
 class Lexer(antlr.CharScanner):
-    ### user action >>>
+   # ## user action >>>
     def reportError(self, e):
         self.this.error("<...> chunk lexer error", e)
 
@@ -88,26 +86,26 @@ class Lexer(antlr.CharScanner):
                 self.LA(i + 1) == '\n') or \
             self.LA(i) == '\n'
 
-    ### user action <<<
+   # ## user action <<<
     def __init__(self, *argv, **kwargs):
         antlr.CharScanner.__init__(self, *argv, **kwargs)
         self.caseSensitiveLiterals = True
         self.setCaseSensitive(True)
         self.literals = literals
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         self.currentIndent = None
         self.this = None
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
     def nextToken(self):
         while True:
-            try:  ### try again ..
+            try: # ## try again ..
                 while True:
                     _token = None
                     _ttype = INVALID_TYPE
                     self.resetText()
-                    try:  ## for char stream error handling
-                        try:  ##for lexical error handling
+                    try:  # # for char stream error handling
+                        try:  # #for lexical error handling
                             la1 = self.LA(1)
                             if False:
                                 pass
@@ -128,15 +126,15 @@ class Lexer(antlr.CharScanner):
                                     self.default(self.LA(1))
 
                             if not self._returnToken:
-                                raise antlr.TryAgain  ### found SKIP token
-                            ### option { testLiterals=true } 
+                                raise antlr.TryAgain # ## found SKIP token
+                           # ## option { testLiterals=true } 
                             self.testForLiteral(self._returnToken)
-                            ### return token to caller
+                           # ## return token to caller
                             return self._returnToken
-                        ### handle lexical errors ....
+                       # ## handle lexical errors ....
                         except antlr.RecognitionException as e:
                             raise antlr.TokenStreamRecognitionException(e)
-                    ### handle char stream errors ...
+                   # ## handle char stream errors ...
                     except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
@@ -325,7 +323,7 @@ class Lexer(antlr.CharScanner):
                     self.mNL(False)
                     self.text.setLength(_saveIndex)
                     self.newline()
-                else:  ## <m4>
+                else:  # # <m4>
                     pass
 
             elif (self.LA(1) == u'<') and (self.LA(2) == u'e') and (self.LA(3) == u'n') and (self.LA(4) == u'd') and (
@@ -345,7 +343,7 @@ class Lexer(antlr.CharScanner):
                     self.mNL(False)
                     self.text.setLength(_saveIndex)
                     self.newline()
-                else:  ## <m4>
+                else:  # # <m4>
                     pass
 
             elif (self.LA(1) == u'<') and (self.LA(2) == u'e') and (self.LA(3) == u'l') and (self.LA(4) == u's') and (
@@ -365,7 +363,7 @@ class Lexer(antlr.CharScanner):
                     self.mNL(False)
                     self.text.setLength(_saveIndex)
                     self.newline()
-                else:  ## <m4>
+                else:  # # <m4>
                     pass
 
             elif (self.LA(1) == u'<') and (self.LA(2) == u'@') and (_tokenSet_6.member(self.LA(3))) and (
@@ -539,7 +537,7 @@ class Lexer(antlr.CharScanner):
                         self.match('\n')
                         self.text.setLength(_saveIndex)
                         self.newline()
-                    else:  ## <m4>
+                    else:  # # <m4>
                         pass
 
                 else:
@@ -638,7 +636,7 @@ class Lexer(antlr.CharScanner):
         pass
         self.match("<!")
         while True:
-            ###  nongreedy exit test
+           # ##  nongreedy exit test
             if ((self.LA(1) == u'!') and (self.LA(2) == u'>') and (True) and (True) and (True) and (True) and (True)):
                 break
             if (self.LA(1) == u'\n' or self.LA(1) == u'\r') and (
@@ -660,7 +658,7 @@ class Lexer(antlr.CharScanner):
             pass
             self.mNL(False)
             self.newline()
-        else:  ## <m4>
+        else:  # # <m4>
             pass
 
         self.set_return_token(_createToken, _token, _ttype, _begin)
@@ -908,7 +906,7 @@ class Lexer(antlr.CharScanner):
                 self.raise_NoViableAlt(self.LA(1))
 
             while True:
-                ###  nongreedy exit test
+               # ##  nongreedy exit test
                 if ((self.LA(1) == u'>') and (self.LA(2) == u'>') and (
                 (self.LA(3) >= u'\u0001' and self.LA(3) <= u'\ufffe')) and (True) and (True) and (True) and (True)):
                     break
@@ -1023,9 +1021,9 @@ class Lexer(antlr.CharScanner):
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -1152921504606856194
     for x in range(1, 1023):
         data[x] = -1
@@ -1036,9 +1034,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -5764607523034234882
     for x in range(1, 1023):
         data[x] = -1
@@ -1049,9 +1047,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025 # ## init list
     data[0] = 4294967296
     data[1] = 14707067533131776
     return data
@@ -1060,9 +1058,9 @@ def mk_tokenSet_2():
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_3():
-    data = [0] * 1025  ### init list
+    data = [0] * 1025 # ## init list
     data[0] = 4899634919602388992
     data[1] = 541434314878
     return data
@@ -1071,9 +1069,9 @@ def mk_tokenSet_3():
 _tokenSet_3 = antlr.BitSet(mk_tokenSet_3())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_4():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -4611686018427387906
     for x in range(1, 1023):
         data[x] = -1
@@ -1084,9 +1082,9 @@ def mk_tokenSet_4():
 _tokenSet_4 = antlr.BitSet(mk_tokenSet_4())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_5():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -2199023255554
     for x in range(1, 1023):
         data[x] = -1
@@ -1097,9 +1095,9 @@ def mk_tokenSet_5():
 _tokenSet_5 = antlr.BitSet(mk_tokenSet_5())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_6():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -4611687117939015682
     for x in range(1, 1023):
         data[x] = -1
@@ -1110,9 +1108,9 @@ def mk_tokenSet_6():
 _tokenSet_6 = antlr.BitSet(mk_tokenSet_6())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_7():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -3298534892546
     data[1] = -576460752571858945
     for x in range(2, 1023):
@@ -1124,9 +1122,9 @@ def mk_tokenSet_7():
 _tokenSet_7 = antlr.BitSet(mk_tokenSet_7())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_8():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -1152921521786716162
     data[1] = -576460752303423489
     for x in range(2, 1023):
@@ -1138,9 +1136,9 @@ def mk_tokenSet_8():
 _tokenSet_8 = antlr.BitSet(mk_tokenSet_8())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_9():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -6917537823734113282
     data[1] = -576460752571858945
     for x in range(2, 1023):
@@ -1152,9 +1150,9 @@ def mk_tokenSet_9():
 _tokenSet_9 = antlr.BitSet(mk_tokenSet_9())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_10():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -2
     data[1] = -2882303761785552897
     for x in range(2, 1023):
@@ -1166,9 +1164,9 @@ def mk_tokenSet_10():
 _tokenSet_10 = antlr.BitSet(mk_tokenSet_10())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_11():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -17179869186
     data[1] = -268435457
     for x in range(2, 1023):
@@ -1180,9 +1178,9 @@ def mk_tokenSet_11():
 _tokenSet_11 = antlr.BitSet(mk_tokenSet_11())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_12():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -3298534883330
     data[1] = -268435457
     for x in range(2, 1023):
@@ -1193,16 +1191,16 @@ def mk_tokenSet_12():
 
 _tokenSet_12 = antlr.BitSet(mk_tokenSet_12())
 
-### __main__ header action >>> 
+# ## __main__ header action >>> 
 if __name__ == '__main__':
     from stringtemplate3 import antlr
     from . import AngleBracketTemplateLexer
 
-    ### create lexer - shall read from stdin
+   # ## create lexer - shall read from stdin
     try:
         for token in AngleBracketTemplateLexer.Lexer():
             print(token)
 
     except antlr.TokenStreamException as e:
         print("error: exception caught while lexing: ", e)
-### __main__ header action <<<
+# ## __main__ header action <<<

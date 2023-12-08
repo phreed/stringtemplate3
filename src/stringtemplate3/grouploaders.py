@@ -80,11 +80,11 @@ class PathGroupLoader(StringTemplateGroupLoader):
 
         StringTemplateGroupLoader.__init__(self)
 
-        ## List of ':' separated dirs to pull groups from
+        # # List of ':' separated dirs to pull groups from
         self.dirs = dir.split(':')
         self.errors = errors
 
-        ## How are the files encoded (ascii, UTF8, ...)?
+        # # How are the files encoded (ascii, UTF8, ...)?
         #  You might want to read UTF8 for example on an ascii machine.
         self.fileCharEncoding = sys.getdefaultencoding()
 

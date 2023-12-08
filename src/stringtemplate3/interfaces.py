@@ -25,9 +25,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from future import standard_library
-
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 from io import StringIO
@@ -62,17 +59,17 @@ class StringTemplateGroupInterface(object):
     def __init__(self, file, errors=None, superInterface=None):
         """Create an interface from the input stream"""
 
-        ## What is the group name
+        # # What is the group name
         self.name = None
 
-        ## Maps template name to TemplateDefinition object
+        # # Maps template name to TemplateDefinition object
         self.templates = {}
 
-        ## Are we derived from another group?  Templates not found in this
+        # # Are we derived from another group?  Templates not found in this
         # group will be searched for in the superGroup recursively.
         self.superInterface = superInterface
 
-        ## Where to report errors.  All string templates in this group
+        # # Where to report errors.  All string templates in this group
         #  use this error handler by default.
         if errors is not None:
             self.listener = errors

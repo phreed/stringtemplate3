@@ -1,21 +1,21 @@
-### $ANTLR 2.7.7 (2006-11-01): "template.g" -> "TemplateParser.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "template.g" -> "TemplateParser.py"$
+# ## import antlr and other modules ..
 from builtins import str
 
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 import stringtemplate3
 from stringtemplate3.language.StringRef import StringRef
 from stringtemplate3.language.NewlineRef import NewlineRef
-### header action <<< 
-### preamble action>>>
+# ## header action <<< 
+# ## preamble action>>>
 
-### preamble action <<<
+# ## preamble action <<<
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -44,11 +44,11 @@ INDENT = 22
 COMMENT = 23
 
 
-###/** A parser used to break up a single template into chunks, text literals
-### *  and attribute expressions.
-### */
+# ##/** A parser used to break up a single template into chunks, text literals
+# ## *  and attribute expressions.
+# ## */
 class Parser(antlr.LLkParser):
-    ### user action >>>
+   # ## user action >>>
     def reportError(self, e):
         group = self.this.group
         if group == stringtemplate3.StringTemplate.defaultGroup:
@@ -58,14 +58,14 @@ class Parser(antlr.LLkParser):
             self.this.error("template parse error in group " + self.this.group.name + " line " + str(
                 self.this.groupFileLine) + "; template context is " + self.this.enclosingInstanceStackString, e)
 
-    ### user action <<<
+   # ## user action <<<
 
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         self.this = None
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
     def template(self,
                  this
@@ -73,7 +73,7 @@ class Parser(antlr.LLkParser):
 
         s = None
         nl = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             while True:
                 la1 = self.LA(1)
@@ -111,7 +111,7 @@ class Parser(antlr.LLkParser):
         ei = None
         rr = None
         rd = None
-        try:  ## for error handling
+        try:  # # for error handling
             la1 = self.LA(1)
             if False:
                 pass
@@ -270,9 +270,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    ### var1
+   # ## var1
     data = [1792, 0]
     return data
 
@@ -280,9 +280,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    ### var1
+   # ## var1
     data = [8176, 0]
     return data
 

@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stringtemplate3x"
-version = "2023.11.3-dev1"
+version = "2023.12.0-dev1"
 authors = [
   { name="Terence Parr", email="parrt-spam@antlr.org" },
   { name="Marq Kole", email="marq.kole-spam@philips.com" },

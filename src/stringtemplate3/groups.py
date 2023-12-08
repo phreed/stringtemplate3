@@ -1,5 +1,3 @@
-from __future__ import division
-
 # [The "BSD licence"]
 # Copyright (c) 2003-2006 Terence Parr
 # All rights reserved.
@@ -26,17 +24,13 @@ from __future__ import division
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-from future import standard_library
-
-standard_library.install_aliases()
+import os
 from builtins import str
 from past.builtins import basestring
 from builtins import object
 from past.utils import old_div
 import sys
 import traceback
-import imp
 import time
 from io import StringIO
 
@@ -60,7 +54,7 @@ from stringtemplate3.interfaces import StringTemplateGroupInterface
 
 DEFAULT_EXTENSION = '.st'
 
-## Used to indicate that the template doesn't exist.
+# # Used to indicate that the template doesn't exist.
 #  We don't have to check disk for it; we know it's not there.
 #  Set later to work around cyclic class definitions
 NOT_FOUND_ST = None
@@ -69,7 +63,7 @@ NOT_FOUND_ST = None
 class StringTemplateGroup(object):
     """
     Manages a group of named mutually-referential StringTemplate objects.
-    Currently the templates must all live under a directory so that you
+    Currently, the templates must all live under a directory so that you
     can reference them as foo.st or gutter/header.st.  To refresh a
     group of templates, just create a new StringTemplateGroup and start
     pulling templates from there.  Or, set the refresh interval.
@@ -91,51 +85,51 @@ class StringTemplateGroup(object):
     automatically.
     """
 
-    ## Track all groups by name; maps name to StringTemplateGroup
+    # Track all groups by name; maps name to StringTemplateGroup
     nameToGroupMap = {}
 
-    ## Track all interfaces by name; maps name to StringTemplateGroupInterface
+    # Track all interfaces by name; maps name to StringTemplateGroupInterface
     nameToInterfaceMap = {}
 
-    ## If a group file indicates it derives from a supergroup, how do we
+    # If a group file indicates it derives from a supergroup, how do we
     #  find it?  Shall we make it so the initial StringTemplateGroup file
     #  can be loaded via this loader?  Right now we pass a Reader to ctor
     #  to distinguish from the other variety.
     groupLoader = None
 
-    ## You can set the lexer once if you know all of your groups use the
+    # You can set the lexer once if you know all of your groups use the
     #  same separator.  If the instance has templateLexerClass set
     #  then it is used as an override.
     defaultTemplateLexerClass = DefaultTemplateLexer.Lexer
 
     def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None):
-        ## What is the group name
+        # What is the group name
         #
         self.name = None
-        ## Maps template name to StringTemplate object
+        # Maps template name to StringTemplate object
         #
         self.templates = {}
-        ## Maps map names to HashMap objects.  This is the list of maps
+        # Maps map names to HashMap objects.  This is the list of maps
         #  defined by the user like typeInitMap ::= ["int":"0"]
         #
         self.maps = {}
 
-        ## How to pull apart a template into chunks?
+        # How to pull apart a template into chunks?
         self._templateLexerClass = None
 
-        ## Under what directory should I look for templates?  If None,
+        # Under what directory should I look for templates?  If None,
         #  to look into the CLASSPATH for templates as resources.
         #
         self.rootDir = None
 
-        ## Are we derived from another group?  Templates not found in this
+        # Are we derived from another group?  Templates not found in this
         #  group will be searched for in the superGroup recursively.
         self._superGroup = None
 
-        ## Keep track of all interfaces implemented by this group.
+        # Keep track of all interfaces implemented by this group.
         self.interfaces = []
 
-        ## When templates are files on the disk, the refresh interval is used
+        # When templates are files on the disk, the refresh interval is used
         #  to know when to reload.  When a Reader is passed to the ctor,
         #  it is a stream full of template definitions.  The former is used
         #  for web development, but the latter is most likely used for source
@@ -147,17 +141,17 @@ class StringTemplateGroup(object):
         #  If not in the super group, report no such template.
         #
         self.templatesDefinedInGroupFile = False
-        ## Normally AutoIndentWriter is used to filter output, but user can
+        # Normally AutoIndentWriter is used to filter output, but user can
         #  specify a new one.
         #
         self.userSpecifiedWriter = None
 
         self.debugTemplateOutput = False
 
-        ## The set of templates to ignore when dumping start/stop debug strings
+        # The set of templates to ignore when dumping start/stop debug strings
         self.noDebugStartStopStrings = None
 
-        ## A Map<class,object> that allows people to register a renderer for
+        # A Map<class,object> that allows people to register a renderer for
         #  a particular kind of object to be displayed for any template in this
         #  group.  For example, a date should be formatted differently depending
         #  on the locale.  You can set Date.class to an object whose
@@ -171,14 +165,14 @@ class StringTemplateGroup(object):
         #
         self.attributeRenderers = None
 
-        ## Where to report errors.  All string templates in this group
+        # Where to report errors.  All string templates in this group
         #  use this error handler by default.
         if errors is not None:
             self.listener = errors
         else:
             self.listener = DEFAULT_ERROR_LISTENER
 
-        ## How long before tossing out all templates in seconds.
+        # How long before tossing out all templates in seconds.
         #  default: no refreshing from disk
         #
         self.refreshInterval = old_div(sys.maxsize, 1000)
@@ -344,7 +338,7 @@ class StringTemplateGroup(object):
             elif self.groupLoader is None:
                 self.listener.error("no group loader registered", None)
 
-    ## StringTemplate object factory; each group can have its own.
+    # # StringTemplate object factory; each group can have its own.
     def createStringTemplate(self):
         return StringTemplate()
 
@@ -393,7 +387,7 @@ class StringTemplateGroup(object):
         st.enclosingInstance = enclosingInstance
         return st
 
-    ## Get the template called 'name' from the group.  If not found,
+    # # Get the template called 'name' from the group.  If not found,
     #  attempt to load.  If not found on disk, then try the superGroup
     #  if any.  If not even there, then record that it's
     #  NOT_FOUND so we don't waste time looking again later.  If we've gone
@@ -497,7 +491,14 @@ class StringTemplateGroup(object):
             'loadTemplate should be called with a file or filename'
         )
 
-    ## Load a template whose name is derived from the template filename.
+    def find_in_pypath(self, name):
+        for dirname in sys.path:
+            candidate = os.path.join(dirname, name)
+            if os.path.exists(candidate):
+                return candidate, None
+        return None, None
+        
+    # Load a template whose name is derived from the template filename.
     #  If there is a rootDir, try to load the file from there.
     #
     def loadTemplateFromBeneathRootDir(self, fileName):
@@ -507,7 +508,8 @@ class StringTemplateGroup(object):
         # In the Python case that is of course the sys.path
         if not self.rootDir:
             try:
-                br, pathName, descr = imp.find_module(name)
+                # br, pathName, descr = imp.find_module(name)
+                br, path_name = self.find_in_pypath(name)
             except ImportError:
                 br = None
             if br is None:
@@ -530,13 +532,13 @@ class StringTemplateGroup(object):
         template = self.loadTemplate(name, self.rootDir + '/' + fileName)
         return template
 
-    ## (def that people can override behavior; not a general
+    # (def that people can override behavior; not a general
     #  purpose method)
     #
     def getFileNameFromTemplateName(self, templateName):
         return templateName + DEFAULT_EXTENSION
 
-    ## Convert a filename relativePath/name.st to relativePath/name.
+    # Convert a filename relativePath/name.st to relativePath/name.
     #  (def that people can override behavior; not a general
     #  purpose method)
     #
@@ -547,7 +549,7 @@ class StringTemplateGroup(object):
             name = name[:suffix]
         return name
 
-    ## Define an examplar template; precompiled and stored
+    # Define an examplar template; precompiled and stored
     #  with no attributes.  Remove any previous definition.
     #
     def defineTemplate(self, name, template):
@@ -611,7 +613,7 @@ class StringTemplateGroup(object):
         """
         return mangledName[len("region__"):mangledName.rindex("__")]
 
-    ## Make name and alias for target.  Replace any previous def of name#
+    # # Make name and alias for target.  Replace any previous def of name#
     def defineTemplateAlias(self, name, target):
         targetST = self.getTemplateDefinition(target)
         if not targetST:
@@ -633,13 +635,13 @@ class StringTemplateGroup(object):
 
         return False
 
-    ## Get the ST for 'name' in this group only
+    # # Get the ST for 'name' in this group only
     #
     def getTemplateDefinition(self, name):
         if name in self.templates:
             return self.templates[name]
 
-    ## Is there *any* definition for template 'name' in this template
+    # # Is there *any* definition for template 'name' in this template
     #  or above it in the group hierarchy?
     #
     def isDefined(self, name):
@@ -685,7 +687,7 @@ class StringTemplateGroup(object):
     def getRefreshInterval(self):
         return self.refreshInterval
 
-    ## How often to refresh all templates from disk.  This is a crude
+    # # How often to refresh all templates from disk.  This is a crude
     #  mechanism at the moment--just tosses everything out at this
     #  frequency.  Set interval to 0 to refresh constantly (no caching).
     #  Set interval to a huge number like MAX_INT to have no refreshing
@@ -704,12 +706,12 @@ class StringTemplateGroup(object):
     getErrorListener = deprecated(getErrorListener)
     setErrorListener = deprecated(setErrorListener)
 
-    ## Specify a StringTemplateWriter implementing class to use for
+    # # Specify a StringTemplateWriter implementing class to use for
     #  filtering output
     def setStringTemplateWriter(self, c):
         self.userSpecifiedWriter = c
 
-    ## return an instance of a StringTemplateWriter that spits output to w.
+    # # return an instance of a StringTemplateWriter that spits output to w.
     #  If a writer is specified, use it instead of the default.
     def getStringTemplateWriter(self, w):
         stw = None
@@ -723,14 +725,14 @@ class StringTemplateGroup(object):
             stw = AutoIndentWriter(w)
         return stw
 
-    ## Specify a complete map of what object classes should map to which
+    # # Specify a complete map of what object classes should map to which
     #  renderer objects for every template in this group (that doesn't
     #  override it per template).
     @deprecated
     def setAttributeRenderers(self, renderers):
         self.attributeRenderers = renderers
 
-    ## Register a renderer for all objects of a particular type for all
+    # # Register a renderer for all objects of a particular type for all
     #  templates in this group.
     #
     def registerRenderer(self, attributeClassType, renderer):
@@ -738,7 +740,7 @@ class StringTemplateGroup(object):
             self.attributeRenderers = {}
         self.attributeRenderers[attributeClassType] = renderer
 
-    ## What renderer is registered for this attributeClassType for
+    # # What renderer is registered for this attributeClassType for
     #  this group?  If not found, as superGroup if it has one.
     #
     def getAttributeRenderer(self, attributeClassType):

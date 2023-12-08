@@ -1,6 +1,3 @@
-from future import standard_library
-
-standard_library.install_aliases()
 from builtins import str
 from builtins import range
 from past.builtins import basestring
@@ -86,7 +83,7 @@ class ASTExpr(Expr):
 
     MAP_KEY_VALUE = None
 
-    ## Using an expr option w/o value, makes options table hold EMPTY_OPTION
+    # # Using an expr option w/o value, makes options table hold EMPTY_OPTION
     #  value for that key.
     EMPTY_OPTION = "empty expr option"
 
@@ -107,15 +104,15 @@ class ASTExpr(Expr):
         super(ASTExpr, self).__init__(enclosingTemplate)
         self.exprTree = exprTree
 
-        ## store separator etc...
+        # # store separator etc...
         self.options = options
 
-        ## A cached value of wrap=expr from the <...> expression.
+        # # A cached value of wrap=expr from the <...> expression.
         #  Computed in write(StringTemplate, StringTemplateWriter) and used
         #  in writeAttribute.
         self.wrapString = None
 
-        ## For null values in iterated attributes and single attributes that
+        # # For null values in iterated attributes and single attributes that
         #  are null, use this value instead of skipping.  For single valued
         #  attributes like <name; null="n/a"> it's a shorthand for
         #  <if(name)><name><else>n/a<endif>
@@ -124,7 +121,7 @@ class ASTExpr(Expr):
         #  <values:{v| <v>}; null="0"> also.
         self.nullValue = None
 
-        ## A cached value of separator=expr from the <...> expression.
+        # # A cached value of separator=expr from the <...> expression.
         #  Computed in write(StringTemplate, StringTemplateWriter) and used
         #  in writeAttribute.
         self.separatorString = None
@@ -132,7 +129,7 @@ class ASTExpr(Expr):
         # A cached value of option format=expr
         self.formatString = None
 
-    ## Return the tree interpreted when self template is written out.
+    # # Return the tree interpreted when self template is written out.
     @deprecated
     def getAST(self):
         return self.exprTree
@@ -140,7 +137,7 @@ class ASTExpr(Expr):
     def __str__(self):
         return str(self.exprTree)
 
-    ## To write out the value of an ASTExpr, invoke the evaluator in eval.g
+    # # To write out the value of an ASTExpr, invoke the evaluator in eval.g
     #  to walk the tree writing out the values.  For efficiency, don't
     #  compute a bunch of strings and then pack them together.  Write out
     #  directly.
@@ -208,7 +205,7 @@ class ASTExpr(Expr):
     #             HELP ROUTINES CALLED BY EVALUATOR TREE WALKER
     # -----------------------------------------------------------------------------
 
-    ## For <names,phones:{n,p | ...}> treat the names, phones as lists
+    # # For <names,phones:{n,p | ...}> treat the names, phones as lists
     #  to be walked in lock step as n=names[i], p=phones[i].
     #
     def applyTemplateToListOfAttributes(self, this, attributes, templateToApply):
@@ -372,7 +369,7 @@ class ASTExpr(Expr):
                 soleArgName = argNames[0]
                 argumentContext[soleArgName] = ithValue
 
-    ## Return o.getPropertyName() given o and propertyName.  If o is
+    # # Return o.getPropertyName() given o and propertyName.  If o is
     #  a stringtemplate then access it's attributes looking for propertyName
     #  instead (don't check any of the enclosing scopes; look directly into
     #  that object).  Also try isXXX() for booleans.  Allow HashMap,
@@ -461,7 +458,7 @@ class ASTExpr(Expr):
 
         return value
 
-    ## Normally StringTemplate tests presence or absence of attributes
+    # # Normally StringTemplate tests presence or absence of attributes
     #  for adherence to my principles of separation, but some people
     #  disagree and want to change.
     #
@@ -485,7 +482,7 @@ class ASTExpr(Expr):
             return a
         return True
 
-    ## For now, we can only add two objects as strings; convert objects to
+    # # For now, we can only add two objects as strings; convert objects to
     #  strings then cat.
     #
     def add(self, a, b):
@@ -497,7 +494,7 @@ class ASTExpr(Expr):
 
         return str(a) + str(b)
 
-    ## Call a string template with args and return result.  Do not convert
+    # # Call a string template with args and return result.  Do not convert
     #  to a string yet.  It may need attributes that will be available after
     #  self is inserted into another template.
     #
@@ -514,7 +511,7 @@ class ASTExpr(Expr):
         self.evaluateArguments(embedded)
         return embedded
 
-    ## How to spit out an object.  If it's not a StringTemplate nor a sequence,
+    # # How to spit out an object.  If it's not a StringTemplate nor a sequence,
     #  just do o.toString().  If it's a StringTemplate, do o.write(out).
     #  If it's a sequence, do a write(out, o[i]) for all elements.
     #  Note that if you do something weird like set the values of a
@@ -654,7 +651,7 @@ class ASTExpr(Expr):
             # just in case we expand in the future and it's something else
             return str(expr)
 
-    ## Evaluate an argument list within the context of the enclosing
+    # # Evaluate an argument list within the context of the enclosing
     #  template but store the values in the context of self, the
     #  new embedded template.  For example, bold(item=item) means
     #  that bold.item should get the value of enclosing.item.
@@ -696,7 +693,7 @@ class ASTExpr(Expr):
             this.error('can\'t evaluate tree: ' + argumentsAST.toStringList(),
                        re)
 
-    ## Return the first attribute if multiple valued or the attribute
+    # # Return the first attribute if multiple valued or the attribute
     #  itself if single-valued.  Used in <names:first()>
     #
     def first(self, attribute):
@@ -708,7 +705,7 @@ class ASTExpr(Expr):
             f = attribute[0]
         return f
 
-    ## Return the everything but the first attribute if multiple valued
+    # # Return the everything but the first attribute if multiple valued
     #  or null if single-valued.  Used in <names:rest()>.
     #
     def rest(self, attribute):
@@ -732,7 +729,7 @@ class ASTExpr(Expr):
             theRest = None
         return theRest
 
-    ## Return the last attribute if multiple valued or the attribute
+    # # Return the last attribute if multiple valued or the attribute
     #  itself if single-valued.  Used in <names:last()>.  This is pretty
     #  slow as it iterates until the last element.  Ultimately, I could
     #  make a special case for a List or Vector.

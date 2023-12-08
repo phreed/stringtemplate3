@@ -134,16 +134,16 @@ class AutoIndentWriter(StringTemplateWriter):
     def __init__(self, out):
         StringTemplateWriter.__init__(self)
 
-        ## stack of indents
+        # # stack of indents
         self.indents = [None]  # start with no indent
 
-        ## Stack of integer anchors (char positions in line)
+        # # Stack of integer anchors (char positions in line)
         self.anchors = []
 
         self.out = out
         self.atStartOfLine = True
 
-        ## Track char position in the line (later we can think about tabs).
+        # # Track char position in the line (later we can think about tabs).
         #  Indexed from 0.  We want to keep charPosition <= lineWidth.
         #  This is the position we are *about* to write not the position
         #  last written to.

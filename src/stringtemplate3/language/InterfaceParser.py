@@ -1,10 +1,10 @@
-### $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceParser.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceParser.py"$
+# ## import antlr and other modules ..
 from builtins import str
 
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 #
 # [The "BSD licence"]
 # Copyright (c) 2003-2004 Terence Parr
@@ -38,14 +38,14 @@ import sys
 import traceback
 
 from stringtemplate3.language.FormalArgument import FormalArgument
-### header action <<< 
-### preamble action>>>
+# ## header action <<< 
+# ## preamble action>>>
 
-### preamble action <<<
+# ## preamble action <<<
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -65,15 +65,15 @@ ML_COMMENT = 13
 WS = 14
 
 
-###/** Match an ST group interface.  Just a list of template names with args.
-### *  Here is a sample interface file:
-### *
-### *	interface nfa;
-### *	nfa(states,edges);
-### *	optional state(name);
-### */
+# ##/** Match an ST group interface.  Just a list of template names with args.
+# ## *  Here is a sample interface file:
+# ## *
+# ## *	interface nfa;
+# ## *	nfa(states,edges);
+# ## *	optional state(name);
+# ## */
 class Parser(antlr.LLkParser):
-    ### user action >>>
+   # ## user action >>>
     def reportError(self, e):
         if self.group_:
             self.group_.error("template group interface parse error", e)
@@ -81,14 +81,14 @@ class Parser(antlr.LLkParser):
             sys.stderr.write("template group interface parse error: " + str(e) + '\n')
             traceback.print_exc()
 
-    ### user action <<<
+   # ## user action <<<
 
     def __init__(self, *args, **kwargs):
         antlr.LLkParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         self.groupI = None
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
     def groupInterface(self,
                        groupI
@@ -96,7 +96,7 @@ class Parser(antlr.LLkParser):
 
         name = None
         self.groupI = groupI
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             self.match(LITERAL_interface)
             name = self.LT(1)
@@ -128,7 +128,7 @@ class Parser(antlr.LLkParser):
         name = None
         formalArgs = {}  # leave blank if no args
         templateName = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             la1 = self.LA(1)
             if False:
@@ -171,7 +171,7 @@ class Parser(antlr.LLkParser):
 
         a = None
         b = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             a = self.LT(1)
             self.match(ID)
@@ -214,9 +214,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    ### var1
+   # ## var1
     data = [2, 0]
     return data
 
@@ -224,9 +224,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    ### var1
+   # ## var1
     data = [162, 0]
     return data
 
@@ -234,9 +234,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    ### var1
+   # ## var1
     data = [512, 0]
     return data
 

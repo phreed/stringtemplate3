@@ -56,7 +56,7 @@ class FormalArgument(object):
     def __init__(self, name, defaultValueST=None):
         self.name = name
         # self.cardinality = REQUIRED
-        ## If they specified name="value", store the template here
+        # # If they specified name="value", store the template here
         #
         self.defaultValueST = defaultValueST
 

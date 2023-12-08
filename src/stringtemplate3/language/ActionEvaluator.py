@@ -1,13 +1,11 @@
-### $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
-### import antlr and other modules ..
-from future import standard_library
+# ## $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
+# ## import antlr and other modules ..
 
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 from stringtemplate3 import antlr
 
-### header action >>> 
+# ## header action >>> 
 from stringtemplate3.language.CatIterator import CatList
 
 from io import StringIO
@@ -20,11 +18,11 @@ class NameValuePair(object):
         self.value = None
 
 
-### header action <<<
+# ## header action <<<
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -73,9 +71,9 @@ WS = 42
 WS_CHAR = 43
 
 
-### user code>>>
+# ## user code>>>
 
-### user code<<<
+# ## user code<<<
 
 class Walker(antlr.TreeParser):
 
@@ -83,13 +81,13 @@ class Walker(antlr.TreeParser):
     def __init__(self, *args, **kwargs):
         antlr.TreeParser.__init__(self, *args, **kwargs)
         self.tokenNames = _tokenNames
-        ### __init__ header action >>> 
+       # ## __init__ header action >>> 
         self.this = None
         self.out = None
         self.chunk = None
-        ### __init__ header action <<< 
+       # ## __init__ header action <<< 
 
-    ### user action >>>
+   # ## user action >>>
     def initialize(self, this, chunk, out):
         self.this = this
         self.chunk = chunk
@@ -98,7 +96,7 @@ class Walker(antlr.TreeParser):
     def reportError(self, e):
         self.this.error("eval tree parse error", e)
 
-    ### user action <<<
+   # ## user action <<<
     def action(self, _t):
         numCharsWritten = 0
 
@@ -106,7 +104,7 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             action_AST_in = _t
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             e = self.expr(_t)
             _t = self._retTree
@@ -129,7 +127,7 @@ class Walker(antlr.TreeParser):
         a = None
         b = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -195,9 +193,9 @@ class Walker(antlr.TreeParser):
         self._retTree = _t
         return value
 
-    ###/** Apply template(s) to an attribute; can be applied to another apply
-    ### *  result.
-    ### */
+   # ##/** Apply template(s) to an attribute; can be applied to another apply
+   # ## *  result.
+   # ## */
     def templateApplication(self, _t):
         value = None
 
@@ -208,7 +206,7 @@ class Walker(antlr.TreeParser):
         a = None
         templatesToApply = []
         attributes = []
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -299,7 +297,7 @@ class Walker(antlr.TreeParser):
         obj = None
         propName = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -397,7 +395,7 @@ class Walker(antlr.TreeParser):
         args = None
         name = ""
         n = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t10 = _t
             tmp8_AST_in = _t
@@ -457,7 +455,7 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             function_AST_in = _t
         a = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t21 = _t
             tmp10_AST_in = _t
@@ -530,7 +528,7 @@ class Walker(antlr.TreeParser):
         self._retTree = _t
         return value
 
-    ###/** create a new list of expressions as a new multi-value attribute */
+   # ##/** create a new list of expressions as a new multi-value attribute */
     def list(self, _t):
         value = None
 
@@ -540,7 +538,7 @@ class Walker(antlr.TreeParser):
         e = None
         elements = []
         value = CatList(elements)
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -603,7 +601,7 @@ class Walker(antlr.TreeParser):
         args2 = None
         argumentContext = {}
         n = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t26 = _t
             tmp19_AST_in = _t
@@ -686,7 +684,7 @@ class Walker(antlr.TreeParser):
         singleFunctionArg_AST_in = None
         if _t != antlr.ASTNULL:
             singleFunctionArg_AST_in = _t
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t24 = _t
             tmp21_AST_in = _t
@@ -712,7 +710,7 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             ifCondition_AST_in = _t
         a = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -753,7 +751,7 @@ class Walker(antlr.TreeParser):
         ifAtom_AST_in = None
         if _t != antlr.ASTNULL:
             ifAtom_AST_in = _t
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             value = self.expr(_t)
             _t = self._retTree
@@ -766,11 +764,11 @@ class Walker(antlr.TreeParser):
         self._retTree = _t
         return value
 
-    ###/** self is assumed to be the enclosing context as foo(x=y) must find y in
-    ### *  the template that encloses the ref to foo(x=y).  We must pass in
-    ### *  the embedded template (the one invoked) so we can check formal args
-    ### *  in rawSetArgumentAttribute.
-    ### */
+   # ##/** self is assumed to be the enclosing context as foo(x=y) must find y in
+   # ## *  the template that encloses the ref to foo(x=y).  We must pass in
+   # ## *  the embedded template (the one invoked) so we can check formal args
+   # ## *  in rawSetArgumentAttribute.
+   # ## */
     def argList(self, _t,
                 embedded, initialContext
                 ):
@@ -782,7 +780,7 @@ class Walker(antlr.TreeParser):
         argumentContext = initialContext
         if not argumentContext:
             argumentContext = {}
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -830,7 +828,7 @@ class Walker(antlr.TreeParser):
             argumentAssignment_AST_in = _t
         arg = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
             la1 = _t.getType()
@@ -877,7 +875,7 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             singleTemplateArg_AST_in = _t
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t41 = _t
             tmp26_AST_in = _t
@@ -969,9 +967,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    ### var1
+   # ## var1
     data = [60180949680, 0]
     return data
 

@@ -1,24 +1,22 @@
-from __future__ import print_function
-from __future__ import absolute_import
-### $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupLexer.py"$
-### import antlr and other modules ..
+# ## $ANTLR 2.7.7 (2006-11-01): "group.g" -> "GroupLexer.py"$
+# ## import antlr and other modules ..
 
-### header action >>>
+# ## header action >>>
 from .ASTExpr import *
 
-### header action <<<
-### preamble action >>> 
+# ## header action <<<
+# ## preamble action >>> 
 
-### preamble action <<< 
-### >>>The Literals<<<
+# ## preamble action <<< 
+# ## >>>The Literals<<<
 literals = {}
 literals[u"default"] = 21
 literals[u"group"] = 4
 literals[u"implements"] = 7
 
-### import antlr.Token
+# ## import antlr.Token
 
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -53,8 +51,8 @@ WS = 28
 
 
 class Lexer(antlr.CharScanner):
-    ### user action >>>
-    ### user action <<<
+   # ## user action >>>
+   # ## user action <<<
     def __init__(self, *argv, **kwargs):
         antlr.CharScanner.__init__(self, *argv, **kwargs)
         self.caseSensitiveLiterals = True
@@ -63,13 +61,13 @@ class Lexer(antlr.CharScanner):
 
     def nextToken(self):
         while True:
-            try:  ### try again ..
+            try: # ## try again ..
                 while True:
                     _token = None
                     _ttype = INVALID_TYPE
                     self.resetText()
-                    try:  ## for char stream error handling
-                        try:  ##for lexical error handling
+                    try:  # # for char stream error handling
+                        try:  # #for lexical error handling
                             la1 = self.LA(1)
                             if False:
                                 pass
@@ -162,13 +160,13 @@ class Lexer(antlr.CharScanner):
                                     self.default(self.LA(1))
 
                             if not self._returnToken:
-                                raise antlr.TryAgain  ### found SKIP token
-                            ### return token to caller
+                                raise antlr.TryAgain # ## found SKIP token
+                           # ## return token to caller
                             return self._returnToken
-                        ### handle lexical errors ....
+                       # ## handle lexical errors ....
                         except antlr.RecognitionException as e:
                             raise antlr.TokenStreamRecognitionException(e)
-                    ### handle char stream errors ...
+                   # ## handle char stream errors ...
                     except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
@@ -221,7 +219,7 @@ class Lexer(antlr.CharScanner):
             else:
                 break
 
-        ### option { testLiterals=true } 
+       # ## option { testLiterals=true } 
         _ttype = self.testLiteralsTable(_ttype)
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
@@ -280,7 +278,7 @@ class Lexer(antlr.CharScanner):
             self.raise_NoViableAlt(self.LA(1))
 
         while True:
-            ###  nongreedy exit test
+           # ##  nongreedy exit test
             if ((self.LA(1) == u'>') and (self.LA(2) == u'>')):
                 break
             if ((self.LA(1) == u'\r') and (self.LA(2) == u'\n') and (self.LA(3) == '>' and self.LA(4) == '>')):
@@ -363,7 +361,7 @@ class Lexer(antlr.CharScanner):
         self.match('{')
         self.text.setLength(_saveIndex)
         while True:
-            ###  nongreedy exit test
+           # ##  nongreedy exit test
             if ((self.LA(1) == u'}') and (True)):
                 break
             if (self.LA(1) == u'\n' or self.LA(1) == u'\r') and ((self.LA(2) >= u'\u0000' and self.LA(2) <= u'\ufffe')):
@@ -557,7 +555,7 @@ class Lexer(antlr.CharScanner):
         if (self.LA(1) == u'\n' or self.LA(1) == u'\r'):
             pass
             self.mNL(False)
-        else:  ## <m4>
+        else:  # # <m4>
             pass
 
         _ttype = SKIP;
@@ -573,7 +571,7 @@ class Lexer(antlr.CharScanner):
         pass
         self.match("/*")
         while True:
-            ###  nongreedy exit test
+           # ##  nongreedy exit test
             if ((self.LA(1) == u'*') and (self.LA(2) == u'/')):
                 break
             if (self.LA(1) == u'\n' or self.LA(1) == u'\r') and ((self.LA(2) >= u'\u0000' and self.LA(2) <= u'\ufffe')):
@@ -626,9 +624,9 @@ class Lexer(antlr.CharScanner):
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_0():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -17179869185
     for x in range(1, 1023):
         data[x] = -1
@@ -639,9 +637,9 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_1():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -17179869185
     data[1] = -268435457
     for x in range(2, 1023):
@@ -653,9 +651,9 @@ def mk_tokenSet_1():
 _tokenSet_1 = antlr.BitSet(mk_tokenSet_1())
 
 
-### generate bit set
+# ## generate bit set
 def mk_tokenSet_2():
-    data = [0] * 2048  ### init list
+    data = [0] * 2048 # ## init list
     data[0] = -9217
     for x in range(1, 1023):
         data[x] = -1
@@ -665,16 +663,16 @@ def mk_tokenSet_2():
 
 _tokenSet_2 = antlr.BitSet(mk_tokenSet_2())
 
-### __main__ header action >>> 
+# ## __main__ header action >>> 
 if __name__ == '__main__':
     from stringtemplate3 import antlr
     from . import GroupLexer
 
-    ### create lexer - shall read from stdin
+   # ## create lexer - shall read from stdin
     try:
         for token in GroupLexer.Lexer():
             print(token)
 
     except antlr.TokenStreamException as e:
         print("error: exception caught while lexing: ", e)
-### __main__ header action <<<
+# ## __main__ header action <<<
