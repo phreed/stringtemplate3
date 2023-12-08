@@ -26,7 +26,6 @@
 #
 
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 import sys
 import traceback
@@ -335,7 +334,7 @@ class StringTemplate(object):
         self.regions = set()
 
         if template is not None:
-            assert isinstance(template, basestring)
+            assert isinstance(template, str)
             self.template = template
 
         if attributes is not None:
@@ -940,7 +939,7 @@ class StringTemplate(object):
     def defineFormalArgument(self, names, defaultValue=None):
         if not names:
             return
-        if isinstance(names, basestring):
+        if isinstance(names, str):
             name = names
             if defaultValue:
                 self.numberOfDefaultArgumentValues += 1

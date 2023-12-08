@@ -25,7 +25,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from past.builtins import basestring
 from builtins import object
 from stringtemplate3.utils import deprecated
 
@@ -186,7 +185,7 @@ class AutoIndentWriter(StringTemplateWriter):
         before spitting out this str.
         """
 
-        assert isinstance(text, basestring), repr(text)
+        assert isinstance(text, str), repr(text)
 
         n = 0
         if wrap is not None:

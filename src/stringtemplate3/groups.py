@@ -26,9 +26,7 @@
 #
 import os
 from builtins import str
-from past.builtins import basestring
 from builtins import object
-from past.utils import old_div
 import sys
 import traceback
 import time
@@ -175,14 +173,14 @@ class StringTemplateGroup(object):
         # How long before tossing out all templates in seconds.
         #  default: no refreshing from disk
         #
-        self.refreshInterval = old_div(sys.maxsize, 1000)
+        self.refreshInterval = sys.maxsize // 1000
         self.lastCheckedDisk = 0
 
         if name is not None:
-            assert isinstance(name, basestring)
+            assert isinstance(name, str)
             self.name = name
 
-            assert rootDir is None or isinstance(rootDir, basestring)
+            assert rootDir is None or isinstance(rootDir, str)
             self.rootDir = rootDir
             self.lastCheckedDisk = time.time()
             StringTemplateGroup.nameToGroupMap[self.name] = self
@@ -222,7 +220,7 @@ class StringTemplateGroup(object):
         return self.defaultTemplateLexerClass
 
     def setTemplateLexerClass(self, lexer):
-        if isinstance(lexer, basestring):
+        if isinstance(lexer, str):
             try:
                 self._templateLexerClass = {
                     'default': DefaultTemplateLexer.Lexer,
@@ -256,7 +254,7 @@ class StringTemplateGroup(object):
         if superGroup is None or isinstance(superGroup, StringTemplateGroup):
             self._superGroup = superGroup
 
-        elif isinstance(superGroup, basestring):
+        elif isinstance(superGroup, str):
             # Called by group parser when ": supergroupname" is found.
             # This method forces the supergroup's lexer to be same as lexer
             # for this (sub) group.
@@ -348,7 +346,7 @@ class StringTemplateGroup(object):
         ST encloses it for error messages.
         """
 
-        assert isinstance(name, basestring)
+        assert isinstance(name, str)
         assert enclosingInstance is None or isinstance(enclosingInstance, StringTemplate)
         assert attributes is None or isinstance(attributes, dict)
 
@@ -364,7 +362,7 @@ class StringTemplateGroup(object):
         return None
 
     def getEmbeddedInstanceOf(self, name, enclosingInstance):
-        assert isinstance(name, basestring)
+        assert isinstance(name, str)
         assert enclosingInstance is None or isinstance(enclosingInstance, StringTemplate)
 
         st = None
@@ -395,7 +393,7 @@ class StringTemplateGroup(object):
     #
     #  If I find a template in a super group, copy an instance down here
     def lookupTemplate(self, name, enclosingInstance=None):
-        assert isinstance(name, basestring)
+        assert isinstance(name, str)
         assert enclosingInstance is None or isinstance(enclosingInstance, StringTemplate)
 
         if name.startswith('super.'):
@@ -459,7 +457,7 @@ class StringTemplateGroup(object):
             self.lastCheckedDisk = time.time()
 
     def loadTemplate(self, name, src):
-        if isinstance(src, basestring):
+        if isinstance(src, str):
             template = None
             try:
                 br = open(src, 'r')

@@ -1,6 +1,5 @@
 from builtins import str
 from builtins import range
-from past.builtins import basestring
 from io import StringIO
 
 from stringtemplate3 import antlr
@@ -21,7 +20,7 @@ class IllegalStateException(Exception):
 
 
 def isiterable(o):
-    if isinstance(o, (basestring, stringtemplate3.StringTemplate)):
+    if isinstance(o, (str, stringtemplate3.StringTemplate)):
         # don't consider strings and templates as iterables
         return False
 
@@ -749,7 +748,7 @@ class ASTExpr(Expr):
         if attribute is None:
             yield None
 
-        elif isinstance(attribute, basestring):
+        elif isinstance(attribute, str):
             # don't iterate over string
             yield attribute
 
@@ -785,7 +784,7 @@ class ASTExpr(Expr):
         if isinstance(attribute, (dict, list)):
             i = len(attribute)
 
-        elif isinstance(attribute, basestring):
+        elif isinstance(attribute, str):
             # treat strings as atoms
             i = 1
 
