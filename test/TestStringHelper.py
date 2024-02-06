@@ -87,11 +87,10 @@ logger = logging.getLogger(__name__)
 sample_day = calendar.weekday(2005, 7, 5)
 
 
-def write_file(dir_path, file_name, content):
-    file_path = dir_path / file_name
+def write_file(file_path, content):
     try:
         with open(file_path, 'wb') as writer:
-            writer.write(content)
+            writer.write(bytes(content, 'utf8'))
     except IOError as ioe:
         logger.exception("can't write file", ioe)
     return file_path

@@ -8,11 +8,13 @@ out of concern that the documentation may be lost.
 Most programs that emit source code or other text output are unstructured blobs of generation logic interspersed with print statements. The primary reason is the lack of suitable tools and formalisms. The proper formalism is that of an output grammar because you are not generating random characters--you are generating sentences in an output language. This is analogous to using a grammar to describe the structure of input sentences. Rather than building a parser by hand, most programmers will use a parser generator. Similarly, we need some form of unparser generator to generate text. The most convenient manifestation of the output grammar is a template engine such as StringTemplate.
 
 Throughout this document aliases are used in the examples.
+
 [source,python]
 ----
 import stringtemplate3 as St3
-from stringtemplate3 import StringTemplate as St3T
+from stringtemplate3 import St3T as St3T
 from stringtemplate3 import StringTemplateGroup St3G
+from stringtemplate3 import StringTemplateGroupInterface St3Gi
 from stringtemplate3 import AttributeRenderer
 from stringtemplate3 import AutoIndentWriter
 from stringtemplate3.language.ASTExpr import IllegalStateException
@@ -39,7 +41,7 @@ Using templates in code is very easy. Here is the requisite example that prints 
 ----
 hello = St3T("Hello, $name$")
 hello["name"] = "World"
-print str(hello)
+print(f"{hello}")
 ----
 
 StringTemplate is not a "system" or "engine" or "server"; it is a library with two primary classes of interest: StringTemplate and StringTemplateGroup. You can directly create a StringTemplate in code, you can load a template from a file, and you can load a single file with many templates (a template group file).
@@ -400,13 +402,13 @@ Using the templates from a template group file (or from a string) is straightfor
 
 [source,python]
 ----
-templates = "group simple; vardef(type,name) ..."; # templates from above
+templates = "group simple; vardef(type,name) ..." # templates from above
 # Use the constructor that accepts a Reader
 group = St3G(file=StringIO(templates))
 t = group.getInstanceOf("vardef")
 t["type"] = "int"
 t["name"] = "foo"
-print str(t)
+print(f'{t}')
 ----
 
 The output would be: "int foo;".
@@ -1355,7 +1357,7 @@ group = St3G(file=StringIO(templates), lexer="angle-bracket")
 f = group.getInstanceOf("file")
 f.setAttribute("variables.{decl,format}", Decl("i","int"), "intdecl")
 f.setAttribute("variables.{decl,format}", Decl("a","int-array"), "intarray")
-print "f =", f
+print(f"f = {f}")
 expecting = ""+os.linesep
 ----
 
@@ -1567,9 +1569,7 @@ If you are constructing HTML documents you have to escape plain text strings so 
 ----
 import cgi
 
-group = St3G(
-    name="default", rootDir="path/to/templates/"
-    )
+group = St3G(name="default", rootDir="path/to/templates/")
 
 class EscapeRenderer(AttributeRenderer):
     def toString(self, o, formatName=None):
@@ -1818,7 +1818,7 @@ nameST = St3T("$name:bold(x=name)$", group=group)
 nameST["name"] = "Terence"
 # write to 'out' with no indentation
 nameST.write(NoIndentWriter(out))
-print "output:", str(out)
+print(f"output: {out}")
 ----
 Instead of using nameST.toString(), which calls write with a string write and returns its value, manually invoke write with your writer.
 

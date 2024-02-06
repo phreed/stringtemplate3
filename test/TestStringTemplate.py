@@ -1,15 +1,18 @@
 import logging
 import io
 
+import pathlib
 import temppathlib
+from textwrap import dedent
 
 from stringtemplate3 import errors as st3err
 from stringtemplate3.grouploaders import PathGroupLoader
-from stringtemplate3.groups import StringTemplateGroup as st3g
-from stringtemplate3.interfaces import StringTemplateGroupInterface as st3gi
-from stringtemplate3.templates import StringTemplate as st3t
+from stringtemplate3.groups import StringTemplateGroup as St3G
+from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
+from stringtemplate3.templates import StringTemplate as St3T
 
 import TestStringHelper as tsh
+from TestStringHelper import ErrorBuffer
 
 """
  [The "BSD licence"]
@@ -47,38 +50,29 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
-def test_interfaceFileFormat():
-    groupI = st3t("""
-        interface test;
-        t();
-        bold(item);
-        optional duh(a,b,c);
-    """)
-    ix = st3gi(file=io.StringIO(groupI))
+def test_HelloWorld():
+    hello = St3T("Hello, $name$")
+    hello["name"] = "World"
+    actual = f"{hello}"
 
-    expecting = """
-            interface test;
-            t();
-            bold(item);
-            optional duh(a, b, c);
-            """
-    assert str(ix) == expecting
+    expecting = "Hello, World"
+    assert expecting == actual
 
 
 def test_AaaNoGroupLoader():
-    templates = """
+    templates = dedent("""
             group testG implements blort;
             t() ::= <<foo>>
             bold(item) ::= <<foo>>
-            duh(a,b,c) ::= <<foo>>;
-            """
+            duh(a,b,c) ::= <<foo>>
+            """)
     errors = st3err.DEFAULT_ERROR_LISTENER
-    tmp_dir = temppathlib.TemporaryDirectory()
-    stg_file = tsh.write_file(tmp_dir.path, "testG.stg", templates)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = st3g(reader, errors)
-        logger.debug(f"group: {group}")
+        with open(stg_path, "r") as reader:
+            group = St3G(file=reader, errors=errors, lexer="angle-bracket")
+            logger.debug(f"group: {group}")
 
     expecting = "no group loader registered"
     assert expecting == str(errors)
@@ -88,7 +82,7 @@ def test_CannotFindInterfaceFile():
     """ this also tests the group loader """
     errors = st3err.DEFAULT_ERROR_LISTENER
     tmp_dir = temppathlib.TemporaryDirectory()
-    st3g.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
 
     templates = """
         group testG implements blort;
@@ -97,10 +91,10 @@ def test_CannotFindInterfaceFile():
         duh(a,b,c) ::= <<foo>>;
         """
 
-    stg_file = tsh.write_file(tmp_dir.path, "testG.stg", templates)
+    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = st3g(reader, errors)
+    with open(stg_file, "r") as reader:
+        group = St3G(file=reader, errors=errors)
         logger.debug(f"group: {group}")
 
     expecting = "no such interface file blort.sti"
@@ -109,7 +103,7 @@ def test_CannotFindInterfaceFile():
 
 def test_MultiDirGroupLoading():
     """ this also tests the group loader """
-    errors = st3err.DEFAULT_ERROR_LISTENER
+    errors = ErrorBuffer()
     tmp_dir = temppathlib.TemporaryDirectory()
     sub_dir = tmp_dir.path / "sub"
     try:
@@ -118,7 +112,7 @@ def test_MultiDirGroupLoading():
         logger.exception("can't make subdir in test", pe)
         return
 
-    st3g.registerGroupLoader(PathGroupLoader(tmp_dir.path, sub_dir))
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, sub_dir))
 
     templates = """
         group testG2;
@@ -126,9 +120,9 @@ def test_MultiDirGroupLoading():
         bold(item) ::= <<foo>>
         duh(a,b,c) ::= <<foo>>;
 """
-    tsh.write_file(tmp_dir.path / "sub", "testG2.stg", templates)
+    tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
 
-    group = st3g.loadGroup("testG2")
+    group = St3G.loadGroup("testG2")
     expecting = """
     group testG2;
         bold(item) ::= <<foo>>
@@ -140,16 +134,16 @@ def test_MultiDirGroupLoading():
 
 def test_GroupSatisfiesSingleInterface():
     """ this also tests the group loader """
-    errors = st3err.DEFAULT_ERROR_LISTENER
+    errors = ErrorBuffer()
     tmp_dir = temppathlib.TemporaryDirectory()
-    st3g.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
     groupI = """
             interface testI;
             t();
             bold(item);
             optional duh(a,b,c);
             """
-    tsh.write_file(tmp_dir.path, "testI.sti", groupI)
+    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
 
     templates = """
         group testG implements testI;
@@ -157,10 +151,10 @@ def test_GroupSatisfiesSingleInterface():
         bold(item) ::= <<foo>>
         duh(a,b,c) ::= <<foo>>;
 """
-    stg_file = tsh.write_file(tmp_dir.path, "testG.stg", templates)
+    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
     with open(stg_file, "rb") as reader:
-        group = st3g(reader, errors=errors)
+        group = St3G(reader, errors=errors)
         logger.debug(f"group: {group}")
 
     expecting = ""  # should be no errors
