@@ -31,6 +31,8 @@ import sys
 import traceback
 import time
 from io import StringIO
+import logging
+from typing import Any
 
 from stringtemplate3 import antlr
 
@@ -56,6 +58,8 @@ DEFAULT_EXTENSION = '.st'
 #  We don't have to check disk for it; we know it's not there.
 #  Set later to work around cyclic class definitions
 NOT_FOUND_ST = None
+
+logger = logging.getLogger(__name__)
 
 
 class StringTemplateGroup(object):
@@ -84,6 +88,7 @@ class StringTemplateGroup(object):
     """
 
     # Track all groups by name; maps name to StringTemplateGroup
+    NOT_FOUND_ST = None
     nameToGroupMap = {}
 
     # Track all interfaces by name; maps name to StringTemplateGroupInterface
@@ -312,7 +317,7 @@ class StringTemplateGroup(object):
     def implementInterface(self, interface):
         """
         Indicate that this group implements this interface.
-        Load if necessary if not in the nameToInterfaceMap.
+        Load if necessary, if not in the nameToInterfaceMap.
         """
 
         if isinstance(interface, StringTemplateGroupInterface):
@@ -336,8 +341,10 @@ class StringTemplateGroup(object):
             elif self.groupLoader is None:
                 self.listener.error("no group loader registered", None)
 
-    # # StringTemplate object factory; each group can have its own.
     def createStringTemplate(self):
+        """
+        StringTemplate object factory; each group can have its own.
+        """
         return StringTemplate()
 
     def getInstanceOf(self, name, enclosingInstance=None, attributes=None):
@@ -388,7 +395,7 @@ class StringTemplateGroup(object):
     # # Get the template called 'name' from the group.  If not found,
     #  attempt to load.  If not found on disk, then try the superGroup
     #  if any.  If not even there, then record that it's
-    #  NOT_FOUND so we don't waste time looking again later.  If we've gone
+    #  NOT_FOUND, so we don't waste time looking again later.  If we've gone
     #  past refresh interval, flush and look again.
     #
     #  If I find a template in a super group, copy an instance down here
@@ -433,8 +440,8 @@ class StringTemplateGroup(object):
                             "; context is " +
                             enclosingInstance.enclosingInstanceStackString
                     )
-                hier = self.getGroupHierarchyStackString()
-                context += "; group hierarchy is " + hier
+                hierarchy = self.getGroupHierarchyStackString()
+                context += "; group hierarchy is " + hierarchy
                 raise ValueError(
                     "Can't load template " +
                     self.getFileNameFromTemplateName(name) +
@@ -467,7 +474,8 @@ class StringTemplateGroup(object):
                     br.close()
 
             # FIXME: eek, that's ugly
-            except Exception as e:
+            except Exception as ex:
+                logger.exception("problem opening {}", src, ex)
                 raise
 
             return template
@@ -475,7 +483,7 @@ class StringTemplateGroup(object):
         elif hasattr(src, 'readlines'):
             buf = src.readlines()
 
-            # strip newlines etc.. from front/back since filesystem
+            # strip newlines etc. from front/back since filesystem
             # may add newlines etc...
             pattern = str().join(buf).strip()
 
@@ -504,9 +512,9 @@ class StringTemplateGroup(object):
         name = self.getTemplateNameFromFileName(fileName)
         # if no rootDir, try to load as a resource in CLASSPATH
         # In the Python case that is of course the sys.path
+        path_name = None
         if not self.rootDir:
             try:
-                # br, pathName, descr = imp.find_module(name)
                 br, path_name = self.find_in_pypath(name)
             except ImportError:
                 br = None
@@ -523,7 +531,7 @@ class StringTemplateGroup(object):
                 try:
                     br.close()
                 except IOError as ioe2:
-                    self.error('Cannot close template file: ' + pathName, ioe2)
+                    self.error('Cannot close template file: ' + path_name, ioe2)
 
             return template
         # load via rootDir
@@ -547,7 +555,7 @@ class StringTemplateGroup(object):
             name = name[:suffix]
         return name
 
-    # Define an examplar template; precompiled and stored
+    # Define an exemplar template; precompiled and stored
     #  with no attributes.  Remove any previous definition.
     #
     def defineTemplate(self, name, template):
@@ -564,7 +572,7 @@ class StringTemplateGroup(object):
         self.templates[name] = st
         return st
 
-    def defineRegionTemplate(self, enclosingTemplate, regionName, template, type):
+    def defineRegionTemplate(self, enclosingTemplate, regionName, template, a_type):
         """Track all references to regions <@foo>...<@end> or <@foo()>."""
 
         if isinstance(enclosingTemplate, StringTemplate):
@@ -579,7 +587,7 @@ class StringTemplateGroup(object):
 
         regionST = self.defineTemplate(enclosingTemplateName, template)
         regionST.setIsRegion(True)
-        regionST.regionDefType = type
+        regionST.regionDefType = a_type
         return regionST
 
     def defineImplicitRegionTemplate(self, enclosingTemplate, name):
@@ -696,6 +704,7 @@ class StringTemplateGroup(object):
 
     def setErrorListener(self, listener):
         self.listener = listener
+        return None
 
     def getErrorListener(self):
         return self.listener
@@ -771,8 +780,8 @@ class StringTemplateGroup(object):
 
     def defineMap(self, name, mapping):
         """
-        Define a map for this group; not thread safe...do not keep adding
- 	these while you reference them.
+        Define a map for this group; not thread safe...
+        do not keep adding these while you reference them.
         """
 
         self.maps[name] = mapping
@@ -811,7 +820,7 @@ class StringTemplateGroup(object):
 
     def emitDebugStartStopStrings(self, emit):
         """
-        Indicate whether ST should emit <templatename>...</templatename>
+        Indicate whether ST should emit <template_name>...</template_name>
         strings for debugging around output for templates from this group.
         """
 
@@ -838,12 +847,12 @@ class StringTemplateGroup(object):
         buf.write('group ' + str(self.name) + ';\n')
         sortedNames = list(self.templates.keys())
         sortedNames.sort()
-        for tname in sortedNames:
-            st = self.templates[tname]
+        for t_name in sortedNames:
+            st = self.templates[t_name]
             if st != StringTemplateGroup.NOT_FOUND_ST:
                 args = list(st.formalArguments.keys())
                 args.sort()
-                buf.write(str(tname) + '(' + ",".join(args) + ')')
+                buf.write(str(t_name) + '(' + ",".join(args) + ')')
                 if showTemplatePatterns:
                     buf.write(' ::= <<' + str(st.template) + '>>\n')
                 else:

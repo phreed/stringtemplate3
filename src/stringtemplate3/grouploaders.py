@@ -133,8 +133,8 @@ class PathGroupLoader(StringTemplateGroupLoader):
     def locate(self, name):
         """Look in each directory for the file called 'name'."""
 
-        for dir in self.dirs:
-            path = os.path.join(dir, name)
+        for adir in self.dirs:
+            path = os.path.join(adir, name)
             if os.path.isfile(path):
                 fr = open(path, 'r')
                 # FIXME: something breaks, when stream return unicode
