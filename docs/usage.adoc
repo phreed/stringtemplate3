@@ -7,11 +7,23 @@ out of concern that the documentation may be lost.
 === Introduction
 Most programs that emit source code or other text output are unstructured blobs of generation logic interspersed with print statements. The primary reason is the lack of suitable tools and formalisms. The proper formalism is that of an output grammar because you are not generating random characters--you are generating sentences in an output language. This is analogous to using a grammar to describe the structure of input sentences. Rather than building a parser by hand, most programmers will use a parser generator. Similarly, we need some form of unparser generator to generate text. The most convenient manifestation of the output grammar is a template engine such as StringTemplate.
 
+Throughout this document aliases are used in the examples.
+[source,python]
+----
+import stringtemplate3 as St3
+from stringtemplate3 import StringTemplate as St3T
+from stringtemplate3 import StringTemplateGroup St3G
+from stringtemplate3 import AttributeRenderer
+from stringtemplate3 import AutoIndentWriter
+from stringtemplate3.language.ASTExpr import IllegalStateException
+from stringtemplate3.language import DefaultTemplateLexer, AngleBracketTemplateLexer
+----
+
 A template engine is simply a code generator that emits text using templates, which are really just "documents with holes" in them where you can stick values. StringTemplate breaks up your template into chunks of text and attribute expressions, which are by default enclosed in dollar signs $attribute-expression$ (to make them easy to see in HTML files). StringTemplate ignores everything outside of attribute expressions, treating it as just text to spit out when you call:
 
 [source,python]
 ----
-StringTemplate._str_()
+St3T._str_()
 ----
 
 For example, the following template has two chunks, a literal and a reference to attribute name:
@@ -25,9 +37,7 @@ Using templates in code is very easy. Here is the requisite example that prints 
 
 [source,python]
 ----
-import stringtemplate3
-
-hello = stringtemplate3.StringTemplate("Hello, $name$")
+hello = St3T("Hello, $name$")
 hello["name"] = "World"
 print str(hello)
 ----
@@ -248,7 +258,7 @@ Here is a simple example that creates and uses a template on the fly:
 
 [source,python]
 ----
-query = stringtemplate3.StringTemplate("SELECT $column$ FROM $table$;")
+query = St3T("SELECT $column$ FROM $table$;")
 query["column"] = "name"
 query["table"] = "User"
 ----
@@ -263,7 +273,7 @@ You can set an attribute multiple times, which simply means that the attribute i
 
 [source,python]
 ----
-query = stringtemplate3.StringTemplate("SELECT $column$ FROM $table$;")
+query = St3T("SELECT $column$ FROM $table$;")
 query["column"] = "name"
 query["column"] = "email"
 query["table"] = "User"
@@ -280,7 +290,7 @@ Ooops...there is no separator between the multiple values. If you want a comma, 
 
 [source,python]
 ----
-query = stringtemplate3.StringTemplate("SELECT $column; separator=\",\"$ FROM $table$;")
+query = St3T("SELECT $column; separator=\",\"$ FROM $table$;")
 query["column"] = "name"
 query["column"] = "email"
 query["table"] = "User"
@@ -309,7 +319,7 @@ The code below creates a StringTemplateGroup called myGroup rooted at /tmp so th
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup("myGroup", "/tmp")
+group = St3G("myGroup", "/tmp")
 query = group.getInstanceOf("theQuery")
 query["column"] = "name"
 query["column"] = "email"
@@ -340,12 +350,12 @@ By default templates are loaded from disk just once. During development, however
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup("myGroup", "/tmp")
+group = St3G("myGroup", "/tmp")
 group.refreshInterval = 0  # no caching
 group.refreshInterval = sys.maxint # no refreshing
 ----
 
-4. Setting the expression delimiters
+== Setting the expression delimiters
 By default, expressions in a template are delimited by dollar signs: $...$. This works great for the most common case of HTML generation because the attribute expressions are clearly highlighted in the text. Sometimes, with other formats like SQL statement generation, you may want to change the template expression delimiters to avoid a conflict and to make the expressions stand out.
 
 The start and stop strings are limited to either $...$ or <...> (unless you build your own lexical analyzer to break apart templates into chunks). group file templates use <...> delimiters by default (in v2.2 $...$ was the default delimiter). Templates created with the StringTemplate object constructor still use $...$ by default.
@@ -355,22 +365,25 @@ To specify that StringTemplate should use a specific delimiter you must create a
 [source,python]
 ----
 
-group = stringtemplate3.StringTemplateGroup("sqlstuff", "/tmp", lexer="angle-bracket")
-query = stringtemplate3.StringTemplate("SELECT <column> FROM <table>;", group=group)
+group = St3G("sqlstuff", "/tmp", lexer="angle-bracket")
+query = St3T("SELECT <column> FROM <table>;", group=group)
 query["column"] = "name"
 query["table"] = "User"
 ----
 
-Python accepts either a antlr.CharScanner class (stringtemplate3.language.DefaultTemplateLexer.Lexer, stringtemplate3.language.AngleBracketTemplateLexer.Lexer or your own implementation) or the string literals 'default' and 'angle-bracket'. Also note the use of the keyword argument lexer.
+Python accepts either a antlr.CharScanner class (`DefaultTemplateLexer.Lexer`, `AngleBracketTemplateLexer.Lexer` or your own implementation) or the string literals 'default' and 'angle-bracket'.
+Also note the use of the keyword argument lexer.
 
-All templates created through the group or in anyway associated with the group will assume your the angle bracket delimiters. It's smart to be consistent across all files of similar type such as "all HTML templates use $...$" and "all SQL templates use <...>".
+All templates created through the group or in any way associated with the group will assume your the angle bracket delimiters.
+It's smart to be consistent across all files of similar type such as "all HTML templates use $...$" and "all SQL templates use <...>".
 
 
 === Group Files
 
 ==== Overview of Template Groups
 StringTemplate 2.0 introduced the notion of a template group file that has two main attractions. First, it allows you to define lots of small templates more conveniently because they may all be defined within a single file. Second, (unlike in a simple template file) you may specify formal template arguments that help StringTemplate detect errors (such as setting unknown attributes) and make the templates easier to read. Here is a sample group file with two templates, vardef and method, that could be used to generate C files:
-
+[source,template]
+----
 group simple;
 
 vardef(type,name) ::= "<type> <name>;"
@@ -380,6 +393,7 @@ method(type,name,args) ::= <<
   <statements; separator="\n">
 }
 >>
+----
 All groups use <...> expression  delimiters by default. Single line templates are enclosed in double quotes while multi-line templates are enclosed in double angle-brackets. Every template must define arguments even if the formal argument list is blank.
 
 Using the templates from a template group file (or from a string) is straightforward. The StringTemplateGroup class has a number of constructors, one of which allows you to pass in a string or file or whatever:
@@ -388,7 +402,7 @@ Using the templates from a template group file (or from a string) is straightfor
 ----
 templates = "group simple; vardef(type,name) ..."; # templates from above
 # Use the constructor that accepts a Reader
-group = stringtemplate3.StringTemplateGroup(file=StringIO(templates))
+group = St3G(file=StringIO(templates))
 t = group.getInstanceOf("vardef")
 t["type"] = "int"
 t["name"] = "foo"
@@ -405,20 +419,27 @@ Group inheritance would not yield its full potential without template polymorphi
 Templates in a subgroup override same-named templates in a supergroup just as in class inheritance in other languages. StringTemplate does not support overloaded templates so group inheritance does not take formal arguments into consideration.
 
 The supergroup for a group may be changed dynamically using the setSuperGroup() method. If, however, a group must always derive from another group, use the following syntax in the descendant template group file:
-
+[source,template]
+----
 group mygroup : supergroup;
 ...
+----
 If your group must satisfy a particular interface (see Group interfaces) then use the following syntax:
-
+[source,template]
+----
 group mygroup implements anInterface, andAnotherInterface;
 ...
+----
 or if the group inherits from a supergroup and implements an interface:
-
+[source,template]
+----
 group mygroup : supergroup implements anInterface;
 ...
+----
 Maps
 There are situations where you need to translate a string in one language to a string in another language. For example, you might want to translate integer to int when translating Pascal to C. You could pass a Map or IDictionary (e.g. hashtable) from the model into the templates, but then you have output literals in your model!  The StringTemplate solution is to support a mapping feature. For example, here is a map defined in a template group file, using which ANTLR v3 knows how to initialize local variables to their default values:
-
+[source,template]
+----
 typeInitMap ::= [
         "int":"0",
         "long":"0",
@@ -430,6 +451,7 @@ typeInitMap ::= [
         "char":"0",
         default:"null" // anything other than an atomic type
 ]
+----
 To use the map in a template, refer to it as you would an attribute. Continuing the example, <typeInitMap.int> returns "0" from the map. If your type name is an attribute not a constant like int, then use an indirect field access: <typeInitMap.(typeName)>.
 
 Map strings are actually templates that can refer to attributes that will become visible via dynamic scoping of attributes once the map entry has been embedded within a template. This is useful for referencing things like attribute username from within map values. That attribute will eventually become visible when the map a value is embedded within, say, a page template.
@@ -441,7 +463,8 @@ The default and other mappings can have empty values (implying no value). if no 
 Maps are defined in the group's scope and are visible if no attribute hides them. For example, if you define a formal argument called typeInitMap in template foo then foo cannot see the map defined in the group (though you could pass it in as another parameter). If a name is not an attribute and it's not in the group's maps table, then the super group is consulted etc... You may not redefine a map and it may not have the same name as a template in that group. The default value is used if you use a key as a property that doesn't exist. For example <typeInitMap.foo> returns "null". The default clause must be at the end of the map.
 
 You'll note that the square brackets will denote data structure in other areas too such as [a,b,c,...] which makes a singe multi-valued attribute out of other attributes so you can iterate across them.
-
+[source,template]
+----
 Template Group file format
 group
     :   "group" ID ( ':' ID  )?  ( "implements" ID (',' ID  )* )? ';'
@@ -487,6 +510,7 @@ keyValue
     |   "key"
     |
     ;
+----
 Both /* ... */ and single-line // ... comments are allowed outside of templates. Inside templates, you must use <!...!>.
 
 An aside: All along, during my website construction days, I kept in mind that any text output follows a format and, thus, output sentences conform to a language. Consequently, a grammar should describe the output rather than a bunch of ad hoc print statements in code. This helped me formalize the study of templates because I could compare templates (output grammars) to well established ideas from formal language theory and context-free grammars. This allowed me to show, among other things, that StringTemplate can easily generate any document describable with an XML DTD even though it is deliberately limited. The group file format should look very much like a grammar to you.
@@ -528,11 +552,11 @@ StringTemplateGroupLoader loader =
     new CommonGroupLoader(templateDirs.toString(),
                           ErrorManager.getStringTemplateErrorListener());
 StringTemplateGroup.registerGroupLoader(loader);
-----
 
 // first load main language template
 StringTemplateGroup coreTemplates =
     StringTemplateGroup.loadGroup(language);
+----
 In order to use the group file format inheritance specifier, group sub : sup, you must specify a loader.
 
 Formal argument default values
@@ -553,37 +577,49 @@ If you reference an attribute that is not formally defined in that template or a
 
 Newline handling
 The first newline following the << in a template definition is ignored as it is usually used just to get the first line of text for the template at the start of a line. In other words, if you want to have a blank line at the start of your template, use:
-
+[source,template]
+----
 foo() ::= <<
 
 2nd line is not blank, but first is
 >>
+----
 or
-
+[source,template]
+----
 foo() ::= <<<\n>
 same as before; newline then this line
 >>
+----
 The last newline before the >> is also ignored and is not included in the output. To add a final newline, add an extra line or <\n> before the >>:
-
+[source,template]
+----
 foo() ::= <<
 rodent
 
 >>
+----
 or
-
+[source,template]
+----
 foo() ::= <<
 rodent<\n>
 >>
+----
 The following template:
-
+[source,template]
+----
 foo() ::= <<
 rodent
 >>
+----
 on the other hand, is identical to
-
+[source,template]
+----
 foo() ::= "rodent"
+----
 
-6. Group interfaces
+== Group interfaces
 Group Interfaces
 To promote retargetable code generators, ST supports interface implementation a la Java interfaces where a template group that implements an interface must implement all templates in the interface and with the proper argument lists. The interface is the published, executable documentation for building back-ends for the code generator and has proven to be an excellent way to inform programmers responsible for the various targets of changes to the requirements.
 
@@ -594,7 +630,8 @@ Originally, the answer to the first question involved abstracting the list of te
 ST now supports group interfaces that describe a collection of template signatures, names and formal arguments, in a manner analogous to Java interfaces. Interfaces clearly identify the set of all templates that a target must define as well as the attributes they operate on. The first question regarding the required set of templates now has a good answer.
 
 Interfaces also provide a form of type safety whereby a target is examined upon code generator startup to see that it satisfies the interface. Here is a piece of the ANTLR main target interface:
-
+[source,template]
+----
 interface ANTLRCore;
 parser(name, scopes, tokens, tokenNames, rules,
        numRules, cyclicDFAs, bitsets, ASTLabelType,
@@ -604,6 +641,7 @@ rule(ruleName, ruleDescriptor, block, emptyRule,
 /** What file extension to use; e.g., ".java" */
 codeFileExtension();
 ...
+----
 All of the various targets then implement the interface; e.g.,
 
 group Java implements ANTLRCore;
@@ -613,7 +651,7 @@ Interfaces look exactly like groups except that they don't have template impleme
 
 optional headerFile(actionScope, actions, docComment, recognizer, ...);
 
-7. Template inheritance
+== Template inheritance
 Template Group inheritance overview
 A template group may derive from other template groups, thus inheriting all of the features (templates and maps) from the supergroup. The descendant template group can then add more templates and maps, override inherited templates and maps or modify inherited templates in a finer-grained manner using the template regions feature.
 
@@ -625,18 +663,20 @@ Recall that a StringTemplateGroup is a collection of related templates such as a
 Just like you would do with a class definition in other languages, a template group may inherit features (templates and maps) from another template group, the supergroup. If template t is not found in a group, it is looked up in the supergroup, if present. This works regardless of whether you use a group file format or load templates from the disk via a StringTemplateGroup object. Currently you cannot use the group file syntax to specify a supergroup. I am investigating how this should work. In the meantime, you must explicitly set the supergroup in code.
 
 I think this is now handled by the syntax discussed in Group Files. - GW
-
+[source,template]
+----
 group mygroup : supergroup;
 ...
+----
 From the unit tests, here is a simple inheritance of a template, bold:
 
 
 [source,python]
 ----
-supergroup = stringtemplate3.StringTemplateGroup("super")
-subgroup = stringtemplate3.StringTemplateGroup("sub", superGroup=group)
+supergroup = St3G("super")
+subgroup = St3G("sub", superGroup=group)
 supergroup.defineTemplate("bold", "<b>$it$</b>")
-st = stringtemplate3.StringTemplate("$name:bold()$", group=subgroup)
+st = St3T("$name:bold()$", group=subgroup)
 st["name"] = "Terence"
 expecting = "<b>Terence</b>"
 ----
@@ -656,8 +696,8 @@ And a template in a subgroup may refer to a template in a supergroup via super.t
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup(...)
-subGroup = stringtemplate3.StringTemplateGroup(...)
+group = St3G(...)
+subGroup = St3G(...)
 subGroup.setSuperGroup(group)
 group.defineTemplate("page", "$font()$:text")
 group.defineTemplate("font", "Helvetica")
@@ -690,8 +730,8 @@ Similarly, a template's group determines where it starts looking for a template.
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup("super")
-subGroup = stringtemplate3.StringTemplateGroup("sub", superGroup=group)
+group = St3G("super")
+subGroup = St3G("sub", superGroup=group)
 group.defineTemplate("bold", "<b>$it$</b>")
 group.defineTemplate("page", "$name:bold()$")
 subGroup.defineTemplate("bold", "<strong>$it$</strong>")
@@ -705,19 +745,21 @@ StringTemplate group maps also inherit. If an attribute reference is not found, 
 See more extensive details regarding template and attribute lookup here: Template and attribute lookup rules
 
 
-8. Template regions
+== Template regions
 Template regions
 ST introduces a finer-grained alternative to template inheritance, dubbed regions. (Regions are similar to a feature in Django). This feature allows a programmer to mark a location or series of lines in a template, and give it a name. A subgroup which inherits this template can provide replacement code to override just the named region. This avoids having to override the supergroup's template with a whole replacement template, when just a small addition or replacement is needed. While regions are syntactic sugar on top of template inheritance, the improvement in simplicity and clarity over normal coarser-grained inheritance is substantial.
 
 Add text at a location
 For example, in a code-generation scenario, imagine using the following template called method to produce the text for a method:
-
+[source,template]
+----
 group Java;
 method(name,code) ::= <<
 public void <name>() {
     <code>
 }
 >>
+----
 Suppose that you also want the option for the method template to place debugging statements into the generated method code. (To be clear about this example: this would be debugging code in the generated Java method, not code to debug the template processing itself.)
 
 You could start placing debug text into the existing template, making it optional using the conditionally-included subtemplates feature, placing <if(...)> etc  around the debugging lines. But that clutters up the templates of the Java group considerably, and also fails to achieve proper separation of concerns.
@@ -725,7 +767,8 @@ You could start placing debug text into the existing template, making it optiona
 Instead you would like to have all debugging stuff encapsulated in a separate template group which focuses on debugging. In that template group, you could create an overriding template for method by copying and pasting the entire existing method template and inserting your additions. But then you are duplicating all of that output literal text, which breaks the "single point of change principle."
 
 Instead just leave a hole in the main method template that a subgroup can override, here a location marked with <@preamble()>:
-
+[source,template]
+----
 group Java;
 method(name,code) ::= <<
 public void <name>() {
@@ -733,10 +776,13 @@ public void <name>() {
     <code>
 }
 >>
+----
 In a template subgroup focusing on debugging (group dbg), define the region using a fully qualified name which includes the region's surrounding template name, @method.preamble(), and supply the replacement text:
-
+[source,template]
+----
 group dbg : Java;
 @method.preamble() ::= <<System.out.println("enter");>>
+----
 Regions are like subtemplates scoped within a template, hence, the fully-qualified name of a region is @t.r() where t is the enclosing template and r is the region name.
 
 Replace a region of existing template text
@@ -745,13 +791,17 @@ Consider another problem where you would like, in a template subgroup, to replac
 (To be clear about this example, ths template's purpose is to produce "if" statements in the output language, here Java. That "if" is unrelated to the issue of using template <if(...)> expressions, which we are discussing how to avoid.)
 
 Again, to avoid mingling debug version code with your main templates, you want to avoid "if dbg" type template expressions. Instead, mark the region within the template that might be replaced by an inheriting subgroup focusing on debugging. Here the code is marked with the pair of markers <@eval>...<@end>:
-
+[source,template]
+----
 group Java;
 test(expr,code) ::= "if (<@eval><expr><@end>) {<code>}"
+----
 where <@r>..<@end> marks the region called r. Now a template subgroup can override (replace) this region:
-
+[source,template]
+----
 group dbg : Java;
 @test.eval() ::= "trackAndEval(<expr>)"
+----
 Regions may not have parameters, but because of the dynamic scoping of attributes, the overridden region may access all of the attributes of the surrounding template.
 
 In an overridden region, @super.r()refers to the supergroup template's original region contents.
@@ -759,9 +809,10 @@ In an overridden region, @super.r()refers to the supergroup template's original 
 (I'm guessing this is trying to say: Within the replacement template text, ie: right-hand-side, you can use the symbol @super.r() to insert the original region contents.  Also guessing that "super" is a keyword, and should not be replaced, while "r" should be replaced with the actual region name. Pretty sure this needs to be enclosed in expression delimiters, not just bare. -- GW)
 
 
-9. Conditionally included subtemplates
+== Conditionally included subtemplates
 There are many situations when you want to conditionally include some text or another template. StringTemplate provides simple IF-statements to let you specify conditional includes. For example, in a dynamic web page you usually want a slightly different look depending on whether or not the viewer is "logged in" or not. Without a conditional include, you would need two templates: page_logged_in and page_logged_out. You can use a single page definition with if(expr) attribute actions instead:
-
+[source,html]
+----
 <html>
 ...
 <body>
@@ -773,12 +824,14 @@ $endif$
 ...
 </body>
 </html>
+----
 where template top_gutter_logged_in is located in the gutter subdirectory of my StringTemplateGroup.
 
 IF actions test the presence or absence of an attribute unless the object is a Boolean/bool, in which case it tests the attribute for true/false. The only operator allowed is "not" and means either "not present" or "not true". For example, "$if(!member)$...$endif$".
 
 You can also use elseif to make a chain of tests:
-
+[source,template]
+----
 $if(x)$
 ...
 $elseif(y)$
@@ -788,77 +841,69 @@ $elseif(z)$
 $else$
 ...
 $endif$
+----
 The first true expression "wins".
 
 Whitespace in conditionals issue
 There is a simple, but not perfect rule: kill a single newline after <if>, <<, <else>, and <endif> (but for <endif> only if it's on a line by itself) . Kill newlines before <else> and <endif> and >>. For example,
-
+[source,template]
+----
 a <if(foo)>big<else>small<endif> dog
+----
 is identical to:
-
+[source,template]
+----
 a <if(foo)>
 big
 <else>
 small
 <endif>
  dog
-It is very difficult to get the newline rule to work "properly" because sometimes you want newlines and sometimes you don't. I
-decided to chew up as many as is reasonable and then let you explicitly say <\n> when you need to.
+----
+It is very difficult to get the newline rule to work "properly" because sometimes you want newlines and sometimes you don't.
+I decided to chew up as many as is reasonable and then let you explicitly say <\n> when you need to.
 
 
-10. Expressions
-Table of Contents for Expressions
-Table of Contents for Expressions
-Expressions
-Attribute References
-Named attributes
-Property references
-Indirect property names
-Map key/value pair access
-Difficult property names
-Automatic aggregate creation
-List construction
-Template References
-Accessing Attributes Of Enclosing Template
-Passing Parameters To Another Template
-Allowing enclosing attributes to pass through
-Argument evaluation scope
-Attribute operators
-Template Application
-Applying Templates To Multi-Valued Attributes
-Applying Multiple Templates To Multi-Valued Attributes
-Applying Alternating Templates To Multi-Valued Attributes
-Applying Anonymous Templates
-Anonymous template application to multiple attributes
-Indirect template references
-Expressions
-Attribute References
+== Expressions
+
 Named attributes
 The most common thing in a template besides plain text is a simple named attribute reference such as:
-
+[source,template]
+----
 Your email: $email$
+----
 The template will look up the value of email and insert it into the output stream when you ask the template to print itself out. If email has no value, then it evaluates to the empty string and nothing is printed out for that attribute expression. When working with group files, if email is not defined in the formal parameter list of an enclosing template, an exception is thrown.
 
 If the attribute is multi-value such as an instance of a list, the elements are emitted without separator one after the other. If there are null values in the list, these are ignored by default. Given template $values$ with attribute values=9,6,null,2,null then the output would be:
-
+[source,text]
+----
 962
+----
 To use a separator in between those multiple values, use the separator option:
-
+[source,template]
+----
 $values; separator=", "$
+----
 The output would be:
-
-9, 6, 2
+[source,text]
+----
+== 6, 2
+----
 To emit a special value for each null element in a list, use the null option:
-
+[source,template]
+----
 $values; null="-1", separator=", "$
+----
 Again using values=9,6,null,2,null then the output would be:
 
-9, 6, -1, 2, -1
+== 6, -1, 2, -1
 Property references
 If a named attribute is an aggregate with a property or a simple data field, you may reference that property using attribute.property. For example:
-
+[source,template]
+----
 Your name: $person.name$
 Your email: $person.email$
+----
 StringTemplate ignores the actual object type stored in attribute person and simply looks for one of the following via reflection (in search order):
 
 A method named getName()
@@ -903,15 +948,19 @@ st["name"] = u.getName()
 st["email"] = u.getEmail()
 ----
 and having template:
-
+[source,template]
+----
 Your name: $name$
 Your email: $email$
+----
 The latter is more widely applicable and totally decoupled from code and logic; i.e., it's "better" but much less convenient. Be very careful that the property methods do not have any side-effects like updating a counter or whatever. This breaks the rule of order of evaluation independence.
 
 Indirect property names
 Sometimes the property name is itself variable, in which case you need to use indirect property access notation:
-
+[source,template]
+----
 $person.(propertyName)$
+----
 where propertyName is an attribute whose value is the name of a property to fetch from person. Using the examples from above, propertyName could hold the value of either name or email.
 
 propertyName may actually be an expression instead of a simple attribute name.
@@ -921,7 +970,7 @@ Map key/value pair access
 You may pass in instances of type dict. Rather than creating an aggregate object (though automatic aggregate creation is discussed in the next section) you can pass in a dict that has keys referencable within templates. For example,
 [source,python]
 ----
-a = stringtemplate3.StringTemplate("$user.name$, $user.phone$")
+a = St3T("$user.name$, $user.phone$")
 user = {}
 user["name"] = "Terence"
 user["phone"] = "none-of-your-business"
@@ -940,9 +989,11 @@ Note the use of the indirect property reference <aMap.(k)>, which says to take t
 
 Difficult property names
 Some property names cause parse errors because of clashes with built in keywords or because they do not match the rules for IDs as used by String Template. These difficult property names can be dealt with by quoting the property name in combination with the indirect property construct:
-
+[source,template]
+----
 $person.("first")$       --- Build in keyword
 $person.("1")$           --- non ID conforment name
+----
 Difficult properties names are quite likely to occur when dealing with maps. Map keys can be defined using arbitrary strings, including spaces and syntax characters used to defined templates themselves.
 
 Be careful that the keys are the appropriate type. If person keys are Integer, $person.("1")$ won't work as Strings are never Integers.
@@ -952,7 +1003,7 @@ Creating one-off data aggregates is a pain, you have to define a new class just 
 
 [source,python]
 ----
-st = stringtemplate3.StringTemplate("$items:{$it.(\"last\")$, $it.(\"first\")$\n}$")
+st = St3T("$items:{$it.(\"last\")$, $it.(\"first\")$\n}$")
 st.setAttribute("items.{first,last}", "John", "Smith")
 st.setAttribute("items.{first,last}", "Baron", "Von Munchhausen")
 expecting = \
@@ -960,24 +1011,32 @@ expecting = \
    "Von Munchhausen, Baron\n"
 ----
 Note that the template, st, expects the items to be aggregates with properties first and last. By using attribute name
-
+[source,template]
+----
 items.{first,last}
+----
 You are telling StringTemplate to take the following two arguments as properties first and last.
 
 The various overloads of the setAttribute() method can handle from 1 to 5 arguments. The C# version uses variable-length argument list (using params keyword).
 
 List construction
 As of v2.2, you may combine multiple attributes into a single multi-valued attribute in a syntax similar to the group map feature. Concatenate attributes by placing them in square brackets in a comma-separated list. For example,
-
+[source,template]
+----
 $[mine,yours]$
+----
 creates a new multi-valued attribute (a list) with both elements - all of mine first then all of yours. This feature is handy when the model happens to group attributes differently than you need to access them in the view. This ability to rearrange attributes is consistent with model-view separation because the template cannot alter the data structure nor test its values - the template is merely looking at the data from a new perspective.
 
 Naturally you may combine the list construction with template application:
-
+[source,template]
+----
 $[mine,yours]:{ v | ...}$
+----
 Note that this is very different from
-
+[source,template]
+----
 $mine,yours:{ x,y | ...}$
+----
 which iterates max(n,m) times where n and m are the lengths of mine and yours, respectively. The [mine,yours] version iterates n+m times.
 
 Template References
@@ -986,7 +1045,8 @@ You may reference other templates to have them included just like the C language
 You can reuse the template over and over (no cut/paste)
 You can change one template and all search boxes change on the whole site.
 Using method call syntax, just reference the foreign template:
-
+[source,html]
+----
 <html>
 <body>
 ...
@@ -994,11 +1054,12 @@ $searchbox()$
 ...
 </body>
 </html>
+----
 The invoking code would still just create the overall page and the enclosing page template would automatically create an instance of the referenced template and insert it:
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup("webpages", "/usr/local/site/templates")
+group = St3G("webpages", "/usr/local/site/templates")
 page = group.getInstanceOf("page")
 ----
 If the template you want to reference, say searchbox, is in a subdirectory of the StringTemplateGroup root directory called misc, then you must reference the template as: misc/searchbox().
@@ -1007,12 +1068,14 @@ The included template may access attributes. How can you set the attribute of an
 
 Accessing Attributes Of Enclosing Template
 Any included template can reference the attributes of the enclosing template instance. So if searchbox references an attribute called resource:
-
+[source,template]
+----
 <form ...>
 ...
 <input type=hidden name=resource value=$resource$>
 ...
 </form>
+----
 you could set attribute resource in the enclosing template page object:
 
 [source,python]
@@ -1025,7 +1088,8 @@ This "inheritance" (dynamic scoping really) of attributes feature is particularl
 
 Passing Parameters To Another Template
 Another, more obvious, way to set the attributes of an included template is to pass in values as parameters, making them look like C macro invocations rather than includes. The syntax looks like a set of attribute assignments:
-
+[source,html]
+----
 <html>
 <body>
 ...
@@ -1033,17 +1097,22 @@ $searchbox(resource="faqs")$
 ...
 </body>
 </html>
+----
 where I am setting the attribute of the included searchbox to be the string literal "faqs".
 
 The right-hand-side of the assignment may be any expression such as an attribute reference or even a reference to another template like this:
-
+[source,template]
+----
 $boldMe(item=copyrightNotice())$
+----
 You may also use an anonymous template such as:
-
+[source,template]
+----
 $bold(it={$firstName$ $lastName$})$
+----
 which first computes the template argument and then assigns it to it.
 
-If you are using StringTemplate groups, then you have formal parameters and for those templates with a sole formal argument, you can pass just an expression instead of doing an assignment to the argument name. For example, if you do $bold(name)$ and bold has one formal argument called item, then item gets the value of name just as if you had said {$bold(item=name)$}.
+If you are using StringTemplate groups, then you have formal parameters and for those templates with a sole formal argument, you can pass just an expression instead of doing an assignment to the argument name. For example, if you do $bold(name)$ and bold has one formal argument called item, then item gets the value of name just as if you had said `{$bold(item=name)$}`.
 
 Allowing enclosing attributes to pass through
 When template x calls template y, the formal arguments of y hide any x arguments of the same because the formal parameters force you to define values. This prevents surprises and makes it easy to ensure any parameter value is empty unless you specifically set it for that template. The problem is that you need to factor templates sometimes and want to refine behavior with a subclass or just invoke another shared template but invoking y as <y()> hides all of x's parameters with the same name. Use <y(...)> syntax to indicate y should inherit all values even those with the same name. <y(name="foo", ...)> would set one arg, but the others are inherited whereas <y(name="foo")> only has name set; all other arguments of template y are empty. You can set manually with:
@@ -1060,20 +1129,28 @@ Attribute operators
 StringTemplate provides a number of operators that you can apply to attributes to get a new view of that data: first, rest, last, length, strip.
 
 Sometimes you need to treat the first or last element of multi-valued attribute differently than the others. For example, if you have a list of integers in an attribute and you need to generate code to sum those numbers, you could start like this:
-
+[source,template]
+----
 <numbers:{ n | sum += <n>;}>
+----
 You need to define sum, however:
-
+[source,template]
+----
 int sum = 0;
 <numbers:{ n | sum += <n>;}>
+----
 What if numbers is empty though? No need to create the sum definition so you could do this:
-
+[source,template]
+----
 <if(numbers)>int sum = 0;<endif>
 <numbers:{ n | sum += <n>;}>
+----
 A more specific strategy (and one that generates slightly better code as it avoids an unnecessary initialization to 0) is the following:
-
+[source,template]
+----
 <first(numbers):{ n | int sum = <n>;}>
 <rest(numbers):{ n | sum += <n>;}>
+----
 where first(numbers) results in the first value of attribute numbers if any and rest(numbers) results all values in numbers but the first value.
 
 The other operator available to you is last, which naturally results in the last value of a multi-valued attribute.  Now we have trunc also which returns all but the last value.
@@ -1170,17 +1247,17 @@ where template numberedListItem is defined as:
 $i$. $it$<br>
 In this case, the output would be:
 
-1. Terence<br>
-2. Tom<br>
-3. Kunle<br>
+== Terence<br>
+== Tom<br>
+== Kunle<br>
 If there is only one attribute value, then i will be 1. However, if template numberedListItem is defined as:
 
 $i0$. $it$<br>
 The output would be:
 
-0. Terence<br>
-1. Tom<br>
-2. Kunle<br>
+== Terence<br>
+== Tom<br>
+== Kunle<br>
 As when invoking templates ala "includes", a single formal argument is also set to the iterated value. For example, you could define numberedListItem as follows in a StringTemplateGroup file:
 
 numberedListItem(item) ::= "$i$. $item$<br>"
@@ -1210,37 +1287,47 @@ Applying Anonymous Templates
 Some templates are so simple or so unlikely to be reused that it seems a waste of time making a separate template file and then referencing it. StringTemplate provides anonymous subtemplates to handle this case. The templates are anonymous in the sense that they are not named; they are directly applied in a single instance.
 
 For example, to show a name list do the following:
-
+[source,template]
+----
 <ul>
 $names:{<li>$it$</li>}$
 </ul>
+----
 where anything enclosed in curlies is an anonymous subtemplate if, of course, it's within an attribute expression. Note that in the subtemplate, I must enclose the it reference in the template expression delimiters. You have started a new template exactly like the surrounding template and you must distinguish between text and attribute expressions.
 
 You can apply multiple templates very conveniently. Here is the bold list of names again with anonymous templates:
-
+[source,template]
+----
 <ul>
 $names:{<b>$it$</b>}:{<li>$it$</li>}$
 </ul>
+----
 The output would look like:
-
+[source,text]
+----
 <ul>
 <li><b>Terence</b></li>
 <li><b>Tom</b></li>
 <li><b>Kunle</b></li>
 </ul>
+----
 Anonymous templates work on single-valued attributes as well.
 
 As of 2.2, you may define formal arguments on anonymous templates even if you are not using StringTemplate groups. This syntax is borrowed from Smalltalk though it is identical in function to lambda of Python. Use a comma-separated list of argument names followed by the '|' "pipe" symbol. Any single whitespace character immediately following the pipe is ignored. The following example bolds the names in a list using an argument to avoid the monotonous use of it:
-
+[source,template]
+----
 <ul>
 $names:{ n | <b>$n$</b>}$
 </ul>
+----
 Clearly only one argument may be defined in this situation: the iterated value of a single list.
 
 Anonymous template application to multiple attributes
 In some cases, the model may present data to the view as separate columns of data rather than as a single list of objects, such as multi-valued attributes names and phones rather than a single users multi-valued attribute. As of 2.2, you may iterate over multiple attributes:
-
+[source,template]
+----
 $names,phones:{ n,p | $n$: $p$}$
+----
 An error is generated if you have too many arguments for the number of attributes. Iteration proceeds while at least one of the attributes (names or phones, in this case) has values.
 
 Indirect template references
@@ -1249,7 +1336,8 @@ Sometimes the name of the template you would like to include is itself a variabl
 Usually this "variable template" situation occurs when you have a list of items to format and each element may require a different template. Rather than have the controller code create a bunch of instances, one could consider it better to have StringTemplate do the creation--the controller just names what format to use.
 
 If StringTemplate did not have a map definition, you could simulate its functionality. Consider generating a list of C# declarations that are initialized to 0, false, null, etc... You could define a template for int, Object, Array, etc... declarations and then pass in an aggregate object that has the variable declaration object and the format. In a template group file you might have:
-
+[source,template]
+----
 group Java;
 
 file(variables,methods) ::= <<
@@ -1258,11 +1346,12 @@ file(variables,methods) ::= <<
 \>>
 intdecl(decl) ::= "int <decl.name> = 0;"
 intarray(decl) ::= "int[] <decl.name> = null;"
+----
 Your code might look like:
 
 [source,python]
 ----
-group = stringtemplate3.StringTemplateGroup(file=StringIO(templates), lexer="angle-bracket")
+group = St3G(file=StringIO(templates), lexer="angle-bracket")
 f = group.getInstanceOf("file")
 f.setAttribute("variables.{decl,format}", Decl("i","int"), "intdecl")
 f.setAttribute("variables.{decl,format}", Decl("a","int-array"), "intarray")
@@ -1284,19 +1373,21 @@ class Decl(object):
     def getType(self):
         return self.type
 ----
-The value of f.ToString() is:
-
+The value of f.str() is:
+[source,text]
+----
 int i = 0;
 int[] a = null;
+----
 Missing attributes (i.e., null valued attributes) used as indirect template attribute generate nothing just like referencing a missing attribute.
 
 
-11. Object rendering
+== Object rendering
 Note: You should also look at The Internationalization and Localization of Web Applications.
 
-The atomic element of a template is a simple object that is rendered to text by its ToString() method. For example, an integer object is converted to text as a sequence of characters representing the numeric value written out. What if you wanted commas to separate the 1000's places like 1,000,000? What if you wanted commas and sometimes periods depending on the locale?.
+The atomic element of a template is a simple object that is rendered to text by its str() method. For example, an integer object is converted to text as a sequence of characters representing the numeric value written out. What if you wanted commas to separate the 1000's places like 1,000,000? What if you wanted commas and sometimes periods depending on the locale?.
 
-Prior to 2.2, there was no means of altering the rendering of objects to text. The controller had to pull data from the model and wrap it on an object whose ToString() method rendered it appropriately.
+Prior to 2.2, there was no means of altering the rendering of objects to text. The controller had to pull data from the model and wrap it on an object whose str() method rendered it appropriately.
 
 As of StringTemplate 2.2, you may register various attribute renderers associated with object class types. Normally a single renderer will be used for a group of templates so that Date objects are always displayed using the appropriate Locale, for example. There are, however, situations where you might want a template to override the group renderers. You may register renderers with either templates or groups and groups inherit the renderers from super groups (if any).
 
@@ -1310,15 +1401,14 @@ Here is a renderer that renders date objects tersely.
 
 [source,python]
 ----
-import stringtemplate3
 from datetime import date
 
-class DateRenderer(stringtemplate3.AttributeRenderer):
+class DateRenderer(AttributeRenderer):
     def toString(self, o, format=None):
         return o.strftime("%Y.%m.%d")
 ...
 ...
-st = stringtemplate3.StringTemplate("date: <created>", lexer="angle-bracket")
+st = St3T("date: <created>", lexer="angle-bracket")
 st["created"] = date(year=2005, month=7, day=5)
 st.registerRenderer(date, DateRenderer())
 expecting = "date: 2005.07.05"
@@ -1345,11 +1435,11 @@ There are cases where the template is the only reasonable place to determine wha
 
 The format option allows the template to decide what formatting to use where but leaves the details of how the formatting is done completely in the hands of the controller.
 
-To make use of the format option you must create a renderer that implements interface AttributeRenderer and provides an implementation for the toString method that takes a formatName String.
+To make use of the format option you must create a renderer that implements interface `AttributeRenderer` and provides an implementation for the toString method that takes a formatName String.
 
 [source,python]
 ----
-class BasicFormatRenderer(stringtemplate3.AttributeRenderer):
+class BasicFormatRenderer(AttributeRenderer):
     def toString(self, o, formatName=None):
         if formatName is None:
             # no formatting specified
@@ -1384,17 +1474,17 @@ If you really want the separator to be formatted then you must do this
 
 ${$list : { [$it$] };separator=" and ",null="woops"$};format="toUpper"$
 
-12. Expression options
+== Expression options
 There are 5 expression options at the moment:
 
 separator. Specify text to be emitted between multiple values emitted for a single expression. For example, given a list of names, <names> spits them out right next to each other. Using a separator can put a comma in between automatically: <names; separator=",">. This is by far the most commonly used option. See How to construct separators?.
-format. Used in conjunction with the AttributeRenderer interface, which describes an object that knows how to format or otherwise render an object appropriately. The toString(Object,String) method is used when the user uses the format option: $o; format="f"$. Renderers check the formatName and apply the appropriate formatting. If the format string passed to the renderer is not recognized, then it should simply call toString(Object).
+format. Used in conjunction with the `AttributeRenderer` interface, which describes an object that knows how to format or otherwise render an object appropriately. The toString(Object,String) method is used when the user uses the format option: $o; format="f"$. Renderers check the formatName and apply the appropriate formatting. If the format string passed to the renderer is not recognized, then it should simply call toString(Object).
 This option is very effective for locale changes and for choosing the display characteristics of an object in the template rather than encode.
 Each template may have a renderer for each object type or can default to the group's renderer or the super group's renderer if the group doesn't have one. See Object rendering#Format Option.
 null. Emit a special value for each null element. For example, given values=9,6,null,2,null
 $values; null="-1", separator=", "$
 emits:
-9, 6, -1, 2, -1
+== 6, -1, 2, -1
 See Expressions
 wrap. Tell ST that it is okay to wrapped lines to get too long. The wrap option may also take an argument but it's default is simply a \n string. You must specify an integer width using the toString(int) method to get ST to actually wrap expressions modified with this option. For example, given a list of names and expression <names; wrap>, a call to toString(72) will emit the names until it surpasses 72 characters in with and then inserts a new line and begins emitting names again. Naturally this can be used in conjunction with the separator option. ST Never breaks in between a real element and the separator; the wrap occurs only after a separator. See Automatic line wrapping.
 anchor. Line up all wrapped lines with left edge of expression when wrapping. Default is anchor="true" (any non-null value means anchor). See Automatic line wrapping.
@@ -1421,6 +1511,7 @@ public void testRendererWithFormatAndList() throws Exception {
 }
 ----
 The code registers a renderer for the String class. Without the format option, the toString(Object) method is used to convert strings to the emitted text. With the option, the toString(Object, String) method is invoked. Here is the renderer used in the example:
+
 [source,java]
 ----
 public class StringRenderer implements AttributeRenderer {
@@ -1471,16 +1562,16 @@ public void testRendererWithFormatAndSeparatorAndNull() throws Exception {
 ----
 Python examples
 If you are constructing HTML documents you have to escape plain text strings so that < or & characters appear as literal text and do not act as HTML delimiters (thus opening a wide range of possible attacks if the text originated from user input).
+
 [source,python]
 ----
 import cgi
-import stringtemplate3
 
-group = stringtemplate3.StringTemplateGroup(
+group = St3G(
     name="default", rootDir="path/to/templates/"
     )
 
-class EscapeRenderer(stringtemplate3.AttributeRenderer):
+class EscapeRenderer(AttributeRenderer):
     def toString(self, o, formatName=None):
         if formatName is None:
             # no formatting specified
@@ -1499,7 +1590,7 @@ st['comment'] = database.loadComment() # an instance with username, text, url, .
 Then you can use $comment.text; format="escape"$ in your templates whenever an attribute is not known to be save.
 
 
-13. Auto-indentation
+== Auto-indentation
 Auto-indentation
 StringTemplate has auto-indentation on by default. To turn it off, use NoIndentWriter rather than (the default) AutoIndentWriter.
 
@@ -1578,7 +1669,7 @@ The one exception to indentation is that naturally, $if$ actions do not cause in
  $y$
 $endif$
 
-14. Automatic line wrapping
+== Automatic line wrapping
 Automatic line wrapping
 StringTemplate never automatically wraps lines--you must explicitly use the wrap option on an expression to indicate that StringTemplate should wrap lines in between expression elements. StringTemplate never breaks literals, but it can break in between a literal and an expression. the line wrapping is soft in the sense that an expression that emits text starting before the right edge will spit out that element even if it goes past the right edge. In other words, StringTemplate does not break elements to enforce a hard right edge. It will not break line between element and separator to avoid having for example a comma appear at the left edge. You may specify the line width as an argument to toString() such as st.toString(72). By default, toString() does not wrap lines.
 
@@ -1667,8 +1758,8 @@ WARNING: separators and wrap values are templates and are evaluated once before 
 Default values for wrap="\n", anchor="true" (any non-null value means anchor).
 
 
-15. Output Filters
-Output Filters
+== Output Filters
+
 Version 2.0 introduced the notion of an StringTemplateWriter/IStringTemplateWriter. All text rendered from a template goes through one of these writers before being placed in the output buffer. Terence added this primarily for auto-indentation for code generation, but it also could be used to remove whitespace (as a compression) from HTML output. Most recently, in 2.3, Terence updated the interface to support automatic line wrapping. If you don't care about indentation, you can simply subclass AutoIndentWriter and override write()/Write():
 
 [source,python]
@@ -1707,7 +1798,7 @@ Here is a "pass through" writer that is already defined:
 
 [source,python]
 ----
-class NoIndentWriter(stringtemplate3.AutoIndentWriter):
+class NoIndentWriter(AutoIndentWriter):
     """Just pass through the text"""
     def __init__(self, out):
         super(NoIndentWriter, self).__init__(out)
@@ -1721,9 +1812,9 @@ Use it like this:
 [source,python]
 ----
 out = StringIO()
-group = stringtemplate3.StringTemplateGroup("test")
+group = St3G("test")
 group.defineTemplate("bold", "<b>$x$</b>")
-nameST = stringtemplate3.StringTemplate("$name:bold(x=name)$", group=group)
+nameST = St3T("$name:bold(x=name)$", group=group)
 nameST["name"] = "Terence"
 # write to 'out' with no indentation
 nameST.write(NoIndentWriter(out))
@@ -1735,12 +1826,12 @@ If you want to always use a particular output filter, then use
 
 [source,python]
 ----
-stringtemplate.StringTemplateGroup.setStringTemplateWriter(userSpecifiedWriterClass)
+St3T.setStringTemplateWriter(userSpecifiedWriterClass)
 ----
-The StringTemplate.toString() method is sensitive to the group's writer class.
+The StringTemplate `str()` method is sensitive to the group's writer class.
 
 
-16. Template and attribute lookup rules
+== Template and attribute lookup rules
 Template lookup
 When you request a named template via StringTemplateGroup.getInstanceOf() or within a template, there is a specific sequence used to locate the template.
 
@@ -1774,7 +1865,7 @@ templates = (
     "group test;" + os.linesep +
     "block(stats) ::= \"{$stats$}\""
     )
-group = stringtemplate3.StringTemplateGroup(file=StringIO(templates), lexer='default')
+group = St3G(file=StringIO(templates), lexer='default')
 b = group.getInstanceOf("block")
 b["stats"] = group.getInstanceOf("block")
 expecting ="{{}}"
@@ -1791,16 +1882,16 @@ templates = (
     "block(stats) ::= \"$stats$\"" + os.linesep +
     "ifstat(stats) ::= \"IF true then $stats$\"\n"
     )
-stringtemplate3.lintMode = True
-group = stringtemplate3.StringTemplateGroup(file=StringIO(templates), lexer="default")
+St3.lintMode = True
+group = St3G(file=StringIO(templates), lexer="default")
 b = group.getInstanceOf("block")
 ifstat = group.getInstanceOf("ifstat")
 b["stats"] = ifstat      # block has if stat
 ifstat["stats"] = b      # but make the "if" contain block
 try:
     result = str(b)
-except stringtemplate3.language.ASTExpr.IllegalStateException, exc:
-    # do something
+except IllegalStateException, exc:
+    logger.exception('do something', exc)
 ----
 The nested template stack trace from exception object will be similar to:
 
@@ -1810,7 +1901,7 @@ infinite recursion to <ifstat([stats])@4> referenced in <block([stats])@3>; stac
 <ifstat([stats])@4> (start of recursive cycle)
 ...
 
-17. StringTemplate Grammars
+== StringTemplate Grammars
 StringTemplate Grammars
 StringTemplate has multiple grammars that describe templates at varying degrees of detail. At the grossest level of granularity, the group.g grammar accepts a list of templates with formal template arguments. Each of these templates is broken up into chunks of literal text and attribute expressions via template.g. The default lexer uses $...$ delimiters, but the angle.bracket.template.g lexer provides <...> delimiters. Each of the attribute expression chunks is processed by action.g. It builds trees (ASTs) representing the operation indicated in the expression. These ASTs
 represent the "precompiled" templates, which are evaluated by the tree grammar eval.g each time a StringTemplate is rendered to string with ToString().
@@ -1851,15 +1942,15 @@ but other escapes are allowed and ignored.
 Please see the actual grammar files for the formal language specification of StringTemplate's various components.
 
 
-18. Debugging
+== Debugging
 Debugging
 Debugging complex and nested StringTemplate trees can be challenging. Kay Roepke is building a graphical interface similar to ANTLRWorks for StringTemplate but until then you have a number of tools that you can use.
 
-You can ask for the enclosing template structure with StringTemplate.getEnclosingInstanceStackString() and can get the entire structure with toStructureString() that does not print the values but shows the nested structure with the attribute names.
+You can ask for the enclosing template structure with `St3T.getEnclosingInstanceStackString()` and can get the entire structure with toStructureString() that does not print the values but shows the nested structure with the attribute names.
 
-If for some reason StringTemplate goes into an infinite loop when you try to render a template, you probably have a circular reference in your template containment hierarchy. Turning on lint mode with StringTemplate.setLintMode() will check for these cyclic references and a number of other features. This will slow down template rendering so only use this during debugging.
+If for some reason StringTemplate goes into an infinite loop when you try to render a template, you probably have a circular reference in your template containment hierarchy. Turning on lint mode with `St3.lintMode = True` will check for these cyclic references and a number of other features. This will slow down template rendering so only use this during debugging.
 
-Added StringTemplate. getDOTForDependencyGraph() a DOT diagram showing edges from n->m where template n contains template m. It finds all direct template invocations too like <foo()> but not indirect ones like <(name)()>. This is done statically and hence StringTemplate cannot see runtime arg values on statically included templates. You get a template back that lets you reset node shape, fontsize, width, height attributes. Use removeAttribute before setting so you are sure you only get one value.
+Added `St3.getDOTForDependencyGraph()` a DOT diagram showing edges from n->m where template n contains template m. It finds all direct template invocations too like <foo()> but not indirect ones like <(name)()>. This is done statically and hence StringTemplate cannot see runtime arg values on statically included templates. You get a template back that lets you reset node shape, fontsize, width, height attributes. Use removeAttribute before setting so you are sure you only get one value.
 
 Perhaps the most potent debugging tool you have for unraveling the complex structures emitted from nested StringTemplate containment hierarchies is the use of start and stop tags that marked the beginning and end of the text generated from a particular template. Method StringTemplateGroup.emitDebugStartStopStrings() indicates whether StringTemplate should emit <templatename>...</templatename> output for templates from this group. This easily answers an important question: "what template emitted a particular piece of text in the output?" In many cases you will not want every single template to have those tags in the output. For example, in the ANTLR code generator, there is a template that indicates what the output file extension is. Clearly one does not want the file extension to have the debugging information has the code generator could not open a file with those angle brackets and so on. Here's the snippet from the code generator:
 [source,text]
