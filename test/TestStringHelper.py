@@ -1,7 +1,10 @@
 import calendar
+import io
 import logging
 
 import yaml
+
+from stringtemplate3 import StringTemplateErrorListener
 
 """
  [The "BSD licence"]
@@ -37,17 +40,33 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
-class NoSuchElementException(Exception):
-    """
-    https://docs.oracle.com/javase/8/docs/api/java/util/NoSuchElementException.html
-    """
+class ErrorBuffer(StringTemplateErrorListener):
+    def __init__(self):
+        self.errorOutput = io.StringIO()
+        self.n = 0
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.message = "none"
+    def error(self, msg, ex):
+        """
+        Write the error output into the error buffer
+        """
+        self.n += 1
+        if self.n > 1:
+            self.errorOutput.write('\n')
+        if ex is not None:
+            self.errorOutput.write(ex.message + '\n')
+        else:
+            self.errorOutput.write(msg)
 
-    def getMessage(self):
-        return self.message if hasattr(self, "message") else f'{self}'
+    def warning(self, msg):
+        self.n += 1
+        self.errorOutput.write(msg)
+
+    def equals(self, obj):
+        if isinstance(obj, StringTemplateErrorListener):
+            return self
+
+    def __str__(self):
+        return self.errorOutput.getvalue()
 
 
 class IllegalArgumentException(Exception):
@@ -59,7 +78,7 @@ class IllegalArgumentException(Exception):
         super().__init__(*args)
 
 
-with open('logging_config.yaml', 'rt') as cfg:
+with open('logging_config.yml', 'rt') as cfg:
     config = yaml.safe_load(cfg.read())
 
 # logging.config.dictConfig(config)

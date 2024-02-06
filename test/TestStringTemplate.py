@@ -1,4 +1,5 @@
 import logging
+import io
 
 import temppathlib
 
@@ -53,7 +54,7 @@ def test_interfaceFileFormat():
         bold(item);
         optional duh(a,b,c);
     """)
-    ix = st3gi(groupI)
+    ix = st3gi(file=io.StringIO(groupI))
 
     expecting = """
             interface test;

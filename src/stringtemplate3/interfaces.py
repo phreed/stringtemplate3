@@ -28,6 +28,9 @@
 from builtins import str
 from builtins import object
 from io import StringIO
+import logging
+
+logger = logging.getLogger(__name__)
 
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser
@@ -92,9 +95,13 @@ class StringTemplateGroupInterface(object):
             parser = InterfaceParser.Parser(lexer)
             parser.groupInterface(self)
 
-        except RuntimeError as exc:  # FIXME:  Exception
+        except RuntimeError as rtex:
             name = self.name or "<unknown>"
-            self.error("problem parsing group " + name + ": " + str(exc), exc)
+            self.error("problem parsing group " + name + ": " + str(rtex), rtex)
+        except TypeError as tex:
+            logger.exception("problem parsing", tex)
+        except Exception as ex:
+            logger.exception("problem parsing", ex)
 
     def defineTemplate(self, name, formalArgs, optional):
         d = TemplateDefinition(name, formalArgs, optional)

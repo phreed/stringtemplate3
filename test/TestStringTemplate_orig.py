@@ -17,7 +17,7 @@ from stringtemplate3.templates import StringTemplate as st3t
 from stringtemplate3.writers import AttributeRenderer
 
 import TestStringHelper as tsh
-from TestStringHelper import (NoSuchElementException,
+from TestStringHelper import (KeyError,
                               IllegalArgumentException,
                               sample_day)
 
@@ -387,9 +387,9 @@ def test_TemplateParameterDecls():
     a = group.getInstanceOf("t")
     error = None
     try:
-        a["foo"] = "x"  # want NoSuchElementException
+        a["foo"] = "x"  # want KeyError
 
-    except NoSuchElementException as ex:
+    except KeyError as ex:
         error = ex.getMessage()
 
     expecting = "no such attribute: foo in template context [t]"
@@ -461,7 +461,7 @@ def test_UndefinedArgumentAssignment():
     try:
         str(t)
 
-    except NoSuchElementException as iae:
+    except KeyError as iae:
         error = iae.getMessage()
 
     expecting = "template body has no such attribute: font in template context [page <invoke body arg context>]"
@@ -495,7 +495,7 @@ def test_UndefinedArgumentAssignmentInApply():
     try:
         str(t)
 
-    except NoSuchElementException as iae:
+    except KeyError as iae:
         error = iae.getMessage()
 
     expecting = "template bold has no such attribute: font in template context [page <invoke bold arg context>]"
@@ -514,7 +514,7 @@ def test_UndefinedAttributeReference():
     try:
         str(t)
 
-    except NoSuchElementException as iae:
+    except KeyError as iae:
         error = iae.getMessage()
 
     expecting = "no such attribute: name in template context [page bold]"
@@ -533,7 +533,7 @@ def test_UndefinedDefaultAttributeReference():
     try:
         str(t)
 
-    except NoSuchElementException as nse:
+    except KeyError as nse:
         error = nse.getMessage()
 
     expecting = "no such attribute: it in template context [page bold]"
@@ -2268,7 +2268,7 @@ def test_DeliberateRecursiveTemplateApplication():
             "block(stats) ::= \"<stats>\"" +
             ifstat(stats) ::= \"IF True then <stats>\"
             """
-    st3t.setLintMode(True)
+    st3t.lintMode = True
     st3t.resetTemplateCounter()
     group = st3g(io.StringIO(templates))
     b = group.getInstanceOf("block")
@@ -2292,7 +2292,7 @@ def test_DeliberateRecursiveTemplateApplication():
 
     logger.info("errors=" + errors + "'")
     logger.info("expecting = " + expectingError + "'")
-    st3t.setLintMode(False)
+    st3t.lintMode = False
     assert expectingError == errors
 
 
@@ -4078,7 +4078,7 @@ def test_AnonTemplateWithArgHasNoITArg():
     try:
         str(e)
 
-    except NoSuchElementException as nse:
+    except KeyError as nse:
         error = nse.getMessage()
 
     expecting = "no such attribute: it in template context [anonymous anonymous]"
