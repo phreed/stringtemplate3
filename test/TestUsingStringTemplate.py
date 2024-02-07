@@ -146,6 +146,7 @@ def test_boolean_logic_both():
 # end::boolean_logic_both[]
 
 
+# tag::simple_group[]
 simple_group = dedent("""\
 group simple;
  
@@ -157,6 +158,7 @@ method(type,name,args) ::= <<
 }
 >>
 """)
+# end::simple_group[]
 
 
 # tag::demo_auto_indent[]

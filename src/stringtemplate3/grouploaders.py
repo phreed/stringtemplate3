@@ -37,6 +37,7 @@ from stringtemplate3.interfaces import StringTemplateGroupInterface
 from stringtemplate3.language import AngleBracketTemplateLexer
 
 
+# tag::string_template_group_loader[]
 class StringTemplateGroupLoader(object):
     """
     When group files derive from another group, we have to know how to
@@ -63,6 +64,7 @@ class StringTemplateGroupLoader(object):
         """
 
         raise NotImplementedError
+# end::string_template_group_loader[]
 
 
 class PathGroupLoader(StringTemplateGroupLoader):
