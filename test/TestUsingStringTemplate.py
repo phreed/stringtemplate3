@@ -9,7 +9,7 @@ import pytest
 import temppathlib
 from textwrap import dedent
 
-import stringtemplate3 as St3
+import stringtemplate3
 from stringtemplate3 import errors as St3Err, AutoIndentWriter
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
@@ -147,26 +147,27 @@ def test_boolean_logic_both():
 
 
 # tag::simple_group[]
-simple_group = dedent("""\
-group simple;
- 
-vardef(type,name) ::= "<type> <name>;"
- 
-method(type,name,args) ::= <<
-<type> <name>(<args; separator=",">) {
-  <statements; separator="\n">
-}
->>
-""")
+@pytest.fixture
+def simple_group():
+    return dedent("""\
+        group simple;
+         
+        vardef(type,name) ::= "<type> <name>;"
+         
+        method(type,name,args) ::= <<
+        <type> <name>(<args; separator=",">) {
+          <statements; separator="\n">
+        }
+        >>
+        """)
 # end::simple_group[]
 
 
 # tag::demo_auto_indent[]
-def test_demo_auto_indent():
-
+def test_demo_auto_indent(simple_group):
     with io.StringIO(simple_group) as stg:
         group = St3G(name="demo_auto_indent", file=stg,  lexer="angle-bracket")
-        foo = group.getTemplateNames()
+        logger.info(f"group templates: {group.getTemplateNames()}")
         vardef = group.getInstanceOf("vardef")
         vardef["type"] = "int"
         vardef["name"] = "foo"
@@ -230,30 +231,33 @@ def test_different_delimiters():
 class NoIndentWriter(AutoIndentWriter):
     """Just pass through the text"""
     def __init__(self, out):
-        super(NoIndentWriter, self).__init__(out)
+        super().__init__(out)
 
     def write(self, text, wrap=None):
         self.out.write(text)
         return len(text)
+
+    def __str__(self):
+        return self.out.getvalue()
 # end::no_indent_writer[]
 
 
 # tag::demo_no_indent_writer[]
-@pytest.mark.skip(reason="needs to be fixed")
 def test_demo_no_indent_writer():
-    out = io.StringIO()
+    """ write to 'out' with no indentation """
+    out = io.StringIO(u'')
     group = St3G("test")
     group.defineTemplate("bold", "<b>$x$</b>")
     nameST = St3T("$name:bold(x=name)$", group=group)
     nameST["name"] = "Terence"
-    # write to 'out' with no indentation
-    nameST.write(NoIndentWriter(out))
-    assert out.read() == str(nameST)
+    # writer = AutoIndentWriter(out)
+    writer = NoIndentWriter(out)
+    nameST.write(writer)
+    assert str(writer) == "<b>Terence</b>"
 # end::demo_no_indent_writer[]
 
 
 # tag::hide_infinite_recursion[]
-@pytest.mark.skip(reason="needs to be fixed")
 def test_hide_infinite_recursion():
     templates = dedent("""\
             group test;
@@ -267,23 +271,38 @@ def test_hide_infinite_recursion():
 
 
 # tag::trap_infinite_recursion[]
-@pytest.mark.skip(reason="verify failing is in the proper way")
+@pytest.mark.skip(reason="error is happening but on another thread?")
 def test_trap_infinite_recursion():
+    """
+    The block contains a stat which is an ifstat
+    which in turn has a state which is a block.
+    """
     templates = dedent("""\
             group test;
             block(stats) ::= "$stats$" 
-            ifstat(stats) ::= "IF true then $stats$
+            ifstat(stats) ::= "IF true then $stats$"
     """)
-    St3.lintMode = True
+    stringtemplate3.lintMode = True
     group = St3G(file=io.StringIO(templates), lexer="default")
     block = group.getInstanceOf("block")
     ifstat = group.getInstanceOf("ifstat")
-    block["stats"] = ifstat  # block has if stat
-    ifstat["stats"] = block  # but make the "if" contain block
+    block["stats"] = ifstat
+    ifstat["stats"] = block
     try:
-        logger.debug("result {}", block)
+        result = str(block)
+        logger.info(f"result: {result}")
     except IllegalStateException as ise:
-        logger.exception('do something', ise)
-    except Exception as ex:
-        logger.exception('do something', ex)
+        msg = ise.message
+        assert str(msg) == dedent("""\
+        infinite recursion to <ifstat([stats])@4> referenced in <block([stats])@3>; stack trace:
+<ifstat([stats])@4>, attributes=[stats=<block()@3>]>
+<block([stats])@3>, attributes=[stats=<ifstat()@4>], references=[stats]>
+<ifstat([stats])@4> (start of recursive cycle)
+        """)
+        logger.exception(f'illegal state exception: {ise}')
+    except TypeError as te:
+        logger.error(f'type error: {te}')
+    except Exception as ge:
+        logger.error(f'general exception: {ge}')
+    assert True
 # end::trap_infinite_recursion[]

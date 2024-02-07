@@ -15,8 +15,9 @@ import stringtemplate3
 
 class IllegalStateException(Exception):
 
-    def __init__(self, *args):
+    def __init__(self, message=None, *args):
         Exception.__init__(self, *args)
+        self.message = message
 
 
 def isiterable(o):
