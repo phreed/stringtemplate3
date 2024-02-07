@@ -3,15 +3,17 @@ import io
 import os
 
 import pathlib
+import sys
 
 import pytest
 import temppathlib
 from textwrap import dedent
 
-from stringtemplate3 import errors as st3err
+from stringtemplate3 import errors as St3Err
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
 from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
+from stringtemplate3.language import AngleBracketTemplateLexer, DefaultTemplateLexer
 from stringtemplate3.templates import StringTemplate as St3T
 
 import TestStringHelper as tsh
@@ -62,12 +64,8 @@ def local_dir_path():
 def test_HelloWorld():
     hello = St3T(template="Hello, $name$")
     hello["name"] = "World"
-    actual = f"{hello}"
 
-    expecting = "Hello, World"
-    assert expecting == actual
-
-
+    assert str(hello) == "Hello, World"
 # end::hello_world[]
 
 
@@ -77,10 +75,7 @@ def test_templates_with_code_base():
     query["column"] = "name"
     query["table"] = "User"
 
-    expecting = "SELECT name FROM User;"
-    assert expecting == str(query)
-
-
+    assert str(query) == "SELECT name FROM User;"
 # end::templates_with_code_base[]
 
 
@@ -91,11 +86,9 @@ def test_templates_with_code_multi():
     query["column"] = "email"
     query["table"] = "User"
 
-    expecting = "SELECT nameemail FROM User;"
-    assert expecting == str(query)
-
-
+    assert str(query) == "SELECT nameemail FROM User;"
 # end::templates_with_code_multi[]
+
 
 # tag::templates_with_code_multi_sep[]
 def test_templates_with_code_multi_sep():
@@ -104,10 +97,7 @@ def test_templates_with_code_multi_sep():
     query["column"] = "email"
     query["table"] = "User"
 
-    expecting = "SELECT name, email FROM User;"
-    assert expecting == str(query)
-
-
+    assert str(query) == "SELECT name, email FROM User;"
 # end::templates_with_code_multi_sep[]
 
 
@@ -119,8 +109,62 @@ def test_loading_templates_from_file(local_dir_path):
     query["column"] = "email"
     query["table"] = "Person"
 
-    expecting = "SELECT name,email FROM Person;"
-    assert expecting == str(query)
-
+    assert str(query) == "SELECT name,email FROM Person;"
 # end::loading_templates_from_file[]
 
+
+# tag::loading_template_from_sys_path[]
+def no_test_loading_template_from_sys_path():
+    logger.info('sys.path: %s', sys.path)
+    group = St3G(name="mygroup", lexer="angle-bracket")
+    st = group.getInstanceOf("templates/page")
+    st["title"] = "Page Title"
+    st["body"] = "Page Body"
+
+    assert str(st) == "SELECT name, email FROM User;"
+# end::loading_template_from_sys_path[]
+
+
+# tag::boolean_logic_both[]
+def test_boolean_logic_both():
+    decl_template = dedent("""\
+        use_64: <USE_64>
+        <if (USE_64)>
+        #define TEST_HAS_64_BIT
+        <endif>
+        """)
+    decl_on = St3T(template=decl_template, lexer="angle-bracket")
+    decl_on["USE_64"] = True
+
+    assert str(decl_on) == "use_64: True\n#define TEST_HAS_64_BIT"
+
+    decl_off = St3T(template=decl_template, lexer="angle-bracket")
+    decl_off["USE_64"] = False
+
+    assert str(decl_off) == "use_64: False\n"
+# end::boolean_logic_both[]
+
+
+# tag::different_delimiters[]
+def test_different_delimiters():
+    a_template = dedent("""\
+        <argument>
+        $argument$
+        """)
+    w_bracket = St3T(template=a_template, lexer="angle-bracket")
+    w_bracket["argument"] = "resolved"
+    assert str(w_bracket) == "resolved\n$argument$\n"
+
+    w_dollar = St3T(template=a_template, lexer="default")
+    w_dollar["argument"] = "resolved"
+    assert str(w_dollar) == "<argument>\nresolved\n"
+
+    w_bracket = St3T(template=a_template, lexer=AngleBracketTemplateLexer.Lexer)
+    w_bracket["argument"] = "resolved"
+    assert str(w_bracket) == "resolved\n$argument$\n"
+
+    w_dollar = St3T(template=a_template, lexer=DefaultTemplateLexer.Lexer)
+    w_dollar["argument"] = "resolved"
+    assert str(w_dollar) == "<argument>\nresolved\n"
+
+# end::different_delimiters[]

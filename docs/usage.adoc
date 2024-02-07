@@ -3,8 +3,10 @@
 :test_file: ../test/TestStringTemplate.py
 
 == Usage
-This was lifted from the https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
+The majority of this document was lifted from the https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
 out of concern that the documentation may be lost.
+
+* link:https://github.com/antlr/stringtemplate4/blob/master/doc/index.md[StringTemplate4].
 
 === Introduction
 Most programs that emit source code or other text output are unstructured blobs of generation logic interspersed with print statements. The primary reason is the lack of suitable tools and formalisms. The proper formalism is that of an output grammar because you are not generating random characters--you are generating sentences in an output language. This is analogous to using a grammar to describe the structure of input sentences. Rather than building a parser by hand, most programmers will use a parser generator. Similarly, we need some form of unparser generator to generate text. The most convenient manifestation of the output grammar is a template engine such as StringTemplate.
@@ -318,8 +320,7 @@ Loading Templates relative to an implementation specific location.
 
 [source,python]
 ----
-Loading Templates from sys.path
-FIXME: there was an implementation, test&document it!
+include::{test_file}[tag=loading_template_from_sys_path]
 ----
 
 If page.st references, say, searchbox template, it must be fully qualified as:
@@ -346,17 +347,13 @@ To specify that StringTemplate should use a specific delimiter you must create a
 
 [source,python]
 ----
-
-group = St3G("sqlstuff", "/tmp", lexer="angle-bracket")
-query = St3T("SELECT <column> FROM <table>;", group=group)
-query["column"] = "name"
-query["table"] = "User"
+include::{test_file}[tag=different_delimiters]
 ----
 
 Python accepts either a antlr.CharScanner class (`DefaultTemplateLexer.Lexer`, `AngleBracketTemplateLexer.Lexer` or your own implementation) or the string literals 'default' and 'angle-bracket'.
-Also note the use of the keyword argument lexer.
+Also note the use of the keyword argument `lexer`.
 
-All templates created through the group or in any way associated with the group will assume your the angle bracket delimiters.
+All templates created through the group or in any way associated with the group will assume the angle bracket delimiters.
 It's smart to be consistent across all files of similar type such as "all HTML templates use $...$" and "all SQL templates use <...>".
 
 
