@@ -74,6 +74,108 @@ def test_interfaceFileFormat():
     assert str(ix) == expecting
 
 
+def test_AaaNoGroupLoader():
+    templates = dedent("""
+            group testG implements blort;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>
+            """)
+    errors = st3err.DEFAULT_ERROR_LISTENER
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+
+        with open(stg_path, "r") as reader:
+            group = St3G(file=reader, errors=errors, lexer="angle-bracket")
+            logger.debug(f"group: {group}")
+
+    expecting = "no group loader registered"
+    assert expecting == str(errors)
+
+
+def test_CannotFindInterfaceFile():
+    """ this also tests the group loader """
+    errors = st3err.DEFAULT_ERROR_LISTENER
+    tmp_dir = temppathlib.TemporaryDirectory()
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+
+    templates = """
+        group testG implements blort;
+        t() ::= <<foo>>
+        bold(item) ::= <<foo>>
+        duh(a,b,c) ::= <<foo>>;
+        """
+
+    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+
+    with open(stg_file, "r") as reader:
+        group = St3G(file=reader, errors=errors)
+        logger.debug(f"group: {group}")
+
+    expecting = "no such interface file blort.sti"
+    assert expecting == str(errors)
+
+
+def test_MultiDirGroupLoading():
+    """ this also tests the group loader """
+    errors = ErrorBuffer()
+    tmp_dir = temppathlib.TemporaryDirectory()
+    sub_dir = tmp_dir.path / "sub"
+    try:
+        sub_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as pe:
+        logger.exception("can't make subdir in test", pe)
+        return
+
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, sub_dir))
+
+    templates = """
+        group testG2;
+        t() ::= <<foo>>
+        bold(item) ::= <<foo>>
+        duh(a,b,c) ::= <<foo>>;
+"""
+    tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
+
+    group = St3G.loadGroup("testG2")
+    expecting = """
+    group testG2;
+        bold(item) ::= <<foo>>
+        duh(a,b,c) ::= <<foo>>
+        t() ::= <<foo>>;
+        """
+    assert expecting == str(group)
+
+
+def test_GroupSatisfiesSingleInterface():
+    """ this also tests the group loader """
+    errors = ErrorBuffer()
+    tmp_dir = temppathlib.TemporaryDirectory()
+    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+    groupI = """
+            interface testI;
+            t();
+            bold(item);
+            optional duh(a,b,c);
+            """
+    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+
+    templates = """
+        group testG implements testI;
+        t() ::= <<foo>>
+        bold(item) ::= <<foo>>
+        duh(a,b,c) ::= <<foo>>;
+"""
+    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+
+    with open(stg_file, "rb") as reader:
+        group = St3G(reader, errors=errors)
+        logger.debug(f"group: {group}")
+
+    expecting = ""  # should be no errors
+    assert expecting == str(errors)
+
+
 def test_GroupExtendsSuperGroup():
     """ this also tests the group loader """
     errors = St3Err.DEFAULT_ERROR_LISTENER

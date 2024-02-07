@@ -1,7 +1,10 @@
 import logging
 import io
+import os
 
 import pathlib
+
+import pytest
 import temppathlib
 from textwrap import dedent
 
@@ -50,8 +53,14 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
+@pytest.fixture
+def local_dir_path():
+    return pathlib.Path(__file__).parent
+
+
+# tag::hello_world[]
 def test_HelloWorld():
-    hello = St3T("Hello, $name$")
+    hello = St3T(template="Hello, $name$")
     hello["name"] = "World"
     actual = f"{hello}"
 
@@ -59,103 +68,59 @@ def test_HelloWorld():
     assert expecting == actual
 
 
-def test_AaaNoGroupLoader():
-    templates = dedent("""
-            group testG implements blort;
-            t() ::= <<foo>>
-            bold(item) ::= <<foo>>
-            duh(a,b,c) ::= <<foo>>
-            """)
-    errors = st3err.DEFAULT_ERROR_LISTENER
-    with temppathlib.TemporaryDirectory() as tmp_dir:
-        stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
-
-        with open(stg_path, "r") as reader:
-            group = St3G(file=reader, errors=errors, lexer="angle-bracket")
-            logger.debug(f"group: {group}")
-
-    expecting = "no group loader registered"
-    assert expecting == str(errors)
+# end::hello_world[]
 
 
-def test_CannotFindInterfaceFile():
-    """ this also tests the group loader """
-    errors = st3err.DEFAULT_ERROR_LISTENER
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+# tag::templates_with_code_base[]
+def test_templates_with_code_base():
+    query = St3T(template="SELECT $column$ FROM $table$;")
+    query["column"] = "name"
+    query["table"] = "User"
 
-    templates = """
-        group testG implements blort;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-        """
-
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
-
-    with open(stg_file, "r") as reader:
-        group = St3G(file=reader, errors=errors)
-        logger.debug(f"group: {group}")
-
-    expecting = "no such interface file blort.sti"
-    assert expecting == str(errors)
+    expecting = "SELECT name FROM User;"
+    assert expecting == str(query)
 
 
-def test_MultiDirGroupLoading():
-    """ this also tests the group loader """
-    errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    sub_dir = tmp_dir.path / "sub"
-    try:
-        sub_dir.mkdir(parents=True, exist_ok=True)
-    except PermissionError as pe:
-        logger.exception("can't make subdir in test", pe)
-        return
-
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, sub_dir))
-
-    templates = """
-        group testG2;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-"""
-    tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
-
-    group = St3G.loadGroup("testG2")
-    expecting = """
-    group testG2;
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>
-        t() ::= <<foo>>;
-        """
-    assert expecting == str(group)
+# end::templates_with_code_base[]
 
 
-def test_GroupSatisfiesSingleInterface():
-    """ this also tests the group loader """
-    errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
-    groupI = """
-            interface testI;
-            t();
-            bold(item);
-            optional duh(a,b,c);
-            """
-    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+# tag::templates_with_code_multi[]
+def test_templates_with_code_multi():
+    query = St3T(template="SELECT $column$ FROM $table$;")
+    query["column"] = "name"
+    query["column"] = "email"
+    query["table"] = "User"
 
-    templates = """
-        group testG implements testI;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-"""
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+    expecting = "SELECT nameemail FROM User;"
+    assert expecting == str(query)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-        logger.debug(f"group: {group}")
 
-    expecting = ""  # should be no errors
-    assert expecting == str(errors)
+# end::templates_with_code_multi[]
+
+# tag::templates_with_code_multi_sep[]
+def test_templates_with_code_multi_sep():
+    query = St3T(template="SELECT $column; separator=\", \"$ FROM $table$;")
+    query["column"] = "name"
+    query["column"] = "email"
+    query["table"] = "User"
+
+    expecting = "SELECT name, email FROM User;"
+    assert expecting == str(query)
+
+
+# end::templates_with_code_multi_sep[]
+
+
+# tag::loading_templates_from_file[]
+def test_loading_templates_from_file(local_dir_path):
+    group = St3G(name="myGroup", rootDir=str(local_dir_path / "templates"))
+    query = group.getInstanceOf("sql_stmt")
+    query["column"] = "name"
+    query["column"] = "email"
+    query["table"] = "Person"
+
+    expecting = "SELECT name,email FROM Person;"
+    assert expecting == str(query)
+
+# end::loading_templates_from_file[]
+

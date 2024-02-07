@@ -1,4 +1,6 @@
 = StringTemplate3
+:test_dir: ../test
+:test_file: ../test/TestStringTemplate.py
 
 == Usage
 This was lifted from the https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
@@ -39,9 +41,7 @@ Using templates in code is very easy. Here is the requisite example that prints 
 
 [source,python]
 ----
-hello = St3T("Hello, $name$")
-hello["name"] = "World"
-print(f"{hello}")
+include::{test_file}[tag=hello_world]
 ----
 
 StringTemplate is not a "system" or "engine" or "server"; it is a library with two primary classes of interest: StringTemplate and StringTemplateGroup. You can directly create a StringTemplate in code, you can load a template from a file, and you can load a single file with many templates (a template group file).
@@ -260,9 +260,7 @@ Here is a simple example that creates and uses a template on the fly:
 
 [source,python]
 ----
-query = St3T("SELECT $column$ FROM $table$;")
-query["column"] = "name"
-query["table"] = "User"
+include::{test_file}[tag=templates_with_code_base]
 ----
 where StringTemplate considers anything in $...$ to be something it needs to pay attention to. By setting attributes, you are "pushing" values into the template for use when the template is printed out. The attribute values are set by referencing their names. Invoking toString() on query would yield
 
@@ -275,35 +273,21 @@ You can set an attribute multiple times, which simply means that the attribute i
 
 [source,python]
 ----
-query = St3T("SELECT $column$ FROM $table$;")
-query["column"] = "name"
-query["column"] = "email"
-query["table"] = "User"
+include::{test_file}[tag=templates_with_code_multi]
 ----
 
-Invoking `str()` on query would now yield...
-
-[source,sql]
-----
-SELECT name FROM User;
-----
-
-Ooops...there is no separator between the multiple values. If you want a comma, say, between the column names, then change the template to record that formatting information:
+Ooops...there is no separator between the multiple values.
+If you want a comma, say, between the column names,
+then change the template to record that formatting information:
 
 [source,python]
 ----
-query = St3T("SELECT $column; separator=\",\"$ FROM $table$;")
-query["column"] = "name"
-query["column"] = "email"
-query["table"] = "User"
+include::{test_file}[tag=templates_with_code_multi_sep]
 ----
 
-Note that the right-hand-side of the separator specification in this case is a string literal; therefore, we have escaped the double-quotes as the template is specified in a string. In general, the right-hand-side can be any attribute expression. Invoking toString() on query would now yield
-
-[source,sql]
-----
-SELECT name,email FROM User;
-----
+Note that the right-hand-side of the separator specification in this case is a string literal;
+therefore, we have escaped the double-quotes as the template is specified in a string.
+In general, the right-hand-side can be any attribute expression.
 
 Attributes can be any object at all. StringTemplate calls toString() on each object as it writes the template out. The separator is not used unless the attribute is multi-valued.
 
@@ -312,20 +296,16 @@ The rest of this article discusses StringTemplateGroups, but only covers the cas
 
 To load a template from the disk you must use a StringTemplateGroup that will manage all the templates you load, caching them so you do not waste time talking to the disk for each template fetch request (you can change it to not cache; see below). You may have multiple template groups. Here is a simple example that loads the previous SQL template from a file /tmp/theQuery.st:
 
-[source,template]
+[source,sql]
 ----
-SELECT $column; separator=","$ FROM $table$;
+include::{test_dir}/templates/sql_stmt.st[]
 ----
 
 The code below creates a StringTemplateGroup called myGroup rooted at /tmp so that requests for template theQuery forces a load of file /tmp/theQuery.st.
 
 [source,python]
 ----
-group = St3G("myGroup", "/tmp")
-query = group.getInstanceOf("theQuery")
-query["column"] = "name"
-query["column"] = "email"
-query["table"] = "User"
+include::{test_file}[tag=loading_templates_from_file]
 ----
 
 If you have a directory hierarchy of templates such as file /tmp/jguru/bullet.st, you would reference them relative to the root; in this case, you would ask for template jguru/bullet().
