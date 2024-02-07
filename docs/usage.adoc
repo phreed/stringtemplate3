@@ -1,6 +1,6 @@
 = StringTemplate3
 :test_dir: ../test
-:test_file: ../test/TestStringTemplate.py
+:test_file: ../test/TestUsingStringTemplate.py
 
 == Usage
 The majority of this document was lifted from the https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
@@ -183,10 +183,10 @@ Return an integer indicating how many elements in length $attr$ is. Single value
 escaped delimiter prevents $ or < from starting an attribute expression and results in that single character.
 
 <\ >, <\n>, <\t>, <\r> ::
-special character(s): space, newline, tab, carriage return. Can have multiple in single <...> expression.
+special character(s): space, newline, tab, carriage return. Can have multiple in single `<...>` expression.
 
 <\uXXXX> ::
-Unicode character(s). Can have multiple in single <...> expression.
+Unicode character(s). Can have multiple in single `<...>` expression.
 
 <! comment !>, $! comment !$ ::
 Comments, ignored by StringTemplate.
@@ -339,9 +339,11 @@ group.refreshInterval = sys.maxint # no refreshing
 ----
 
 == Setting the expression delimiters
-By default, expressions in a template are delimited by dollar signs: $...$. This works great for the most common case of HTML generation because the attribute expressions are clearly highlighted in the text. Sometimes, with other formats like SQL statement generation, you may want to change the template expression delimiters to avoid a conflict and to make the expressions stand out.
+By default, expressions in a template are delimited by dollar signs: `$...$`. This works great for the most common case of HTML generation because the attribute expressions are clearly highlighted in the text. Sometimes, with other formats like SQL statement generation, you may want to change the template expression delimiters to avoid a conflict and to make the expressions stand out.
 
-The start and stop strings are limited to either $...$ or <...> (unless you build your own lexical analyzer to break apart templates into chunks). group file templates use <...> delimiters by default (in v2.2 $...$ was the default delimiter). Templates created with the StringTemplate object constructor still use $...$ by default.
+The start and stop strings are limited to either `$...$` or `<...>`
+(unless you build your own lexical analyzer to break apart templates into chunks).
+group file templates use `<...>` delimiters by default (in v2.2 `$...$` was the default delimiter). Templates created with the StringTemplate object constructor still use `$...$`.
 
 To specify that StringTemplate should use a specific delimiter you must create a StringTemplateGroup:
 
@@ -350,11 +352,11 @@ To specify that StringTemplate should use a specific delimiter you must create a
 include::{test_file}[tag=different_delimiters]
 ----
 
-Python accepts either a antlr.CharScanner class (`DefaultTemplateLexer.Lexer`, `AngleBracketTemplateLexer.Lexer` or your own implementation) or the string literals 'default' and 'angle-bracket'.
+Python accepts either an antlr.CharScanner class (`DefaultTemplateLexer.Lexer`, `AngleBracketTemplateLexer.Lexer` or your own implementation) or the string literals 'default' and 'angle-bracket'.
 Also note the use of the keyword argument `lexer`.
 
 All templates created through the group or in any way associated with the group will assume the angle bracket delimiters.
-It's smart to be consistent across all files of similar type such as "all HTML templates use $...$" and "all SQL templates use <...>".
+It's smart to be consistent across all files of similar type such as "all HTML templates use `$...$`" and "all SQL templates use `<...>`".
 
 
 === Group Files
@@ -373,7 +375,7 @@ method(type,name,args) ::= <<
 }
 >>
 ----
-All groups use <...> expression  delimiters by default. Single line templates are enclosed in double quotes while multi-line templates are enclosed in double angle-brackets. Every template must define arguments even if the formal argument list is blank.
+All groups use `<...>` expression  delimiters by default. Single line templates are enclosed in double quotes while multi-line templates are enclosed in double angle-brackets. Every template must define arguments even if the formal argument list is blank.
 
 Using the templates from a template group file (or from a string) is straightforward. The StringTemplateGroup class has a number of constructors, one of which allows you to pass in a string or file or whatever:
 
@@ -435,7 +437,7 @@ To use the map in a template, refer to it as you would an attribute. Continuing 
 
 Map strings are actually templates that can refer to attributes that will become visible via dynamic scoping of attributes once the map entry has been embedded within a template. This is useful for referencing things like attribute username from within map values. That attribute will eventually become visible when the map a value is embedded within, say, a page template.
 
-Large strings, such as those with newlines, can be specified with the usual large template delimiters from the group file format: <<...>>.
+Large strings, such as those with newlines, can be specified with the usual large template delimiters from the group file format: `<<...>>`.
 
 The default and other mappings can have empty values (implying no value). if no key is matched by the map then an empty value is returned, which is the same as using "default :" explicitly. The keyword key is available if you would like to refer to the key that maps to this value. This is particularly useful if you would like to filter certain words but otherwise leave a value unchanged; use default : key to return the key unmolested if it is not found in the map.
 
@@ -1605,197 +1607,190 @@ at least the tab.
 
 Consider generating nested statement lists as in C. Any statements inside must be nested 4 spaces. Here are two templates that could take care of this:
 
-function(name,body) ::= <<
-void $name$() $body$
->>
-
-slist(statements) ::= <<
-{
-    $statements; separator="\n"$
-}>>
-Your code would create a function template instance and an slist instance, which gets passed to the function template as attribute body. The following code:
+[source,template]
+----
+include::{test_dir}/templates/demo_auto_indent.stg[]
+----
+Your code would create a function template instance and an slist instance,
+which gets passed to the function template as attribute body. The following code:
 
 [source,python]
 ----
-f = group.getInstanceOf("function")
-f["name"] = "foo"
-body = group.getInstanceOf("slist")
-body["statements"] = "i=1;"
-nestedSList = group.getInstanceOf("slist")
-nestedSList["statements"] = "i=2;"
-body["statements"] = nestedSList
-body["statements"] = "i=3;"
-f["body"] = body
+include::{test_file}[tag=demo_auto_indent]
 ----
-should generate something like:
 
-void foo() {
-    i=1;
-    {
-        i=2;
-    }
-    i=3;
-}
 Indentation can only occur at the start of a line so indentation is only tracked in front of attribute expressions following a newline.
 
 The one exception to indentation is that naturally, $if$ actions do not cause indentation as they do not result in any output. However, the subtemplates (THEN and ELSE clauses) will see indentations. For example, in the following template, the two subtemplates are indented by exactly 1 space each:
 
+[source,template]
+----
      $if(foo)$
  $x$
 \t\t$else
  $y$
 $endif$
+----
 
 == Automatic line wrapping
-Automatic line wrapping
+
 StringTemplate never automatically wraps lines--you must explicitly use the wrap option on an expression to indicate that StringTemplate should wrap lines in between expression elements. StringTemplate never breaks literals, but it can break in between a literal and an expression. the line wrapping is soft in the sense that an expression that emits text starting before the right edge will spit out that element even if it goes past the right edge. In other words, StringTemplate does not break elements to enforce a hard right edge. It will not break line between element and separator to avoid having for example a comma appear at the left edge. You may specify the line width as an argument to toString() such as st.toString(72). By default, toString() does not wrap lines.
 
 That said, if there's a newline in the literal to emit, it will wrap at the newline.
 
 To illustrate the simplest form of line wrapping, consider a simple list of characters that you would like to wrap at, say, line width 3. Use the wrap option on the chars expression:
 
+[source,template]
+----
 duh(chars) ::= "<chars; wrap>"
+----
 If you were to pass in a,b,c,d,e and used toString(3), you would see
 
+[source,text]
+----
 abc
 de
+----
 as output. wrap may also take an argument but it's default is simply a \n string.
 
 To illustrate when you would need a non-default version for this parameter, imagine the difficult task of doing proper Fortran line wrapping. Here is a template that generates a Fortran function with a list of arguments:
 
+[source,template]
+----
 func(args) ::= <<
        FUNCTION line( <args; separator=","> )
 >>
-Given parameters a..f as the elements of the args list, you would get the following output:
+----
+Given parameters `a..f` as the elements of the args list, you would get the following output:
 
+[source,template]
+----
        FUNCTION line( a,b,c,d,e,f )
+----
 But what if you wanted to wrap lines at a width of 30? Simply use toString(30) and specify that the expression should wrap using newline followed by six spaces followed by the 'c' character, which can be used as the continuation character:
 
+[source,template]
+----
 func(args) ::= <<
        FUNCTION line( <args; wrap="\n      c", separator=","> )
 >>
+----
+
+[source,text]
+----
        FUNCTION line( a,b,c,d,\n" +
       ce,f )
+----
 Similarly, if you want to break really long strings, use wrap="\"+\n \"", which emits a quote character followed by plus symbol followed by 4 spaces.
 
 StringTemplate properly tracks newlines in the text omitted by your templates so that it can avoid emitting wrap strings right after your template has emitted a newline. StringTemplate also looks at your wrap string to find the (sole) \n character. Wrap strings are of the form A\nB and StringTemplate emits A\n first and then spits out the indentation as required by auto-indentation and then finally B. Again, imagine, the list of characters to emit, but now consider that the expression has been indented:
 
+[source,template]
+----
 duh(chars) ::= <<
   <chars; wrap>
 >>
+----
 With the same input a..e and toString(4), you would see the following output:
 
+[source,text]
+----
   ab
   cd
   e
+----
 What if the expression is not indented with whitespace but has some text to the left? Consider dumping out an array of numbers as a Java array definition:
 
+[source,template]
+----
 array(values) ::= <<
 int[] a = { <values; wrap, separator=","> };
 >>
+----
 With numbers
 
+[source,cpp]
+----
 3,9,20,2,1,4,6,32,5,6,77,888,2,1,6,32,5,6,77,4,9,20,2,
 1,4,63,9,20,2,1,4,6,32,5,6,77,6,32,5,6,77,3,9,20,2,1,
 4,6,32,5,6,77,888,1,6,32,5
+----
 this template will emit (at width 40):
 
+[source,cpp]
+----
 int[] a = { 3,9,20,2,1,4,6,32,5,6,77,888,
 2,1,6,32,5,6,77,4,9,20,2,1,4,63,9,20,2,1,
 4,6,32,5,6,77,6,32,5,6,77,3,9,20,2,1,4,6,
 32,5,6,77,888,1,6,32,5 };
+----
 While correct, that is not particularly beautiful code. What you really want, is for the numbers to line up with the start of the expression; in this case under the first "3". to do this, use the anchor option, which means StringTemplate should line up all wrapped lines with left edge of expression when wrapping:
 
+[source,template]
+----
 array(values) ::= <<
 int[] a = { <values; wrap, anchor, separator=","> };
 >>
+----
 Adding that option generates the following output:
 
+[source,cpp]
+----
 int[] a = { 3,9,20,2,1,4,6,32,5,6,77,888,
             2,1,6,32,5,6,77,4,9,20,2,1,4,
             63,9,20,2,1,4,6,32,5,6,77,6,
             32,5,6,77,3,9,20,2,1,4,6,32,
             5,6,77,888,1,6,32,5 };
+----
 One final complication. Sometimes you want to anchor the left edge of all wrapped lines in a position to the left of where the expression starts. For example what if you wanted to print out three literal values first such as "1,9,2"? Because StringTemplate can only anchor at expressions simply wrap the literals and your values expression in an embedded anonymous template (enclose them with <{...}>) and use the anchor on that embedded template:
 
+[source,template]
+----
 data(a) ::= <<
 int[] a = { <{1,9,2,<values; wrap, separator=",">}; anchor> };
 >>
+----
 That template yields the following output:
-
+[source,cpp]
+----
 int[] a = { 1,9,2,3,9,20,2,1,4,
             6,32,5,6,77,888,2,
             1,6,32,5,6,77,4,9,
             20,2,1,4,63,9,20,2,
             1,4,6 };
+----
 If there is both an indentation and an anchor, StringTemplate chooses whichever is larger.
 
-WARNING: separators and wrap values are templates and are evaluated once before multi-valued expressions are evaluated. You cannot change the wrap based on, for example, <i>.
+WARNING: Separators and wrap values are templates and are evaluated once before multi-valued expressions are evaluated. You cannot change the wrap based on, for example, <i>.
 
 Default values for wrap="\n", anchor="true" (any non-null value means anchor).
 
 
 == Output Filters
 
-Version 2.0 introduced the notion of an StringTemplateWriter/IStringTemplateWriter. All text rendered from a template goes through one of these writers before being placed in the output buffer. Terence added this primarily for auto-indentation for code generation, but it also could be used to remove whitespace (as a compression) from HTML output. Most recently, in 2.3, Terence updated the interface to support automatic line wrapping. If you don't care about indentation, you can simply subclass AutoIndentWriter and override write()/Write():
+Version 2.0 introduced the notion of an StringTemplateWriter/IStringTemplateWriter.
+All text rendered from a template goes through one of these writers before being placed in the output buffer.
+Terence added this primarily for auto-indentation for code generation,
+but it also could be used to remove whitespace (as a compression) from HTML output.
+Most recently, in 2.3, Terence updated the interface to support automatic line wrapping.
+If you don't care about indentation,
+you can simply subclass AutoIndentWriter and override write()/Write():
 
 [source,python]
 ----
-class StringTemplateWriter(object):
-    NO_WRAP = -1
-
-    def __init__(self):
-        pass
-
-    def pushIndentation(self, indent):
-        raise NotImplementedError
-
-    def popIndentation(self):
-        raise NotImplementedError
-
-    def pushAnchorPoint(self):
-        raise NotImplementedError
-
-    def popAnchorPoint(self):
-        raise NotImplementedError
-
-    def setLineWidth(self, lineWidth):
-        raise NotImplementedError
-
-    def write(self, str, wrap=None):
-        raise NotImplementedError
-
-    def writeWrapSeparator(self, wrap):
-        raise NotImplementedError
-
-    def writeSeparator(self, str):
-        raise NotImplementedError
+include::../src/stringtemplate3/writers.py[tag=string_template_writer]
 ----
 Here is a "pass through" writer that is already defined:
 
 [source,python]
 ----
-class NoIndentWriter(AutoIndentWriter):
-    """Just pass through the text"""
-    def __init__(self, out):
-        super(NoIndentWriter, self).__init__(out)
-
-    def write(self, str):
-        self.out.write(str)
-        return len(str)
+include::{test_file}[tag=no_indent_writer]
 ----
 Use it like this:
 
 [source,python]
 ----
-out = StringIO()
-group = St3G("test")
-group.defineTemplate("bold", "<b>$x$</b>")
-nameST = St3T("$name:bold(x=name)$", group=group)
-nameST["name"] = "Terence"
-# write to 'out' with no indentation
-nameST.write(NoIndentWriter(out))
-print(f"output: {out}")
+include::{test_file}[tag=demo_no_indent_writer]
 ----
 Instead of using nameST.toString(), which calls write with a string write and returns its value, manually invoke write with your writer.
 
@@ -1838,14 +1833,7 @@ point.
 
 [source,python]
 ----
-templates = (
-    "group test;" + os.linesep +
-    "block(stats) ::= \"{$stats$}\""
-    )
-group = St3G(file=StringIO(templates), lexer='default')
-b = group.getInstanceOf("block")
-b["stats"] = group.getInstanceOf("block")
-expecting ="{{}}"
+include::{test_file}[tag=hide_infinite_recursion]
 ----
 
 Even though block has a stats value that refers to itself, there is no recursion because each instance of block hides the stats value from above since stats is a formal argument.
@@ -1854,53 +1842,48 @@ Sometimes self-recursive (hence infinitely recursive) structures occur through p
 
 [source,python]
 ----
-templates = (
-    "group test;" + os.linesep +
-    "block(stats) ::= \"$stats$\"" + os.linesep +
-    "ifstat(stats) ::= \"IF true then $stats$\"\n"
-    )
-St3.lintMode = True
-group = St3G(file=StringIO(templates), lexer="default")
-b = group.getInstanceOf("block")
-ifstat = group.getInstanceOf("ifstat")
-b["stats"] = ifstat      # block has if stat
-ifstat["stats"] = b      # but make the "if" contain block
-try:
-    result = str(b)
-except IllegalStateException, exc:
-    logger.exception('do something', exc)
+include::{test_file}[tag=trap_infinite_recursion]
 ----
 The nested template stack trace from exception object will be similar to:
 
+[source,text]
+----
 infinite recursion to <ifstat([stats])@4> referenced in <block([stats])@3>; stack trace:
 <ifstat([stats])@4>, attributes=[stats=<block()@3>]>
 <block([stats])@3>, attributes=[stats=<ifstat()@4>], references=[stats]>
 <ifstat([stats])@4> (start of recursive cycle)
 ...
+----
 
 == StringTemplate Grammars
 StringTemplate Grammars
-StringTemplate has multiple grammars that describe templates at varying degrees of detail. At the grossest level of granularity, the group.g grammar accepts a list of templates with formal template arguments. Each of these templates is broken up into chunks of literal text and attribute expressions via template.g. The default lexer uses $...$ delimiters, but the angle.bracket.template.g lexer provides <...> delimiters. Each of the attribute expression chunks is processed by action.g. It builds trees (ASTs) representing the operation indicated in the expression. These ASTs
+StringTemplate has multiple grammars that describe templates at varying degrees of detail. At the grossest level of granularity, the group.g grammar accepts a list of templates with formal template arguments. Each of these templates is broken up into chunks of literal text and attribute expressions via template.g. The default lexer uses `$...$` delimiters, but the angle.bracket.template.g lexer provides `<...>` delimiters. Each of the attribute expression chunks is processed by action.g. It builds trees (ASTs) representing the operation indicated in the expression. These ASTs
 represent the "precompiled" templates, which are evaluated by the tree grammar eval.g each time a StringTemplate is rendered to string with ToString().
 
 The grammar files are:
 
 group.g: read a group file full of templates
 template.g: break an individual template into chunks
-angle.bracket.template.g: <...> template lexer
+angle.bracket.template.g: `<...>` template lexer
 action.g: parse attribute expressions into ASTs
 eval.g: evaluate expression ASTs during ToString()
-Anything outside of the StringTemplate start/stop delimiters is ignored.
+Anything outside the StringTemplate start/stop delimiters is ignored.
 
-A word about Strings. Strings are double-quoted with optional embedded escaped characters that are translated (escapes are not translated outside of strings; for example, text outside of attribute expressions do not get escape chars translated except \$, \< and \>).
-
+A word about Strings.
+Strings are double-quoted with optional embedded escaped characters that are translated (escapes are not translated outside of strings;
+for example, text outside of attribute expressions do not get escape chars translated except \$, \< and \>).
+[source,bnf]
+----
 <<
 STRING
     :   '"' (ESC_CHAR | ~'"')* '"'
     ;
 >>
+----
 The translated escapes are:
 
+[source,bnf]
+----
 <<
 ESC_CHAR
     :   '\\'
@@ -1914,13 +1897,14 @@ ESC_CHAR
         )
      ;
 >>
+----
 but other escapes are allowed and ignored.
 
 Please see the actual grammar files for the formal language specification of StringTemplate's various components.
 
 
 == Debugging
-Debugging
+
 Debugging complex and nested StringTemplate trees can be challenging. Kay Roepke is building a graphical interface similar to ANTLRWorks for StringTemplate but until then you have a number of tools that you can use.
 
 You can ask for the enclosing template structure with `St3T.getEnclosingInstanceStackString()` and can get the entire structure with toStructureString() that does not print the values but shows the nested structure with the attribute names.
@@ -1945,4 +1929,266 @@ I have made a toy visualization tool via that shows both the attributes and the 
 StringTemplate st = ...;
 StringTemplateTreeView viz = new StringTemplateTreeView("sample",st);
 viz.setVisible(true);
+----
+
+
+== Template Group Files
+
+=== Overview of Template Groups
+StringTemplate 2.0 introduced the notion of a template group file that has two main attractions. First, it allows you to define lots of small templates more conveniently because they may all be defined within a single file. Second, (unlike in a simple template file) you may specify formal template arguments that help StringTemplate detect errors (such as setting unknown attributes) and make the templates easier to read. Here is a sample group file with two templates, vardef and method, that could be used to generate C files:
+
+[source,template]
+----
+group simple;
+
+vardef(type,name) ::= "<type> <name>;"
+
+method(type,name,args) ::= <<
+<type> <name>(<args; separator=",">) {
+  <statements; separator="\n">
+}
+>>
+----
+All groups use <...> expression  delimiters by default. Single line templates are enclosed in double quotes while multi-line templates are enclosed in double angle-brackets. Every template must define arguments even if the formal argument list is blank.
+
+Using the templates from a template group file (or from a string) is straightforward. The StringTemplateGroup class has a number of constructors, one of which allows you to pass in a string or file or whatever:
+
+
+[source,python]
+----
+templates = "group simple; vardef(type,name) ..."; # templates from above
+# Use the constructor that accepts a Reader
+group = stringtemplate3.StringTemplateGroup(file=StringIO(templates))
+t = group.getInstanceOf("vardef")
+t["type"] = "int"
+t["name"] = "foo"
+print str(t)
+----
+The output would be: "int foo;".
+
+Supergroups and interfaces
+Template groups may derive from other template groups, thus inheriting all of the features (templates and maps) from the supergroup. Group inheritance provides an appropriate model whereby, for example, a variation on a code generation target may be defined by describing how it differs from a previously defined target. Considering Java 1.4 versus 1.5, a Java1_5 group could specify how to alter the main Java (1.4) group templates in order to use generics and enumerated types.
+
+Group inheritance would not yield its full potential without template polymorphism. A parser template instantiated via the Java1_5 group should always look for templates in Java1_5 rather than the Java supergroup even though that template is lexically defined within group Java.
+
+Templates in a subgroup override same-named templates in a supergroup just as in class inheritance in other languages. StringTemplate does not support overloaded templates so group inheritance does not take formal arguments into consideration.
+
+The supergroup for a group may be changed dynamically using the setSuperGroup() method. If, however, a group must always derive from another group, use the following syntax in the descendant template group file:
+
+[source,template]
+----
+group mygroup : supergroup;
+...
+----
+If your group must satisfy a particular interface (see Group interfaces) then use the following syntax:
+
+[source,template]
+----
+group mygroup implements anInterface, andAnotherInterface;
+...
+----
+or if the group inherits from a supergroup and implements an interface:
+
+[source,template]
+----
+group mygroup : supergroup implements anInterface;
+...
+----
+
+=== Maps
+
+There are situations where you need to translate a string in one language to a string in another language. For example, you might want to translate integer to int when translating Pascal to C. You could pass a Map or IDictionary (e.g. hashtable) from the model into the templates, but then you have output literals in your model!  The StringTemplate solution is to support a mapping feature. For example, here is a map defined in a template group file, using which ANTLR v3 knows how to initialize local variables to their default values:
+
+[source,template]
+----
+typeInitMap ::= [
+        "int":"0",
+        "long":"0",
+        "float":"0.0",
+        "double":"0.0",
+        "boolean":"false",
+        "byte":"0",
+        "short":"0",
+        "char":"0",
+        default:"null" // anything other than an atomic type
+]
+----
+To use the map in a template, refer to it as you would an attribute. Continuing the example, <typeInitMap.int> returns "0" from the map. If your type name is an attribute not a constant like int, then use an indirect field access: <typeInitMap.(typeName)>.
+
+Map strings are actually templates that can refer to attributes that will become visible via dynamic scoping of attributes once the map entry has been embedded within a template. This is useful for referencing things like attribute username from within map values. That attribute will eventually become visible when the map a value is embedded within, say, a page template.
+
+Large strings, such as those with newlines, can be specified with the usual large template delimiters from the group file format: <<...>>.
+
+The default and other mappings can have empty values (implying no value). if no key is matched by the map then an empty value is returned, which is the same as using "default :" explicitly. The keyword key is available if you would like to refer to the key that maps to this value. This is particularly useful if you would like to filter certain words but otherwise leave a value unchanged; use default : key to return the key unmolested if it is not found in the map.
+
+Maps are defined in the group's scope and are visible if no attribute hides them. For example, if you define a formal argument called typeInitMap in template foo then foo cannot see the map defined in the group (though you could pass it in as another parameter). If a name is not an attribute and it's not in the group's maps table, then the super group is consulted etc... You may not redefine a map and it may not have the same name as a template in that group. The default value is used if you use a key as a property that doesn't exist. For example <typeInitMap.foo> returns "null". The default clause must be at the end of the map.
+
+You'll note that the square brackets will denote data structure in other areas too such as [a,b,c,...] which makes a singe multi-valued attribute out of other attributes so you can iterate across them.
+
+=== Template Group file format
+
+[source,bnf]
+----
+group
+    :   "group" ID ( ':' ID  )?  ( "implements" ID (',' ID  )* )? ';'
+        ( template | mapdef )+
+    ;
+
+template
+    :   (   '@' ID '.' ID
+        |   ID
+        )
+        '(' (args)? ')' "::="
+        (   STRING      // "..."
+        |   BIGSTRING   // <<...>>
+        )
+    |   ID "::=" ID     // alias one template to another
+    ;
+
+args:   arg ( ',' arg )*
+    ;
+
+arg :   ID '=' STRING               // x="..."
+    |   ID '=' ANONYMOUS_TEMPLATE   // x={...}
+    |   ID
+    ;
+
+mapdef
+    :   ID "::=" map
+    ;
+
+map :   '['
+            keyValuePair (',' keyValuePair)*
+            ( ',' "default" ':' keyValue )?
+        ']'
+    ;
+
+keyValuePair
+    :   STRING ':' keyValue
+    ;
+
+keyValue
+    :   BIGSTRING
+    |   STRING
+    |   "key"
+    |
+    ;
+----
+Both /* ... */ and single-line // ... comments are allowed outside of templates. Inside templates, you must use <!...!>.
+
+An aside: All along, during my website construction days, I kept in mind that any text output follows a format and, thus, output sentences conform to a language. Consequently, a grammar should describe the output rather than a bunch of ad hoc print statements in code. This helped me formalize the study of templates because I could compare templates (output grammars) to well established ideas from formal language theory and context-free grammars. This allowed me to show, among other things, that StringTemplate can easily generate any document describable with an XML DTD even though it is deliberately limited. The group file format should look very much like a grammar to you.
+Scoping rules and attribute look-up
+
+See the scoping rules section for information on how formal arguments affect attribute look up.
+
+Group files have a .stg file extension.
+
+=== Template Group loaders
+
+When a template group file derives from another group, StringTemplate has to know how to load that group and its supergroups. StringTemplate 2.3 introduces the StringTemplateGroupLoader interface to describe objects that know how to load groups and interfaces.
+
+
+[source,python]
+----
+class StringTemplateGroupLoader(object):
+    def loadGroup(self, groupName, superGroup=None):
+        raise NotImplementedError
+
+    def loadInterface(self, interfaceName):
+        raise NotImplementedError
+----
+
+By default, there are two implementations: PathGroupLoader and CommonGroupLoader. PathGroupLoader is a simple loader that looks only in the directory(ies) you specify in the ctor (Note that you can specify the char encoding). CommonGroupLoader, on the other hand, is a loader that also looks in the directory(ies) you specify in the ctor, but it uses the classpath rather than absolute dirs so it can be used when the ST application is jar'd up. Use Static method:
+
+
+[source,python]
+----
+St3G.registerGroupLoader(loader)
+----
+to specify a loader. For example, here is how ANTLR loads its templates:
+
+[source,java]
+----
+// get a group loader containing main templates dir and target subdir
+String templateDirs =
+    classpathTemplateRootDirectoryName+":"+
+    classpathTemplateRootDirectoryName+"/"+language;
+StringTemplateGroupLoader loader =
+    new CommonGroupLoader(templateDirs.toString(),
+                          ErrorManager.getStringTemplateErrorListener());
+StringTemplateGroup.registerGroupLoader(loader);
+
+// first load main language template
+StringTemplateGroup coreTemplates =
+    StringTemplateGroup.loadGroup(language);
+----
+In order to use the group file format inheritance specifier, group sub : sup, you must specify a loader.
+
+=== Formal argument default values
+
+Sometimes it is convenient to have default values for formal arguments that are used when no value is set by the model. For example, when generating a parser in Java from ANTLR, I want the super class of the generated object to be Parser unless the ANTLR user uses an option to set the super class to some custom class. For example, here is a partial parser template definition:
+
+[source,template]
+----
+parser(name, rules, superClass="Parser") ::= ...
+----
+Any argument may be given a default value by following the name with an equals sign and a string or an anonymous template.
+
+=== Formal argument error handling
+When using a group file format to specify templates, you must specify the formal arguments for that template. If you try to set an attribute via setAttribute that is not specifically formally defined in that template, you will get the following exception:
+
+
+[source,python]
+----
+KeyError
+----
+
+If you reference an attribute that is not formally defined in that template or any enclosing template, you also get the same exception.
+
+=== Newline handling
+The first newline following the << in a template definition is ignored as it is usually used just to get the first line of text for the template at the start of a line. In other words, if you want to have a blank line at the start of your template, use:
+
+[source,template]
+----
+foo() ::= <<
+
+2nd line is not blank, but first is
+>>
+----
+or
+[source,template]
+----
+foo() ::= <<<\n>
+same as before; newline then this line
+>>
+----
+The last newline before the >> is also ignored and is not included in the output. To add a final newline, add an extra line or <\n> before the >>:
+
+[source,template]
+----
+foo() ::= <<
+rodent
+
+>>
+----
+or
+[source,template]
+----
+foo() ::= <<
+rodent<\n>
+>>
+----
+The following template:
+
+[source,template]
+----
+foo() ::= <<
+rodent
+>>
+----
+on the other hand, is identical to
+
+[source,template]
+----
+foo() ::= "rodent"
 ----

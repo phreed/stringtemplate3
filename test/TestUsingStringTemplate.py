@@ -9,11 +9,12 @@ import pytest
 import temppathlib
 from textwrap import dedent
 
-from stringtemplate3 import errors as St3Err
+import stringtemplate3 as St3
+from stringtemplate3 import errors as St3Err, AutoIndentWriter
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
 from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
-from stringtemplate3.language import AngleBracketTemplateLexer, DefaultTemplateLexer
+from stringtemplate3.language import AngleBracketTemplateLexer, DefaultTemplateLexer, IllegalStateException
 from stringtemplate3.templates import StringTemplate as St3T
 
 import TestStringHelper as tsh
@@ -145,6 +146,60 @@ def test_boolean_logic_both():
 # end::boolean_logic_both[]
 
 
+simple_group = dedent("""\
+group simple;
+ 
+vardef(type,name) ::= "<type> <name>;"
+ 
+method(type,name,args) ::= <<
+<type> <name>(<args; separator=",">) {
+  <statements; separator="\n">
+}
+>>
+""")
+
+
+# tag::demo_auto_indent[]
+def test_demo_auto_indent():
+
+    with io.StringIO(simple_group) as stg:
+        group = St3G(name="demo_auto_indent", file=stg,  lexer="angle-bracket")
+        foo = group.getTemplateNames()
+        vardef = group.getInstanceOf("vardef")
+        vardef["type"] = "int"
+        vardef["name"] = "foo"
+
+    assert str(vardef) == "int foo;"
+# end::demo_auto_indent[]
+
+
+# tag::demo_auto_indent_of_file[]
+def test_demo_auto_indent_of_file(local_dir_path):
+    stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
+    with open(stg_path, mode="r") as stg:
+        group = St3G(name="demo_auto_indent", file=stg,  lexer="default")
+        logger.info("group templates: {}", group.getTemplateNames())
+        function = group.getInstanceOf("function")
+        function["name"] = "foo"
+        body = group.getInstanceOf("slist")
+        body["statements"] = "i=1;"
+        nestedSList = group.getInstanceOf("slist")
+        nestedSList["statements"] = "i=2;"
+        body["statements"] = nestedSList
+        body["statements"] = "i=3;"
+        function["body"] = body
+
+    assert str(function) == dedent("""\
+        void foo() {
+            i=1;
+            {
+                i=2;
+            }
+            i=3;
+        }""")
+# end::demo_auto_indent_of_file[]
+
+
 # tag::different_delimiters[]
 def test_different_delimiters():
     a_template = dedent("""\
@@ -166,5 +221,67 @@ def test_different_delimiters():
     w_dollar = St3T(template=a_template, lexer=DefaultTemplateLexer.Lexer)
     w_dollar["argument"] = "resolved"
     assert str(w_dollar) == "<argument>\nresolved\n"
-
 # end::different_delimiters[]
+
+
+# tag::no_indent_writer[]
+class NoIndentWriter(AutoIndentWriter):
+    """Just pass through the text"""
+    def __init__(self, out):
+        super(NoIndentWriter, self).__init__(out)
+
+    def write(self, text, wrap=None):
+        self.out.write(text)
+        return len(text)
+# end::no_indent_writer[]
+
+
+# tag::demo_no_indent_writer[]
+@pytest.mark.skip(reason="needs to be fixed")
+def test_demo_no_indent_writer():
+    out = io.StringIO()
+    group = St3G("test")
+    group.defineTemplate("bold", "<b>$x$</b>")
+    nameST = St3T("$name:bold(x=name)$", group=group)
+    nameST["name"] = "Terence"
+    # write to 'out' with no indentation
+    nameST.write(NoIndentWriter(out))
+    assert out.read() == str(nameST)
+# end::demo_no_indent_writer[]
+
+
+# tag::hide_infinite_recursion[]
+@pytest.mark.skip(reason="needs to be fixed")
+def test_hide_infinite_recursion():
+    templates = dedent("""\
+            group test;
+            block(stats) ::= "{$stats$}"
+    """)
+    group = St3G(file=io.StringIO(templates), lexer='default')
+    b = group.getInstanceOf("block")
+    b["stats"] = group.getInstanceOf("block")
+    assert str(b) == "{{}}"
+# end::hide_infinite_recursion[]
+
+
+# tag::trap_infinite_recursion[]
+@pytest.mark.skip(reason="verify failing is in the proper way")
+def test_trap_infinite_recursion():
+    templates = dedent("""\
+            group test;
+            block(stats) ::= "$stats$" 
+            ifstat(stats) ::= "IF true then $stats$
+    """)
+    St3.lintMode = True
+    group = St3G(file=io.StringIO(templates), lexer="default")
+    block = group.getInstanceOf("block")
+    ifstat = group.getInstanceOf("ifstat")
+    block["stats"] = ifstat  # block has if stat
+    ifstat["stats"] = block  # but make the "if" contain block
+    try:
+        logger.debug("result {}", block)
+    except IllegalStateException as ise:
+        logger.exception('do something', ise)
+    except Exception as ex:
+        logger.exception('do something', ex)
+# end::trap_infinite_recursion[]

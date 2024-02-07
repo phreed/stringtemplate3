@@ -54,6 +54,7 @@ class AttributeRenderer(object):
         pass
 
 
+# tag::string_template_writer[]
 class StringTemplateWriter(object):
     """
     Generic StringTemplate output writer filter.
@@ -96,20 +97,21 @@ class StringTemplateWriter(object):
     def writeWrapSeparator(self, wrap):
         """
         Because we might need to wrap at a non-atomic string boundary
- 	(such as when we wrap in between template applications
- 	 <data:{v|[<v>]}; wrap>) we need to expose the wrap string
- 	writing just like for the separator.
- 	"""
+        (such as when we wrap in between template applications
+        <data:{v|[<v>]}; wrap>) we need to expose the wrap string
+        writing just like for the separator.
+        """
 
         raise NotImplementedError
 
-    def writeSeparator(self, str):
+    def writeSeparator(self, text):
         """
         Write a separator.  Same as write() except that a \n cannot
         be inserted before emitting a separator.
- 	"""
+        """
 
         raise NotImplementedError
+# end::string_template_writer[]
 
 
 class AutoIndentWriter(StringTemplateWriter):
@@ -123,7 +125,7 @@ class AutoIndentWriter(StringTemplateWriter):
 
     Anchors are char positions (tabs won't work) that indicate where all
     future wraps should justify to.  The wrap position is actually the
-    larger of either the last anchor or the indentation level.
+    largest of either the last anchor or the indentation level.
     
     This is a filter on a Writer.
 
