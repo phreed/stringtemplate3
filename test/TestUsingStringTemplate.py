@@ -1,5 +1,6 @@
 import logging
 import io
+from datetime import date
 import os
 
 import pathlib
@@ -10,7 +11,7 @@ import temppathlib
 from textwrap import dedent
 
 import stringtemplate3
-from stringtemplate3 import errors as St3Err, AutoIndentWriter
+from stringtemplate3 import errors as St3Err, AutoIndentWriter, AttributeRenderer
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
 from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
@@ -306,3 +307,102 @@ def test_trap_infinite_recursion():
         logger.error(f'general exception: {ge}')
     assert True
 # end::trap_infinite_recursion[]
+
+
+# tag::indirect_template_reference[]
+@pytest.fixture
+def indirect_template_ref():
+    return dedent("""\
+        group Java;
+        
+        file(variables,methods) ::= <<
+        <variables:{ v | <v.decl:(v.format)()>}; separator="\n">
+        <methods>
+        >>
+        
+        intdecl(decl) ::= "int <decl.name> = 0;"
+        intarray(decl) ::= "int[] <decl.name> = null;"
+        """)
+# end::indirect_template_reference[]
+
+
+# tag::indirect_template_ref_decl[]
+class Decl(object):
+    def __init__(self, name, type_):
+        self.name = name
+        self.type = type_
+
+    def getName(self):
+        return self.name
+
+    def getType(self):
+        return self.type
+# end::indirect_template_ref_decl[]
+
+
+# tag::indirect_template_ref_demo[]
+def test_indirect_template_ref(indirect_template_ref):
+    group = St3G(file=io.StringIO(indirect_template_ref), lexer="angle-bracket")
+    f = group.getInstanceOf("file")
+    f.setAttribute("variables.{decl,format}", Decl("i","int"), "intdecl")
+    f.setAttribute("variables.{decl,format}", Decl("a","int-array"), "intarray")
+    print(f"f = {f}")
+
+    assert str(f) == '        int i = 0;\n        int[] a = null;\n        '
+# end::indirect_template_ref_demo[]
+
+
+# tag::date_renderer[]
+class DateRenderer(AttributeRenderer):
+    def toString(self, o, format=None):
+        return o.strftime("%Y.%m.%d")
+# end::date_renderer[]
+
+
+# tag::date_renderer_demo[]
+def test_date_renderer():
+    st = St3T("date: <created>", lexer="angle-bracket")
+    st["created"] = date(year=2005, month=7, day=5)
+    st.registerRenderer(date, DateRenderer())
+
+    assert str(st) == "date: 2005.07.05"
+# end::date_renderer_demo[]
+
+
+# tag::basic_format_renderer[]
+class BasicFormatRenderer(AttributeRenderer):
+    def toString(self, o, formatName=None):
+        if formatName is None:
+            # no formatting specified
+            return str(o)
+
+        if formatName == "toUpper":
+            return str(o).upper()
+        elif formatName == "toLower":
+            return str(o).lower()
+        else:
+            raise ValueError("Unsupported format name")
+# end::basic_format_renderer[]
+
+
+# tag::basic_format_renderer_demo_upper[]
+def test_basic_format_renderer_upper():
+    st = St3T('$name;format="toUpper"$', lexer="default")
+    st["name"] = "fred"
+    st.registerRenderer(str, BasicFormatRenderer())
+
+    assert str(st) == "FRED"
+# end::basic_format_renderer_demo_upper[]
+
+
+# tag::basic_format_renderer_combined[]
+def test_basic_format_renderer_combined():
+    st = St3T('$list : { [$it$] };format="toUpper",separator=" and "$', lexer="default")
+    st["list"] = "x"
+    st["list"] = "y"
+    st["list"] = "z"
+
+    st.registerRenderer(str, BasicFormatRenderer())
+
+    assert str(st) == "[X] and [Y] and [WOOPS] and [Z]"
+# end::basic_format_renderer_combined[]
