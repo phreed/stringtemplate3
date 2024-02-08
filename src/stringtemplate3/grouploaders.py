@@ -30,6 +30,7 @@ import sys
 import os
 import traceback
 import codecs
+from pathlib import Path
 
 from stringtemplate3.utils import deprecated
 from stringtemplate3.groups import StringTemplateGroup
@@ -69,21 +70,28 @@ class StringTemplateGroupLoader(object):
 
 class PathGroupLoader(StringTemplateGroupLoader):
     """
-    A brain dead loader that looks only in the directory(ies) you
+    A brain-dead loader that looks only in the directory(ies) you
     specify in the ctor.
     You may specify the char encoding.
     """
 
-    def __init__(self, dir=None, errors=None):
+    def __init__(self, dirs=None, errors=None):
         """
         Pass a single dir or multiple dirs separated by colons from which
         to load groups/interfaces.
         """
+        super().__init__()
 
-        StringTemplateGroupLoader.__init__(self)
-
-        # # List of ':' separated dirs to pull groups from
-        self.dirs = dir.split(':')
+        if dirs is None:
+            self.dirs = None
+        elif isinstance(dirs, list):
+            self.dirs = dirs
+        elif isinstance(dirs, str):
+            self.dirs = [dirs]
+        elif isinstance(dirs, Path):
+            self.dirs = [dirs]
+        else:
+            self.dirs = [dirs]
         self.errors = errors
 
         # # How are the files encoded (ascii, UTF8, ...)?
@@ -116,9 +124,10 @@ class PathGroupLoader(StringTemplateGroupLoader):
 
     def loadInterface(self, interfaceName):
         try:
-            fr = self.locate(interfaceName + ".sti")
+            interfaceFileName = interfaceName + ".sti"
+            fr = self.locate(interfaceFileName)
             if fr is None:
-                self.error("no such interface file " + interfaceName + ".sti")
+                self.error(f"no such interface file {interfaceFileName}")
                 return None
 
             try:
@@ -128,7 +137,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
                 fr.close()
 
         except (IOError, OSError) as ioe:
-            self.error("can't load interface " + interfaceName, ioe)
+            self.error(f"can't load interface {interfaceName}", ioe)
 
         return None
 

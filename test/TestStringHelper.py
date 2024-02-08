@@ -77,6 +77,10 @@ class IllegalArgumentException(Exception):
     def __init__(self, *args):
         super().__init__(*args)
 
+    @property
+    def message(self):
+        return self.getMessage() if hasattr(self, 'getMessage') else f'{self}'
+
 
 with open('logging_config.yml', 'rt') as cfg:
     config = yaml.safe_load(cfg.read())

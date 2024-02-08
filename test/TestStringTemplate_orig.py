@@ -1,16 +1,14 @@
 
-import calendar
 import io
 import logging
 from textwrap import dedent
 
 import temppathlib
 
-import stringtemplate3 as St3
-from stringtemplate3 import errors as St3Err, StringTemplateWriter
+import stringtemplate3
+from stringtemplate3.writers import StringTemplateWriter
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
-from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
 from stringtemplate3.language import (DefaultTemplateLexer,
                                       AngleBracketTemplateLexer)
 from stringtemplate3.language.ASTExpr import IllegalStateException
@@ -55,101 +53,61 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
-def test_interfaceFileFormat():
-    groupI = St3T("""
-        interface test;
-        t();
-        bold(item);
-        optional duh(a,b,c);
-    """)
-    ix = St3Gi(file=io.StringIO(groupI))
-
-    expecting = """
-            interface test;
-            t();
-            bold(item);
-            optional duh(a, b, c);
-            """
-    assert str(ix) == expecting
-
-
-def test_CannotFindInterfaceFile():
-    """ this also tests the group loader """
-    errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
-
-    templates = """
-        group testG implements blort;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-        """
-
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
-
-    with open(stg_file, "r") as reader:
-        group = St3G(file=reader, errors=errors)
-        logger.debug(f"group: {group}")
-
-    assert str(errors) == "no such interface file blort.sti"
-
-
 def test_MultiDirGroupLoading():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    sub_dir = tmp_dir.path / "sub"
-    try:
-        sub_dir.mkdir(parents=True, exist_ok=True)
-    except PermissionError as pe:
-        logger.exception("can't make subdir in test", pe)
-        return
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        sub_dir = tmp_dir.path / "sub"
+        try:
+            sub_dir.mkdir(parents=True, exist_ok=True)
+        except PermissionError as pe:
+            logger.exception("can't make subdir in test", pe)
+            return
 
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, sub_dir))
+        St3G.registerGroupLoader(PathGroupLoader(dirs=[tmp_dir.path, sub_dir]))
 
-    templates = """
+        templates = dedent("""\
+            group testG2;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>;
+            """)
+        tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
+
+        group = St3G.loadGroup("testG2")
+
+    assert str(group) == dedent("""\
         group testG2;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-"""
-    tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
-
-    group = St3G.loadGroup("testG2")
-    expecting = """
-    group testG2;
         bold(item) ::= <<foo>>
         duh(a,b,c) ::= <<foo>>
         t() ::= <<foo>>;
-        """
-    assert str(group) == expecting
+        """)
 
 
 def test_GroupSatisfiesSingleInterface():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
-    groupI = """
-            interface testI;
-            t();
-            bold(item);
-            optional duh(a,b,c);
-            """
-    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        groupI = dedent("""\
+                interface testI;
+                t();
+                bold(item);
+                optional duh(a,b,c);
+                """)
+        tsh.write_file(tmp_dir.path / "testI.sti", groupI)
 
-    templates = """
-        group testG implements testI;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>;
-"""
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        templates = dedent("""\
+            group testG implements testI;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>;
+            """)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-        logger.debug(f"group: {group}")
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, errors=errors)
+            logger.debug(f"group: {group}")
 
     assert str(errors) == ""  # should be no errors
 
@@ -157,26 +115,26 @@ def test_GroupSatisfiesSingleInterface():
 def test_GroupExtendsSuperGroup():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors=errors))
-    superGroup = """
-            group superG;
-            bold(item) ::= <<*$item$*>>;\n;
-    """
-    tsh.write_file(tmp_dir.path / "superG.stg", superGroup)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        superGroup = dedent("""\
+                group superG;
+                bold(item) ::= <<*$item$*>>;\n;
+        """)
+        tsh.write_file(tmp_dir.path / "superG.stg", superGroup)
 
-    templates = """
-        group testG : superG;
-        main(x) ::= <<$bold(x)$>>;
-"""
+        templates = dedent("""\
+            group testG : superG;
+            main(x) ::= <<$bold(x)$>>;
+                """)
 
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, DefaultTemplateLexer.Lexer, errors=errors)
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, DefaultTemplateLexer.Lexer, errors=errors)
 
-    st = group.getInstanceOf("main")
-    st["x"] = "foo"
+        st = group.getInstanceOf("main")
+        st["x"] = "foo"
 
     assert str(st) == "*foo*"
 
@@ -184,24 +142,24 @@ def test_GroupExtendsSuperGroup():
 def test_GroupExtendsSuperGroupWithAngleBrackets():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors=errors))
-    superGroup = """
-            group superG;
-            bold(item) ::= <<*<item>*>>;\n;
-    """
-    tsh.write_file(tmp_dir.path / "superG.stg", superGroup)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        superGroup = dedent("""
+                group superG;
+                bold(item) ::= <<*<item>*>>;\n;
+        """)
+        tsh.write_file(tmp_dir.path / "superG.stg", superGroup)
 
-    templates = """
-        group testG : superG;
-        main(x) ::= \"<bold(x)>\";
-    """
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        templates = dedent("""
+            group testG : superG;
+            main(x) ::= \"<bold(x)>\";
+        """)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-    st = group.getInstanceOf("main")
-    st["x"] = "foo"
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, errors=errors)
+        st = group.getInstanceOf("main")
+        st["x"] = "foo"
 
     assert str(st) == "*foo*"
 
@@ -209,26 +167,26 @@ def test_GroupExtendsSuperGroupWithAngleBrackets():
 def test_MissingInterfaceTemplate():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors=errors))
-    groupI = """
-            interface testI;
-            t();
-            bold(item);
-            optional duh(a,b,c);
-    """
-    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        groupI = dedent("""
+                interface testI;
+                t();
+                bold(item);
+                optional duh(a,b,c);
+        """)
+        tsh.write_file(tmp_dir.path / "testI.sti", groupI)
 
-    templates = """
-        group testG implements testI;
-        t() ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>
-"""
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        templates = dedent("""
+            group testG implements testI;
+            t() ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>
+        """)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-        logger.debug(f"group: {group}")
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, errors=errors)
+            logger.debug(f"group: {group}")
 
     assert str(errors) == "group testG does not satisfy interface testI: missing templates [bold]"
 
@@ -236,26 +194,26 @@ def test_MissingInterfaceTemplate():
 def test_MissingOptionalInterfaceTemplate():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors=errors))
-    groupI = """
-            interface testI;
-            t();
-            bold(item);
-            optional duh(a,b,c);
-    """
-    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        groupI = dedent("""\
+                interface testI;
+                t();
+                bold(item);
+                optional duh(a,b,c);
+        """)
+        tsh.write_file(tmp_dir.path / "testI.sti", groupI)
 
-    templates = """
-        group testG implements testI;
-        t() ::= <<foo>>
-        "bold(item) ::= <<foo>>";
-"""
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        templates = dedent("""\
+            group testG implements testI;
+            t() ::= <<foo>>
+            "bold(item) ::= <<foo>>";
+        """)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-        logger.debug(f"group: {group}")
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, errors=errors)
+            logger.debug(f"group: {group}")
 
     assert str(errors) == ""  # should be NO errors
 
@@ -263,31 +221,30 @@ def test_MissingOptionalInterfaceTemplate():
 def test_MismatchedInterfaceTemplate():
     """ this also tests the group loader """
     errors = ErrorBuffer()
-    tmp_dir = temppathlib.TemporaryDirectory()
-    St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors=errors))
-    groupI = """
-            interface testI;
-            t();
-            bold(item);
-            optional duh(a,b,c);
-    """
-    tsh.write_file(tmp_dir.path / "testI.sti", groupI)
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(dirs=tmp_dir.path, errors=errors))
+        groupI = dedent("""\
+                interface testI;
+                t();
+                bold(item);
+                optional duh(a,b,c);
+        """)
+        tsh.write_file(tmp_dir.path / "testI.sti", groupI)
 
-    templates = """
-        group testG implements testI;
-        t() ::= <<foo>>
-        bold(item) ::= <<foo>>
-        duh(a,c) ::= <<foo>>
-"""
-    stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+        templates = dedent("""
+            group testG implements testI;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,c) ::= <<foo>>
+        """)
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-    with open(stg_file, "rb") as reader:
-        group = St3G(reader, errors=errors)
-        logger.debug(f"group: {group}")
+        with open(stg_file, "rb") as reader:
+            group = St3G(reader, errors=errors)
+            logger.debug(f"group: {group}")
 
-    expecting = "group testG does not satisfy interface testI: " \
+    assert str(errors) == "group testG does not satisfy interface testI: " \
                 "mismatched arguments on these templates [optional duh(a, b, c)]"
-    assert str(errors) == expecting
 
 
 def test_GroupFileFormat():
@@ -846,7 +803,7 @@ def test_SimpleInheritance():
     subgroup = St3G("sub")
     bold = supergroup.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
-    subgroup.setSuperGroup(supergroup)
+    subgroup.superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -861,7 +818,7 @@ def test_OverrideInheritance():
     subgroup = St3G("sub")
     supergroup.defineTemplate("bold", "<b>$it$</b>")
     subgroup.defineTemplate("bold", "<strong>$it$</strong>")
-    subgroup.setSuperGroup(supergroup)
+    subgroup.superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -876,8 +833,8 @@ def test_MultiLevelInheritance():
     level1 = St3G("level1")
     level2 = St3G("level2")
     rootgroup.defineTemplate("bold", "<b>$it$</b>")
-    level1.setSuperGroup(rootgroup)
-    level2.setSuperGroup(level1)
+    level1.superGroup = rootgroup
+    level2.superGroup = level1
     errors = ErrorBuffer()
     rootgroup.errorListener = errors
     level1.errorListener = errors
@@ -908,7 +865,7 @@ def test_ComplicatedInheritance():
         labels() ::= \"SL\"
     """
     sub = St3G(io.StringIO(subtemplates))
-    sub.setSuperGroup(base)
+    sub.superGroup = base
     st = sub.getInstanceOf("decls")
     assert str(st) == "DSL"
 
@@ -1041,7 +998,7 @@ def test_MissingEndDelimiter():
 
 
 def test_SetButNotRefd():
-    St3.lintMode = True
+    stringtemplate3.lintMode = True
     group = St3G("test")
     t = St3T(group, "$a$ then $b$ and $c$ refs.")
     t["a"] = "Terence"
@@ -1050,7 +1007,7 @@ def test_SetButNotRefd():
     errors = ErrorBuffer()
     result = str(t)  # result is irrelevant
     logger.info(f"result {result}, error: {errors}")
-    St3.lintMode = False
+    stringtemplate3.lintMode = False
     assert str(errors) == "anonymous: set but not used: cc"
 
 
@@ -1996,48 +1953,6 @@ def test_ApplyAnonymousTemplateToMapAndSet():
     assert "3" == split[3]
 
 
-def test_DumpMapAndSet():
-    st = St3T("$items; separator=\",\"$")
-    m = dict()
-    m["a"] = "1"
-    m["b"] = "2"
-    m["c"] = "3"
-    st["items"] = m
-    assert str(st) == "1,2,3"
-
-    st = st.getInstanceOf()
-    s = {"1", "2", "3"}
-    st["items"] = s
-    split = str(st).split(",")
-    assert "1" == split[0]
-    assert "2" == split[1]
-    assert "3" == split[2]
-
-
-def test_SuperTemplateRef():
-    """ you can refer to a template defined in a super group via super.t() """
-    group = St3G("super")
-    subGroup = St3G("sub")
-    subGroup.setSuperGroup(group)
-    group.defineTemplate("page", "$font()$:text")
-    group.defineTemplate("font", "Helvetica")
-    subGroup.defineTemplate("font", "$super.font()$ and Times")
-    st = subGroup.getInstanceOf("page")
-    assert str(st) == "Helvetica and Times:text"
-
-
-def test_ApplySuperTemplateRef():
-    group = St3G("super")
-    subGroup = St3G("sub")
-    subGroup.setSuperGroup(group)
-    group.defineTemplate("bold", "<b>$it$</b>")
-    subGroup.defineTemplate("bold", "<strong>$it$</strong>")
-    subGroup.defineTemplate("page", "$name:super.bold()$")
-    st = subGroup.getInstanceOf("page")
-    st["name"] = "Ter"
-    assert str(st) == "<b>Ter</b>"
-
-
 def test_LazyEvalOfSuperInApplySuperTemplateRef():
     """ this is the same as testApplySuperTemplateRef() test 
     except notice that here the supergroup defines page 
@@ -2050,7 +1965,7 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
     """
     group = St3G("base")
     subGroup = St3G("sub")
-    subGroup.setSuperGroup(group)
+    subGroup.superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
     group.defineTemplate("page", "$name:super.bold()$")
@@ -2061,27 +1976,11 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
         str(st)
 
     except IllegalArgumentException as iae:
-        error = iae.getMessage()
+        error = iae.message
 
     expectingError = "base has no super group; invalid template: super.bold"
     assert expectingError == error
 
-
-def test_TemplatePolymorphism():
-    """ bold is defined in both super and sub
-    if you create an instance of page via the subgroup,
-    then bold() should evaluate to the subgroup not the super
-    even though page is defined in the super.  Just like polymorphism.
-    """
-    group = St3G("super")
-    subGroup = St3G("sub")
-    subGroup.setSuperGroup(group)
-    group.defineTemplate("bold", "<b>$it$</b>")
-    group.defineTemplate("page", "$name:bold()$")
-    subGroup.defineTemplate("bold", "<strong>$it$</strong>")
-    st = subGroup.getInstanceOf("page")
-    st["name"] = "Ter"
-    assert str(st) == "<strong>Ter</strong>"
 
 
 def test_ListOfEmbeddedTemplateSeesEnclosingAttributes():
@@ -4314,7 +4213,7 @@ def test_SuperReferenceInIfClause():
         """
     subGroup = St3G(
         io.StringIO(subGroupString), AngleBracketTemplateLexer.Lexer)
-    subGroup.setSuperGroup(superGroup)
+    subGroup.superGroup = superGroup
     a = subGroup.getInstanceOf("a")
     a["x"] = "foo"
     assert "super.a" == str(a)

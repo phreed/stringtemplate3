@@ -708,13 +708,14 @@ class StringTemplateGroupLoader(object):
 ----
 
 By default, there are two implementations: PathGroupLoader and CommonGroupLoader.
-PathGroupLoader is a simple loader that looks only in the directory(ies)
-you specify in the ctor (Note that you can specify the char encoding).
-CommonGroupLoader, on the other hand,
-is a loader that also looks in the directory(ies) you specify in the ctor,
-but it uses the classpath rather than absolute dirs,
-so it can be used when the ST application is jar'd up.
-Use Static method:
+
+PathGroupLoader:: is a simple loader that looks only in the directory(ies)
+you specify in the constructor (Note that you can specify the char encoding).
+CommonGroupLoader:: on the other hand,
+is a loader that also looks in the directory(ies) you specify in the constructor,
+but it uses the classpath rather than absolute directories.
+
+=== Use Static method:
 
 [source,python]
 ----
@@ -2763,9 +2764,12 @@ include::../src/stringtemplate3/grouploaders.py[tag=string_template_group_loader
 
 By default, there are two implementations:
 PathGroupLoader and CommonGroupLoader.
-PathGroupLoader is a simple loader that looks only in the directory(ies) you specify in the ctor (Note that you can specify the char encoding).
-CommonGroupLoader, on the other hand,
-is a loader that also looks in the directory(ies) you specify in the ctor, but it uses the classpath rather than absolute dirs so it can be used when the ST application is jar'd up.
+
+PathGroupLoader:: is a simple loader that looks only in the directory(ies)
+you specify in the constructor (Note that you can specify the char encoding).
+CommonGroupLoader:: on the other hand,
+is a loader that also looks in the directory(ies) you specify in the constructor,
+but it uses the `sys.path` rather than absolute dirs.
 
 Use Static method:
 

@@ -647,3 +647,104 @@ def test_GroupTrailingSemiColon():
 
     except Exception as ex:
         logger.exception(f'foo: {ex}')
+
+
+def test_interfaceFileFormat():
+    groupI = dedent("""
+        interface test;
+        t();
+        bold(item);
+        optional duh(a,b,c);
+    """)
+    ix = St3Gi(file=io.StringIO(groupI))
+
+    expecting = "interface test;\n"\
+                "bold(item);\n" \
+                "optional duh(a, b, c);\n" \
+                "t();\n"
+    assert str(ix) == expecting
+
+
+
+def test_DumpMapAndSet():
+    st = St3T("$items; separator=\",\"$")
+    m = dict()
+    m["a"] = "1"
+    m["b"] = "2"
+    m["c"] = "3"
+    st["items"] = m
+    assert str(st) == "1,2,3"
+
+    st = st.getInstanceOf()
+    s = {"1", "2", "3"}
+    st["items"] = s
+    split = str(st).split(",")
+    split.sort()
+    assert split[0] == "1"
+    assert split[1] == "2"
+    assert split[2] == "3"
+
+
+
+def test_SuperTemplateRef():
+    """ you can refer to a template defined in a super group via super.t() """
+    group = St3G("super")
+    subGroup = St3G("sub")
+    subGroup.superGroup = group
+    group.defineTemplate("page", "$font()$:text")
+    group.defineTemplate("font", "Helvetica")
+    subGroup.defineTemplate("font", "$super.font()$ and Times")
+    st = subGroup.getInstanceOf("page")
+    assert str(st) == "Helvetica and Times:text"
+
+
+def test_ApplySuperTemplateRef():
+    group = St3G("super")
+    subGroup = St3G("sub")
+    subGroup.superGroup = group
+    group.defineTemplate("bold", "<b>$it$</b>")
+    subGroup.defineTemplate("bold", "<strong>$it$</strong>")
+    subGroup.defineTemplate("page", "$name:super.bold()$")
+    st = subGroup.getInstanceOf("page")
+    st["name"] = "Ter"
+    assert str(st) == "<b>Ter</b>"
+
+
+def test_TemplatePolymorphism():
+    """ bold is defined in both super and sub
+    if you create an instance of page via the subgroup,
+    then bold() should evaluate to the subgroup not the super
+    even though page is defined in the super.  Just like polymorphism.
+    """
+    group = St3G("super")
+    subGroup = St3G("sub")
+    subGroup.superGroup = group
+    group.defineTemplate("bold", "<b>$it$</b>")
+    group.defineTemplate("page", "$name:bold()$")
+    subGroup.defineTemplate("bold", "<strong>$it$</strong>")
+    st = subGroup.getInstanceOf("page")
+    st["name"] = "Ter"
+    assert str(st) == "<strong>Ter</strong>"
+
+
+def test_CannotFindInterfaceFile():
+    """ this also tests the group loader """
+    errors = ErrorBuffer()
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        St3G.registerGroupLoader(PathGroupLoader(tmp_dir.path, errors))
+
+        templates = """
+            group testG implements blort;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>
+            """
+
+        stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
+
+        with open(stg_file, "r") as reader:
+            group = St3G(file=reader, errors=errors)
+            logger.debug(f"group: {group}")
+
+    assert str(errors) == "no such interface file blort.sti"
+
