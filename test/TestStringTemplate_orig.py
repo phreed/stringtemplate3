@@ -53,37 +53,6 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
-def test_MultiDirGroupLoading():
-    """ this also tests the group loader """
-    errors = ErrorBuffer()
-    with temppathlib.TemporaryDirectory() as tmp_dir:
-        sub_dir = tmp_dir.path / "sub"
-        try:
-            sub_dir.mkdir(parents=True, exist_ok=True)
-        except PermissionError as pe:
-            logger.exception("can't make subdir in test", pe)
-            return
-
-        St3G.registerGroupLoader(PathGroupLoader(dirs=[tmp_dir.path, sub_dir]))
-
-        templates = dedent("""\
-            group testG2;
-            t() ::= <<foo>>
-            bold(item) ::= <<foo>>
-            duh(a,b,c) ::= <<foo>>;
-            """)
-        tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
-
-        group = St3G.loadGroup("testG2")
-
-    assert str(group) == dedent("""\
-        group testG2;
-        bold(item) ::= <<foo>>
-        duh(a,b,c) ::= <<foo>>
-        t() ::= <<foo>>;
-        """)
-
-
 def test_GroupSatisfiesSingleInterface():
     """ this also tests the group loader """
     errors = ErrorBuffer()
@@ -105,7 +74,7 @@ def test_GroupSatisfiesSingleInterface():
             """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -130,7 +99,7 @@ def test_GroupExtendsSuperGroup():
 
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, DefaultTemplateLexer.Lexer, errors=errors)
 
         st = group.getInstanceOf("main")
@@ -156,7 +125,7 @@ def test_GroupExtendsSuperGroupWithAngleBrackets():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, errors=errors)
         st = group.getInstanceOf("main")
         st["x"] = "foo"
@@ -184,7 +153,7 @@ def test_MissingInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -211,7 +180,7 @@ def test_MissingOptionalInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -239,12 +208,13 @@ def test_MismatchedInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "rb") as reader:
+        with open(stg_file, "r") as reader:
             group = St3G(reader, errors=errors)
             logger.debug(f"group: {group}")
 
-    assert str(errors) == "group testG does not satisfy interface testI: " \
-                "mismatched arguments on these templates [optional duh(a, b, c)]"
+    assert str(errors) == \
+           "group testG does not satisfy interface testI: " \
+           "mismatched arguments on these templates [optional duh(a, b, c)]"
 
 
 def test_GroupFileFormat():
@@ -1181,8 +1151,8 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
     """
     with temppathlib.TemporaryDirectory() as tmp_dir:
         page_file = tmp_dir.path / "page.st"
-        with open(page_file, "wb") as writer:
-            writer.write(b"""
+        with open(page_file, "w") as writer:
+            writer.write("""
                 <html><head>
                   <title>PeerScope: $title$</title>
                   </head>
@@ -1193,8 +1163,8 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
                 """)
 
         terse_file = tmp_dir.path / "terse.st"
-        with open(terse_file, "wb") as writer:
-            writer.write(b"""
+        with open(terse_file, "w") as writer:
+            writer.write("""
             "$it.firstName$ $it.lastName$ (<tt>$it.email$</tt>)"
             """)
 

@@ -1113,13 +1113,11 @@ class StringBuffer(object):
 # ##                       Reader                                  # ##
 # ##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 
-## When reading Japanese chars, it happens that a stream returns a
-## 'char' of length 2. This looks like  a  bug  in the appropriate
-## codecs - but I'm  rather  unsure about this. Anyway, if this is
-## the case, I'm going to  split  this string into a list of chars
-## and put them  on  hold, ie. on a  buffer. Next time when called
-## we read from buffer until buffer is empty.
-## wh: nov, 25th -> problem does not appear in Python 2.4.0.c1.
+# When reading Japanese chars, it happens that a stream returns a 'char' of length 2.
+# This looks like a bug in the appropriate codecs - but I'm  rather  unsure about this.
+# Anyway, if this is the case,
+# I'm going to split this string into a list of chars and put them  on  hold, i.e. on a  buffer.
+# Next time when called we read from buffer until buffer is empty.
 
 class Reader(object):
     def __init__(self, stream):
@@ -1132,8 +1130,6 @@ class Reader(object):
         if len(self.buf):
             return self.buf.pop()
 
-        # # Read a char - this may return a string.
-        # # Is this a bug in codecs/Python?
         c = self.cin.read(1)
 
         if not c or len(c) == 1:
@@ -1144,7 +1140,7 @@ class Reader(object):
         for x in L:
             self.buf.append(x)
 
-        # # read one char ..
+        # read one character
         return self.read(1)
 
 
@@ -1155,10 +1151,11 @@ class Reader(object):
 class CharScanner(TokenStream):
     # # class members
     NO_CHAR = 0
-    EOF_CHAR = '' # ## EOF shall be the empty string.
+    EOF_CHAR = ''  # ## EOF shall be the empty string.
 
     def __init__(self, *argv, **kwargs):
-        super(CharScanner, self).__init__()
+        super().__init__()
+        self.inputState = None
         self.saveConsumedInput = True
         self.tokenClass = None
         self.caseSensitive = True
@@ -1194,7 +1191,7 @@ class CharScanner(TokenStream):
         # # mode. If there's no 2nd argument we fall back to
         # # mode '+rb'.
         if is_string_type(arg1):
-            f = open(arg1, "rb")
+            f = open(arg1, "r")
             self.setInput(f)
             self.setFilename(arg1)
             return
@@ -1365,12 +1362,11 @@ class CharScanner(TokenStream):
         print("CharScanner: panic: " + s)
         sys.exit(1)
 
-    def reportError(self, ex):
-        print(ex)
-
     def reportError(self, s):
+        if isinstance(s, Exception):
+            print(f"{s}")
         if not self.getFilename():
-            print("error: " + str(s))
+            print(f"error: {s}")
         else:
             print(self.getFilename() + ": error: " + str(s))
 
@@ -1487,8 +1483,8 @@ class CharScanner(TokenStream):
         while self.LA(1) != EOF_CHAR and not self.set.member(self.LA(1)):
             self.consume()
 
-   # ## If symbol seen is EOF then generate and set token, otherwise
-   # ## throw exception.
+    # If symbol seen is EOF then generate and set token,
+    # otherwise throw exception.
     def default(self, la1):
         if not la1:
             self.uponEOF()
@@ -1514,8 +1510,8 @@ class CharScanner(TokenStream):
                 func(*args)
             except RecognitionException as ex:
                 # # catastrophic failure
-                self.reportError(ex);
-                self.consume();
+                self.reportError(ex)
+                self.consume()
             raise TryAgain()
 
     def raise_NoViableAlt(self, la1=None):
@@ -2772,13 +2768,13 @@ class ASTFactory(object):
    # ## methods that have been moved to file scope - just listed
    # ## here to be somewhat consistent with original API
     def dup(self, t):
-        return antlr.dup(t, self)
+        return dup(t, self)
 
     def dupList(self, t):
-        return antlr.dupList(t, self)
+        return dupList(t, self)
 
     def dupTree(self, t):
-        return antlr.dupTree(t, self)
+        return dupTree(t, self)
 
    # ## methods moved to other classes
    # ## 1. makeASTRoot  -> Parser

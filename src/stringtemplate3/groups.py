@@ -652,9 +652,9 @@ class StringTemplateGroup(object):
         except ValueError:
             return False
 
-    def parseGroup(self, r):
+    def parseGroup(self, reader):
         try:
-            lexer = GroupLexer.Lexer(r)
+            lexer = GroupLexer.Lexer(reader)
             parser = GroupParser.Parser(lexer)
             parser.group(self)
             # sys.stderr.write("read group\n" + str(self))

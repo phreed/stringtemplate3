@@ -748,3 +748,33 @@ def test_CannotFindInterfaceFile():
 
     assert str(errors) == "no such interface file blort.sti"
 
+
+def test_MultiDirGroupLoading():
+    """ this also tests the group loader """
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        sub_dir = tmp_dir.path / "sub"
+        try:
+            sub_dir.mkdir(parents=True, exist_ok=True)
+        except PermissionError as pe:
+            logger.exception("can't make subdir in test", pe)
+            return
+
+        St3G.registerGroupLoader(PathGroupLoader(dirs=[tmp_dir.path, sub_dir]))
+
+        templates = dedent("""\
+            group testG2;
+            t() ::= <<foo>>
+            bold(item) ::= <<foo>>
+            duh(a,b,c) ::= <<foo>>
+            """)
+        tsh.write_file(tmp_dir.path / "sub" / "testG2.stg", templates)
+
+        group = St3G.loadGroup("testG2")
+
+    assert str(group) == dedent("""\
+        group testG2;
+        bold(item) ::= <<foo>>
+        duh(a,b,c) ::= <<foo>>
+        t() ::= <<foo>>
+        """)
+

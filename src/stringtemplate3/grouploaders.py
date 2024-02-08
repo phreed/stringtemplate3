@@ -102,9 +102,9 @@ class PathGroupLoader(StringTemplateGroupLoader):
         if lexer is None:
             lexer = AngleBracketTemplateLexer.Lexer
         try:
-            fr = self.locate(groupName + ".stg")
+            fr = self.locate(f"{groupName}.stg")
             if fr is None:
-                self.error("no such group file " + groupName + ".stg")
+                self.error(f"no such group file {groupName}.stg")
                 return None
 
             try:
@@ -147,11 +147,12 @@ class PathGroupLoader(StringTemplateGroupLoader):
         for adir in self.dirs:
             path = os.path.join(adir, name)
             if os.path.isfile(path):
-                fr = open(path, 'r')
-                # FIXME: something breaks, when stream return unicode
-                if self.fileCharEncoding is not None:
-                    fr = codecs.getreader(self.fileCharEncoding)(fr)
-                return fr
+                stream = open(path, 'r')
+                # if self.fileCharEncoding is not None:
+                #     reader = codecs.getreader(self.fileCharEncoding)
+                #     return reader(stream, errors='strict')
+
+                return stream
 
         return None
 
