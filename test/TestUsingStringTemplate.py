@@ -11,11 +11,14 @@ import temppathlib
 from textwrap import dedent
 
 import stringtemplate3
-from stringtemplate3 import errors as St3Err, AutoIndentWriter, AttributeRenderer
+from stringtemplate3.writers import (AutoIndentWriter,
+                                     AttributeRenderer)
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
 from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
-from stringtemplate3.language import AngleBracketTemplateLexer, DefaultTemplateLexer, IllegalStateException
+from stringtemplate3.language import (AngleBracketTemplateLexer,
+                                      DefaultTemplateLexer,
+                                      IllegalStateException)
 from stringtemplate3.templates import StringTemplate as St3T
 
 import TestStringHelper as tsh
@@ -344,8 +347,8 @@ class Decl(object):
 def test_indirect_template_ref(indirect_template_ref):
     group = St3G(file=io.StringIO(indirect_template_ref), lexer="angle-bracket")
     f = group.getInstanceOf("file")
-    f.setAttribute("variables.{decl,format}", Decl("i","int"), "intdecl")
-    f.setAttribute("variables.{decl,format}", Decl("a","int-array"), "intarray")
+    f.setAttribute("variables.{decl,format}", Decl("i", "int"), "intdecl")
+    f.setAttribute("variables.{decl,format}", Decl("a", "int-array"), "intarray")
 
     assert str(f) == '        int i = 0;\n        int[] a = null;\n        '
 # end::indirect_template_ref_demo[]

@@ -85,7 +85,7 @@ class StringTemplateWriter(object):
     def setLineWidth(self, lineWidth):
         raise NotImplementedError
 
-    def write(self, str, wrap=None):
+    def write(self, a_str, wrap=None):
         """
         Write the string and return how many actual chars were written.
         With autoindentation and wrapping, more chars than length(str)
@@ -281,6 +281,6 @@ class NoIndentWriter(AutoIndentWriter):
     def __init__(self, out):
         super(NoIndentWriter, self).__init__(out)
 
-    def write(self, str, wrap=None):
-        self.out.write(str)
-        return len(str)
+    def write(self, a_str, wrap=None):
+        self.out.write(a_str)
+        return len(a_str)

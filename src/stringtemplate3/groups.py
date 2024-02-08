@@ -213,7 +213,8 @@ class StringTemplateGroup(object):
             StringTemplateGroup.nameToGroupMap[self.name] = self
             self.verifyInterfaceImplementations()
 
-    def getTemplateLexerClass(self):
+    @property
+    def templateLexerClass(self):
         """
         What lexer class to use to break up templates.  If not lexer set
         for this group, use static default.
@@ -224,7 +225,8 @@ class StringTemplateGroup(object):
 
         return self.defaultTemplateLexerClass
 
-    def setTemplateLexerClass(self, lexer):
+    @templateLexerClass.setter
+    def templateLexerClass(self, lexer):
         if isinstance(lexer, str):
             try:
                 self._templateLexerClass = {
@@ -243,10 +245,6 @@ class StringTemplateGroup(object):
                 % type(lexer).__name__
             )
 
-    templateLexerClass = property(getTemplateLexerClass, setTemplateLexerClass)
-    getTemplateLexerClass = deprecated(getTemplateLexerClass)
-    setTemplateLexerClass = deprecated(setTemplateLexerClass)
-
     @deprecated
     def getName(self):
         return self.name
@@ -255,7 +253,12 @@ class StringTemplateGroup(object):
     def setName(self, name):
         self.name = name
 
-    def setSuperGroup(self, superGroup):
+    @property
+    def superGroup(self):
+        return self._superGroup
+
+    @superGroup.setter
+    def superGroup(self, superGroup):
         if superGroup is None or isinstance(superGroup, StringTemplateGroup):
             self._superGroup = superGroup
 
@@ -287,13 +290,6 @@ class StringTemplateGroup(object):
                 "Need StringTemplateGroup or string, got %s"
                 % type(superGroup).__name__
             )
-
-    def getSuperGroup(self):
-        return self._superGroup
-
-    superGroup = property(getSuperGroup, setSuperGroup)
-    getSuperGroup = deprecated(getSuperGroup)
-    setSuperGroup = deprecated(setSuperGroup)
 
     def getGroupHierarchyStackString(self):
         """Walk up group hierarchy and show top down to this group"""
@@ -702,16 +698,13 @@ class StringTemplateGroup(object):
     def setRefreshInterval(self, refreshInterval):
         self.refreshInterval = refreshInterval
 
-    def setErrorListener(self, listener):
-        self.listener = listener
-        return None
-
-    def getErrorListener(self):
+    @property
+    def errorListener(self):
         return self.listener
 
-    errorListener = property(getErrorListener, setErrorListener)
-    getErrorListener = deprecated(getErrorListener)
-    setErrorListener = deprecated(setErrorListener)
+    @errorListener.setter
+    def errorListener(self, listener):
+        self.listener = listener
 
     # # Specify a StringTemplateWriter implementing class to use for
     #  filtering output

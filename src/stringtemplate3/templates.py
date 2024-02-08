@@ -341,6 +341,14 @@ class StringTemplate(object):
             assert isinstance(attributes, dict)
             self.attributes = attributes
 
+    @property
+    def isRegion(self):
+        return self._isRegion
+
+    @isRegion.setter
+    def isRegion(self, value):
+        self._isRegion = value
+
     def dup(self, fr, to):
         """
         Make the 'to' template look exactly like the 'from' template
@@ -348,7 +356,7 @@ class StringTemplate(object):
         of a class in that the executable code is the same (the template
         chunks), but the instance data is blank (the attributes).  Do
         not copy the enclosingInstance pointer since you will want self
-        template to eval in a context different from the examplar.
+        template to eval in a context different from the exemplar.
         """
 
         to.attributeRenderers = fr.attributeRenderers
@@ -362,7 +370,7 @@ class StringTemplate(object):
         to.group = fr.group
         to.listener = copy(fr.listener)
         to.regions = fr.regions
-        to._isRegion = fr._isRegion
+        to._isRegion = fr.isRegion
         to.regionDefTyep = fr.regionDefType
 
     def getInstanceOf(self):
@@ -385,10 +393,12 @@ class StringTemplate(object):
         self.dup(self, t)
         return t
 
-    def getEnclosingInstance(self):
+    @property
+    def enclosingInstance(self):
         return self._enclosingInstance
 
-    def setEnclosingInstance(self, enclosingInstance):
+    @enclosingInstance.setter
+    def enclosingInstance(self, enclosingInstance):
         if self == self._enclosingInstance:
             raise AttributeError('cannot embed template ' +
                                  str(self.name) + ' in itself')
@@ -397,10 +407,6 @@ class StringTemplate(object):
         # make the parent track self template as an embedded template
         if enclosingInstance:
             self._enclosingInstance.addEmbeddedInstance(self)
-
-    enclosingInstance = property(getEnclosingInstance, setEnclosingInstance)
-    getEnclosingInstance = deprecated(getEnclosingInstance)
-    setEnclosingInstance = deprecated(setEnclosingInstance)
 
     def getOutermostEnclosingInstance(self):
         if self.enclosingInstance is not None:
@@ -458,7 +464,8 @@ class StringTemplate(object):
     def setNativeGroup(self, group):
         self.nativeGroup = group
 
-    def getGroupFileLine(self):
+    @property
+    def groupFileLine(self):
         """Return the outermost template's group file line number"""
 
         if self.enclosingInstance is not None:
@@ -466,35 +473,28 @@ class StringTemplate(object):
 
         return self._groupFileLine
 
-    def setGroupFileLine(self, groupFileLine):
+    @groupFileLine.setter
+    def groupFileLine(self, groupFileLine):
         self._groupFileLine = groupFileLine
 
-    groupFileLine = property(getGroupFileLine, setGroupFileLine)
-    getGroupFileLine = deprecated(getGroupFileLine)
-    setGroupFileLine = deprecated(setGroupFileLine)
+    @property
+    def template(self):
+        return self.pattern
 
-    def setTemplate(self, template):
+    @template.setter
+    def template(self, template):
         self.pattern = template
         self.breakTemplateIntoChunks()
 
-    def getTemplate(self):
-        return self.pattern
-
-    template = property(getTemplate, setTemplate)
-    getTemplate = deprecated(getTemplate)
-    setTemplate = deprecated(setTemplate)
-
-    def setErrorListener(self, listener):
-        self.listener = listener
-
-    def getErrorListener(self):
+    @property
+    def errorListener(self):
         if not self.listener:
             return self.group.errorListener
         return self.listener
 
-    errorListener = property(getErrorListener, setErrorListener)
-    getErrorListener = deprecated(getErrorListener)
-    setErrorListener = deprecated(setErrorListener)
+    @errorListener.setter
+    def errorListener(self, listener):
+        self.listener = listener
 
     def reset(self):
         # just throw out table and make new one
@@ -513,7 +513,7 @@ class StringTemplate(object):
     def setAttribute(self, name, *values):
         """
         Set an attribute for self template.  If you set the same
-        attribute more than once, you get a multi-valued attribute.
+        attribute more than once, you get a multivalued attribute.
         If you send in a StringTemplate object as a value, its
         enclosing instance (where it will inherit values from) is
         set to 'self'.  This would be the normal case, though you
@@ -601,6 +601,7 @@ class StringTemplate(object):
             self.setAttribute(aggrName, aggr)
 
     __setitem__ = setAttribute
+
 
     def parseAggregateAttributeSpec(self, aggrSpec):
         """
@@ -1050,7 +1051,8 @@ class StringTemplate(object):
             p = p.enclosingInstance
         return False
 
-    def getEnclosingInstanceStackTrace(self):
+    @property
+    def enclosingInstanceStackTrace(self):
         buf = StringIO(u'')
         seen = {}
         p = self
@@ -1097,15 +1099,10 @@ class StringTemplate(object):
 
         return buf.getvalue()
 
-    enclosingInstanceStackTrace = property(getEnclosingInstanceStackTrace)
-    getEnclosingInstanceStackTrace = deprecated(getEnclosingInstanceStackTrace)
-
-    def getTemplateDeclaratorString(self):
+    @property
+    def templateDeclaratorString(self):
         return '<' + self.name + '(' + str(self.formalArgumentKeys) + \
             ')' + '@' + str(self.templateID) + '>'
-
-    templateDeclaratorString = property(getTemplateDeclaratorString)
-    getTemplateDeclaratorString = deprecated(getTemplateDeclaratorString)
 
     def getTemplateHeaderString(self, showAttributes):
         if showAttributes and self.attributes is not None:
@@ -1152,7 +1149,8 @@ class StringTemplate(object):
 
         # can do the reverse, but will have lots of False warnings :(
 
-    def getEnclosingInstanceStackString(self):
+    @property
+    def enclosingInstanceStackString(self):
         """
         If an instance of x is enclosed in a y which is in a z, return
         a String of these instance names in order from topmost to lowest;
@@ -1173,15 +1171,6 @@ class StringTemplate(object):
             names = names[1:]
         return s + ']'
 
-    enclosingInstanceStackString = property(getEnclosingInstanceStackString)
-    getEnclosingInstanceStackString = deprecated(getEnclosingInstanceStackString)
-
-    def isRegion(self):
-        return self._isRegion
-
-    def setIsRegion(self, isRegion):
-        self._isRegion = isRegion
-
     def addRegionName(self, name):
         self.regions.add(name)
 
@@ -1198,7 +1187,7 @@ class StringTemplate(object):
 
     def toDebugString(self):
         buf = StringIO(u'')
-        buf.write('template-' + self.getTemplateDeclaratorString() + ': ')
+        buf.write('template-' + self.templateDeclaratorString + ': ')
         buf.write('chunks=')
         if self.chunks:
             buf.write(str(self.chunks))
@@ -1342,13 +1331,12 @@ class StringTemplate(object):
                     # descend into the reference template
                     st.getDependencyGraph(edges, showAttributes)
 
-    def putToMultiValuedMap(self, map, key, value):
+    def putToMultiValuedMap(self, a_map, key, value):
         """Manage a hash table like it has multiple unique values."""
-
         try:
-            map[key].append(value)
+            a_map[key].append(value)
         except KeyError:
-            map[key] = [value]
+            a_map[key] = [value]
 
     def printDebugString(self, out=sys.stderr):
         out.write('template-' + self.name + ':\n')
@@ -1368,8 +1356,7 @@ class StringTemplate(object):
                 if isinstance(value, list):
                     i = 0
                     for o in value:
-                        out.write(name + '[' + i + '] is ' +
-                                  o.__class__.__name__ + '=')
+                        out.write(f'{name}[{i}] is {o.__class__.__name__}=')
                         if isinstance(o, StringTemplate):
                             o.printDebugString()
                         else:
