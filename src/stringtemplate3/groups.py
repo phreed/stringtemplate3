@@ -420,14 +420,14 @@ class StringTemplateGroup(object):
             if (not st) and self.superGroup:
                 # try to resolve in super group
                 st = self.superGroup.getInstanceOf(name)
-                # make sure that when we inherit a template, that it's
-                # group is reset; it's nativeGroup will remain where it was
+                # make sure that when we inherit a template, that its
+                # group is reset; its nativeGroup will remain where it was
                 if st is not None:
                     st.group = self
 
             if st:  # found in superGroup
                 # insert into this group; refresh will allow super
-                # to change it's def later or this group to add
+                # to change its def later or this group to add
                 # an override.
                 self.templates[name] = st
 
@@ -843,7 +843,7 @@ class StringTemplateGroup(object):
             out.write("</" + st.name + ">")
 
     def toString(self, showTemplatePatterns=True):
-        buf = StringIO()
+        buf = StringIO(u'')
         buf.write('group ' + str(self.name) + ';\n')
         sortedNames = list(self.templates.keys())
         sortedNames.sort()

@@ -375,7 +375,7 @@ class StringTemplate(object):
 
         if self.nativeGroup is not None:
             # create a template using the native group for this template
-            # but it's "group" is set to this.group by dup after creation so
+            # but its "group" is set to this.group by dup after creation so
             # polymorphism still works.
             t = self.nativeGroup.createStringTemplate()
 
@@ -968,15 +968,6 @@ class StringTemplate(object):
 
         self.passThroughAttributes = passThroughAttributes
 
-    @deprecated
-    def setAttributeRenderers(self, renderers):
-        """
-        Specify a complete map of what object classes should map to which
-        renderer objects.
-        """
-
-        self.attributeRenderers = renderers
-
     def registerRenderer(self, attributeClassType, renderer):
         """
         Register a renderer for all objects of a particular type.  This
@@ -1060,7 +1051,7 @@ class StringTemplate(object):
         return False
 
     def getEnclosingInstanceStackTrace(self):
-        buf = StringIO()
+        buf = StringIO(u'')
         seen = {}
         p = self
         while p:
@@ -1206,7 +1197,7 @@ class StringTemplate(object):
         self.regionDefType = regionDefType
 
     def toDebugString(self):
-        buf = StringIO()
+        buf = StringIO(u'')
         buf.write('template-' + self.getTemplateDeclaratorString() + ': ')
         buf.write('chunks=')
         if self.chunks:
@@ -1235,7 +1226,7 @@ class StringTemplate(object):
         Follow (nest) attributes that are templates only.
         """
 
-        buf = StringIO()
+        buf = StringIO(u'')
 
         buf.write('  ' * indent)  # indent
         buf.write(self.name)

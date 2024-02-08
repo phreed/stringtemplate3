@@ -167,7 +167,7 @@ class StringTemplateGroupInterface(object):
             self.listener.error(msg, exc)
 
     def toString(self):
-        buf = StringIO()
+        buf = StringIO(u'')
         buf.write("interface ")
         buf.write(self.name)
         buf.write(";\n")
@@ -182,7 +182,7 @@ class StringTemplateGroupInterface(object):
     __str__ = toString
 
     def getTemplateSignature(self, d):
-        buf = StringIO()
+        buf = StringIO(u'')
         if d.optional:
             buf.write("optional ")
 

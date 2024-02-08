@@ -2480,7 +2480,7 @@ class BaseAST(AST):
 
     setVerboseStringConversion = staticmethod(setVerboseStringConversion)
 
-   # ## Return an array of strings that maps token ID to it's text.
+    # ## Return an array of strings that maps token ID to its text.
     # #  @since 2.7.3
     @staticmethod
     def getTokenNames():
@@ -2489,7 +2489,7 @@ class BaseAST(AST):
     def toString(self):
         return self.getText()
 
-   # ## return tree as lisp string - sibling included
+    # ## return tree as lisp string - sibling included
     def toStringList(self):
         ts = self.toStringTree()
         sib = self.getNextSibling()

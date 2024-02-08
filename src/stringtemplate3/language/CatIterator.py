@@ -29,11 +29,11 @@ class CatList(object):
                 yield item
 
     # # The result of asking for the string of a CatList is the list of
-    #  items and so this is just the cat'd list of both items.  This
-    #  is destructive in that the iterator cursors have moved to the end
+    #  items and so this is just the concatenated list of both items.
+    #  This is destructive in that the iterator cursors have moved to the end
     #  after printing.
     def __str__(self):
-        buf = StringIO()
+        buf = StringIO(u'')
         # buf.write('[')
         k = len(self)
         for item in self.lists():

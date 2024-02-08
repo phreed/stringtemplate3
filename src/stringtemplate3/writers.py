@@ -62,7 +62,7 @@ class StringTemplateWriter(object):
     Literals and the elements of expressions are emitted via write().
     Separators are emitted via writeSeparator() because they must be
     handled specially when wrapping lines (we don't want to wrap
-    in between an element and it's separator).
+    in between an element and its separator).
     """
 
     NO_WRAP = -1
@@ -204,7 +204,10 @@ class AutoIndentWriter(StringTemplateWriter):
                     self.atStartOfLine = False
 
             n += 1
-            self.out.write(c)
+            try:
+                self.out.write(c)
+            except TypeError as te:
+                pass
             self.charPosition += 1
 
         return n

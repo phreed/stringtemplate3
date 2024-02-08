@@ -176,7 +176,7 @@ class Walker(antlr.TreeParser):
                 _t = self._retTree
                 _t = _t4
                 _t = _t.getNextSibling()
-                buf = StringIO()
+                buf = StringIO(u'')
                 sw = self.this.group.getStringTemplateWriter(buf)
                 n = self.chunk.writeAttribute(self.this, e, sw)
                 if n > 0:

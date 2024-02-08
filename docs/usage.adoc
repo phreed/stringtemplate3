@@ -306,7 +306,7 @@ See Group Files
 
 [source,template]
 ----
-group name
+group name;
 t1(args) ::= "template1"
 t2(args) ::= <<
 template2>>
@@ -2016,13 +2016,13 @@ ${$list : { [$it$] };separator=" and ",null="woops"$};format="toUpper"$
 == Expression options
 There are 5 expression options at the moment:
 
-separator.
+separator::
 Specify text to be emitted between multiple values emitted for a single expression.
 For example, given a list of names, <names> spits them out right next to each other.
-Using a separator can put a comma in between automatically: <names; separator=",">.
+Using a separator can put a comma in between automatically: `<names; separator=",">`.
 This is by far the most commonly used option.
 See How to construct separators?.
-format.
+format::
 Used in conjunction with the `AttributeRenderer` interface, which describes an object that knows how to format or otherwise render an object appropriately.
 The toString(Object,String) method is used when the user uses the format option: $o; format="f"$.
 Renderers check the formatName and apply the appropriate formatting.
@@ -2030,49 +2030,49 @@ If the format string passed to the renderer is not recognized, then it should si
 This option is very effective for locale changes and for choosing the display characteristics of an object in the template rather than encode.
 Each template may have a renderer for each object type or can default to the group's renderer or the super group's renderer if the group doesn't have one.
 See Object rendering#Format Option.
-null.
+null::
 Emit a special value for each null element.
-For example, given values=9,6,null,2,null
+For example, given `values=9,6,null,2,null`
+[source,template]
+----
 $values; null="-1", separator=", "$
+----
 emits:
+[source,text]
+----
 == 6, -1, 2, -1
+----
 See Expressions
-wrap.
+wrap::
 Tell ST that it is okay to wrapped lines to get too long.
-The wrap option may also take an argument but it's default is simply a \n string.
+The wrap option may also take an argument but its default is simply a \n string.
 You must specify an integer width using the toString(int) method to get ST to actually wrap expressions modified with this option.
 For example, given a list of names and expression <names; wrap>, a call to toString(72) will emit the names until it surpasses 72 characters in with and then inserts a new line and begins emitting names again.
 Naturally this can be used in conjunction with the separator option.
 ST Never breaks in between a real element and the separator; the wrap occurs only after a separator.
 See Automatic line wrapping.
-anchor.
+anchor::
 Line up all wrapped lines with left edge of expression when wrapping.
 Default is anchor="true" (any non-null value means anchor).
 See Automatic line wrapping.
-The option values are all full expressions, which can include references to templates, anonymous templates, and so on.
+The option values are all full expressions,
+which can include references to templates, anonymous templates, and so on.
 For example here is a separator that invokes another template:
 
+[source,template]
+----
 <ul>$name; separator=bulletSeparator(foo=" ")+"&nbsp;"$</ul>
+----
 The wrap and anchor options are implemented via the Output Filters.
 The others are handled during interpretation by ST.
 Well, the filters also are notified that a separator vs regular string is coming out to prevent newlines between real elements and separators.
 
-Java examples
+=== Examples
+
 Here is an example use of the format option.
-[source,java]
+[source,python]
 ----
-public void testRendererWithFormatAndList() throws Exception {
-    StringTemplate st =new StringTemplate(
-                    "The names: <names; format=\"upper\">",
-                    AngleBracketTemplateLexer.class);
-    st.setAttribute("names", "ter");
-    st.setAttribute("names", "tom");
-    st.setAttribute("names", "sriram");
-    st.registerRenderer(String.class, new StringRenderer());
-    String expecting = "The names: TERTOMSRIRAM";
-    String result = st.toString();
-    assertEquals(expecting, result);
-}
+
 ----
 The code registers a renderer for the String class.
 Without the format option, the toString(Object) method is used to convert strings to the emitted text.
@@ -2127,7 +2127,7 @@ public void testRendererWithFormatAndSeparatorAndNull() throws Exception {
     assertEquals(expecting, result);
 }
 ----
-Python examples
+
 If you are constructing HTML documents you have to escape plain text strings so that < or & characters appear as literal text and do not act as HTML delimiters (thus opening a wide range of possible attacks if the text originated from user input).
 
 [source,python]
@@ -2253,9 +2253,10 @@ abc
 de
 ----
 as output.
-wrap may also take an argument but it's default is simply a \n string.
+wrap may also take an argument but its default is simply a \n string.
 
-To illustrate when you would need a non-default version for this parameter, imagine the difficult task of doing proper Fortran line wrapping.
+To illustrate when you would need a non-default version for this parameter,
+imagine the difficult task of doing proper Fortran line wrapping.
 Here is a template that generates a Fortran function with a list of arguments:
 
 [source,template]

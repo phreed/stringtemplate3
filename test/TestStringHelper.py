@@ -42,7 +42,7 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 
 class ErrorBuffer(StringTemplateErrorListener):
     def __init__(self):
-        self.errorOutput = io.StringIO()
+        self.errorOutput = io.StringIO(u'')
         self.n = 0
 
     def error(self, msg, ex):

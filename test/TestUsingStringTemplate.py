@@ -1,6 +1,6 @@
 import logging
 import io
-from datetime import date
+import datetime
 import os
 
 import pathlib
@@ -346,24 +346,68 @@ def test_indirect_template_ref(indirect_template_ref):
     f = group.getInstanceOf("file")
     f.setAttribute("variables.{decl,format}", Decl("i","int"), "intdecl")
     f.setAttribute("variables.{decl,format}", Decl("a","int-array"), "intarray")
-    print(f"f = {f}")
 
     assert str(f) == '        int i = 0;\n        int[] a = null;\n        '
 # end::indirect_template_ref_demo[]
 
 
-# tag::date_renderer[]
-class DateRenderer(AttributeRenderer):
-    def toString(self, o, format=None):
-        return o.strftime("%Y.%m.%d")
-# end::date_renderer[]
+# tag::date_renderer_1[]
+class DateRenderer1(AttributeRenderer):
+    def __init__(self):
+        AttributeRenderer.__init__(self)
+
+    def toString(self, obj, formatName=None):
+        if formatName is None:
+            return obj.strftime("%Y.%m.%d")
+        return obj.strftime(formatName)
+# end::date_renderer_1[]
+
+
+# tag::date_renderer_2[]
+class DateRenderer2(AttributeRenderer):
+    def __init__(self):
+        super().__init__()
+
+    def toString(self, obj, formatName=None):
+        if formatName is None:
+            return obj.strftime("%m/%d/%Y")
+        return obj.strftime(formatName)
+# end::date_renderer_2[]
+
+
+# tag::date_renderer_3[]
+class DateRenderer3(AttributeRenderer):
+    def __init__(self):
+        AttributeRenderer.__init__(self)
+
+    def toString(self, obj, formatName=None):
+        if formatName is None:
+            return obj.strftime("%M/%D/%Y")
+        if formatName == 'yyyy.MM.dd':
+            return obj.strftime("%Y.%m.%d")
+        return str(obj)
+# end::date_renderer_3[]
+
+
+# tag::string_renderer[]
+class StringRenderer(AttributeRenderer):
+    def __init__(self):
+        AttributeRenderer.__init__(self)
+
+    def toString(self, obj, formatName=None):
+        if formatName is None:
+            return str(obj)
+        if formatName == "upper":
+            return str(obj).upper()
+        return str(obj)
+# end::string_renderer[]
 
 
 # tag::date_renderer_demo[]
-def test_date_renderer():
+def test_date_renderer(sample_day, sample_calendar):
     st = St3T("date: <created>", lexer="angle-bracket")
-    st["created"] = date(year=2005, month=7, day=5)
-    st.registerRenderer(date, DateRenderer())
+    st["created"] = sample_day
+    st.registerRenderer(sample_calendar, DateRenderer1())
 
     assert str(st) == "date: 2005.07.05"
 # end::date_renderer_demo[]
@@ -371,38 +415,154 @@ def test_date_renderer():
 
 # tag::basic_format_renderer[]
 class BasicFormatRenderer(AttributeRenderer):
-    def toString(self, o, formatName=None):
+    def toString(self, obj, formatName=None):
+        """
+        None: implies that no formatting specified
+        """
         if formatName is None:
-            # no formatting specified
-            return str(o)
+            return str(obj)
 
         if formatName == "toUpper":
-            return str(o).upper()
+            return str(obj).upper()
         elif formatName == "toLower":
-            return str(o).lower()
+            return str(obj).lower()
         else:
-            raise ValueError("Unsupported format name")
+            raise ValueError(f"Unsupported format name: {formatName}")
 # end::basic_format_renderer[]
 
 
 # tag::basic_format_renderer_demo_upper[]
 def test_basic_format_renderer_upper():
-    st = St3T('$name;format="toUpper"$', lexer="default")
-    st["name"] = "fred"
+    st = St3T('$name; format="toUpper", null="woops"$', lexer="default")
+    st["name"] = "Barney"
     st.registerRenderer(str, BasicFormatRenderer())
 
-    assert str(st) == "FRED"
+    assert str(st) == "BARNEY"
 # end::basic_format_renderer_demo_upper[]
 
 
 # tag::basic_format_renderer_combined[]
 def test_basic_format_renderer_combined():
-    st = St3T('$list : { [$it$] };format="toUpper",separator=" and "$', lexer="default")
-    st["list"] = "x"
-    st["list"] = "y"
-    st["list"] = "z"
+    st = St3T(template='$list : {[$it$]}; format="toUpper", separator=" and ", null="woops"$',
+              lexer="default")
+    st["list"] = ["x", "y", None, "z"]
 
     st.registerRenderer(str, BasicFormatRenderer())
 
     assert str(st) == "[X] and [Y] and [WOOPS] and [Z]"
 # end::basic_format_renderer_combined[]
+
+
+# tag::example_renderer_with_format_and_list[]
+def test_renderer_with_format_and_list():
+    st = St3T(template="The names: <names; format=\"upper\">",
+              lexer=AngleBracketTemplateLexer.Lexer)
+    st["names"] = "ter"
+    st["names"] = "tom"
+    st["names"] = "sriram"
+    st.registerRenderer(str, StringRenderer())
+
+    assert str(st) == "The names: TERTOMSRIRAM"
+# tag::example_renderer_with_format_and_list[]
+
+
+# tag::sample_day[]
+@pytest.fixture
+def sample_day():
+    return datetime.date(2005, 7, 5)
+# end::sample_day[]
+
+
+# tag::sample_calendar[]
+@pytest.fixture
+def sample_calendar():
+    return datetime.date
+# end::sample_day[]
+
+
+def test_RendererForDate(sample_day, sample_calendar):
+    st = St3T(
+        template="date: <created>",
+        lexer=AngleBracketTemplateLexer.Lexer)
+    st.setAttribute("created", sample_day)
+    st.registerRenderer(sample_calendar, DateRenderer1())
+    assert str(st) == "date: 2005.07.05"
+
+
+def test_RendererWithFormat(sample_day, sample_calendar):
+    st = St3T(
+        template="date: <created; format=\"yyyy.MM.dd\">",
+        lexer=AngleBracketTemplateLexer.Lexer)
+    st.setAttribute("created", sample_day)
+    st.registerRenderer(sample_calendar, DateRenderer3())
+    assert str(st) == "date: 2005.07.05"
+
+
+def test_RendererWithFormatAndList():
+    st = St3T(
+        template="The names: <names; format=\"upper\">",
+        lexer=AngleBracketTemplateLexer.Lexer)
+    st["names"] = "ter"
+    st["names"] = "tom"
+    st["names"] = "sriram"
+    st.registerRenderer(str, StringRenderer())
+    assert str(st) == "The names: TERTOMSRIRAM"
+
+
+def test_RendererWithFormatAndSeparator():
+    st = St3T(
+        template="The names: <names; separator=\" and \", format=\"upper\">",
+        lexer=AngleBracketTemplateLexer.Lexer)
+    st["names"] = "ter"
+    st["names"] = "tom"
+    st["names"] = "sriram"
+    st.registerRenderer(str, StringRenderer())
+    assert str(st) == "The names: TER and TOM and SRIRAM"
+
+
+def test_RendererWithFormatAndSeparatorAndNull():
+    st = St3T(template='The names: <names; separator=" and ", null="n/a", format="upper">',
+              lexer=AngleBracketTemplateLexer.Lexer)
+    names = ["ter", None, "sriram"]
+    st["names"] = names
+    st.registerRenderer(str, StringRenderer())
+    assert str(st) == "The names: TER and N/A and SRIRAM"
+
+
+def test_EmbeddedRendererSeesEnclosing(sample_day, sample_calendar):
+    """ st is embedded in outer; set renderer on outer, st should still see it. """
+    outer = St3T(template="X: <x>",
+                 lexer=AngleBracketTemplateLexer.Lexer)
+    st = St3T(template="date: <created>",
+              lexer=AngleBracketTemplateLexer.Lexer)
+    st.setAttribute("created", sample_day)
+    outer["x"] = st
+    outer.registerRenderer(sample_calendar, DateRenderer1())
+    assert str(outer) == "X: date: 2005.07.05"
+
+
+def test_RendererForGroup(sample_day, sample_calendar):
+    templates = """
+            group test;
+            dateThing(created) ::= \"date: <created>\"
+            """
+    group = St3G(file=io.StringIO(templates))
+    st = group.getInstanceOf("dateThing")
+    st.setAttribute("created", sample_day)
+    group.registerRenderer(sample_calendar, DateRenderer1())
+    assert str(st) == "date: 2005.07.05"
+
+
+def test_OverriddenRenderer(sample_day, sample_calendar):
+    templates = """
+            group test;
+            dateThing(created) ::= \"date: <created>\"
+            """
+    group = St3G(file=io.StringIO(templates))
+    st = group.getInstanceOf("dateThing")
+    st.setAttribute("created", sample_day)
+    group.registerRenderer(sample_calendar, DateRenderer1())
+    st.registerRenderer(sample_calendar, DateRenderer2())
+    assert str(st) == "date: 07/05/2005"
+
+

@@ -573,7 +573,7 @@ def test_RegionRef():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmbeddedRegionRef():
@@ -585,7 +585,7 @@ def test_EmbeddedRegionRef():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XblortY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionRefAngleBrackets():
@@ -597,7 +597,7 @@ def test_RegionRefAngleBrackets():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmbeddedRegionRefAngleBrackets():
@@ -610,7 +610,7 @@ def test_EmbeddedRegionRefAngleBrackets():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XblortY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmbeddedRegionRefWithNewlinesAngleBrackets():
@@ -625,7 +625,7 @@ def test_EmbeddedRegionRefWithNewlinesAngleBrackets():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XblortY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionRefWithDefAngleBrackets():
@@ -638,7 +638,7 @@ def test_RegionRefWithDefAngleBrackets():
     st = group.getInstanceOf("a")
     result = str(st)
     expecting = "XfooY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionRefWithDefInConditional():
@@ -652,7 +652,7 @@ def test_RegionRefWithDefInConditional():
     st["v"] = True
     result = str(st)
     expecting = "XAfooBY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionRefWithImplicitDefInConditional():
@@ -667,7 +667,7 @@ def test_RegionRefWithImplicitDefInConditional():
     st["v"] = True
     result = str(st)
     expecting = "XAyoBY"
-    assert expecting == result
+    assert result == expecting
 
     err_result = str(errors)
     err_expecting = "group test line 3: redefinition of template region: @a.r"
@@ -691,7 +691,7 @@ def test_RegionOverride():
     st = subGroup.getInstanceOf("a")
     result = str(st)
     expecting = "XfooY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionOverrideRefSuperRegion():
@@ -711,7 +711,7 @@ def test_RegionOverrideRefSuperRegion():
     st = subGroup.getInstanceOf("a")
     result = str(st)
     expecting = "XAfooBY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionOverrideRefSuperRegion3Levels():
@@ -750,7 +750,7 @@ def test_RegionOverrideRefSuperRegion3Levels():
     st = subSubGroup.getInstanceOf("a")
     result = str(st)
     expecting = "Xfoo23Y"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_RegionOverrideRefSuperImplicitRegion():
@@ -769,7 +769,7 @@ def test_RegionOverrideRefSuperImplicitRegion():
     st = subGroup.getInstanceOf("a")
     result = str(st)
     expecting = "XAfooY"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmbeddedRegionRedefError():
@@ -785,7 +785,7 @@ def test_EmbeddedRegionRedefError():
     str(st)
     result = str(errors)
     expecting = "group test line 2: redefinition of template region: @a.r"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ImplicitRegionRedefError():
@@ -802,7 +802,7 @@ def test_ImplicitRegionRedefError():
     str(st)
     result = str(errors)
     expecting = "group test line 4: redefinition of template region: @a.r"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ImplicitOverriddenRegionRedefError():
@@ -826,7 +826,7 @@ def test_ImplicitOverriddenRegionRedefError():
     logger.debug(f"st: {st}")
     result = str(errors)
     expecting = "group sub line 3: redefinition of template region: @a.r"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_UnknownRegionDefError():
@@ -842,7 +842,7 @@ def test_UnknownRegionDefError():
     str(st)
     result = str(errors)
     expecting = "group test line 3: template a has no region called q"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SuperRegionRefError():
@@ -865,7 +865,7 @@ def test_SuperRegionRefError():
     logger.debug(f"st: {st}")
     result = str(errors)
     expecting = "template a has no region called q"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MissingEndRegionError():
@@ -881,7 +881,7 @@ def test_MissingEndRegionError():
     str(st)
     result = str(errors)
     expecting = "missing region r $@end$ tag"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MissingEndRegionErrorAngleBrackets():
@@ -896,7 +896,7 @@ def test_MissingEndRegionErrorAngleBrackets():
     str(st)
     result = str(errors)
     expecting = "missing region r <@end> tag"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SimpleInheritance():
@@ -974,7 +974,7 @@ def test_ComplicatedInheritance():
     st = sub.getInstanceOf("decls")
     expecting = "DSL"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_3LevelSuperRef():
@@ -999,7 +999,7 @@ def test_3LevelSuperRef():
     st = subSubGroup.getInstanceOf("r")
     result = str(st)
     expecting = "foo23"
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ExprInParens():
@@ -1773,7 +1773,7 @@ def test_EscapesOutsideExpressions():
     b["a"] = "Ter"
     expecting = "It\\'s ok...$; \\'hi\\', Ter"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ElseClause():
@@ -2250,7 +2250,7 @@ def test_InheritArgumentFromRecursiveTemplateApplication():
     expecting = "IF True then IF True then "
     result = str(b)
     logger.info("result='{}", result)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DeliberateRecursiveTemplateApplication():
@@ -2309,7 +2309,7 @@ def test_ImmediateTemplateAsAttributeLoop():
     expecting = "{{}}"
     result = str(b)
     logger.error(result)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_TemplateAlias():
@@ -2323,7 +2323,7 @@ def test_TemplateAlias():
     b["name"] = "Ter"
     expecting = "name is Ter"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_TemplateGetPropertyGetsAttribute():
@@ -2471,7 +2471,7 @@ def test_HashMapPropertyFetch():
     results = str(a)
     logger.info(results)
     expecting = "Terence"
-    assert expecting == results
+    assert result == expectings
 
 
 def test_HashMapPropertyFetchEmbeddedStringTemplate():
@@ -2483,7 +2483,7 @@ def test_HashMapPropertyFetchEmbeddedStringTemplate():
     results = str(a)
     logger.info(results)
     expecting = "embedded refers to ST rocks"
-    assert expecting == results
+    assert result == expectings
 
 
 def test_EmbeddedComments():
@@ -2492,7 +2492,7 @@ def test_EmbeddedComments():
             """)
     expecting = "Foo bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
             Foo $! ignore
@@ -2501,7 +2501,7 @@ def test_EmbeddedComments():
             """)
     expecting = "Foo bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
             $! start of line $ and $! ick
@@ -2509,7 +2509,7 @@ def test_EmbeddedComments():
             """)
     expecting = "boo"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
         $! start of line !$
@@ -2519,7 +2519,7 @@ def test_EmbeddedComments():
     """)
     expecting = "boo"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
         $! back !$$! to back !$ // can't detect; leaves \n
@@ -2530,7 +2530,7 @@ def test_EmbeddedComments():
         boo
     """)
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmbeddedCommentsAngleBracketed():
@@ -2540,7 +2540,7 @@ def test_EmbeddedCommentsAngleBracketed():
             """)
     expecting = "Foo bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
             Foo <! ignore
@@ -2550,7 +2550,7 @@ def test_EmbeddedCommentsAngleBracketed():
               )
     expecting = "Foo bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
             <! start of line $ and <! ick
@@ -2559,7 +2559,7 @@ def test_EmbeddedCommentsAngleBracketed():
               )
     expecting = "boo"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
         "<! start of line !>" +
@@ -2571,7 +2571,7 @@ def test_EmbeddedCommentsAngleBracketed():
     expecting = "boo"
     result = str(st)
     logger.info(result)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""
         <! back !><! to back !> // can't detect; leaves \n
@@ -2582,7 +2582,7 @@ def test_EmbeddedCommentsAngleBracketed():
     expecting = """ 
         boo"""
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_LineBreak():
@@ -2764,17 +2764,17 @@ def test_UnicodeLiterals():
     st = St3T("""Foo <\\uFEA5\\n\\u00C2> bar""", AngleBracketTemplateLexer.Lexer)
     expecting = "Foo \ufea5\u00C2 bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("""Foo $\\uFEA5\\n\\u00C2$ bar""")
     expecting = "Foo \ufea5\u00C2 bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
     st = St3T("Foo$\\ $bar$\\n$")
     expecting = "Foo bar"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyIteratedValueGetsSeparator():
@@ -2791,7 +2791,7 @@ def test_EmptyIteratedValueGetsSeparator():
     t["names"] = ""
     expecting = "Terence,,,Tom,Frank,"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MissingIteratedConditionalValueGetsNOSeparator():
@@ -2806,7 +2806,7 @@ def test_MissingIteratedConditionalValueGetsNOSeparator():
     t.setAttribute("users.{name,ok}", "Johnny", False)
     expecting = "Terence,Frank"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MissingIteratedConditionalValueGetsNOSeparator2():
@@ -2821,7 +2821,7 @@ def test_MissingIteratedConditionalValueGetsNOSeparator2():
     t.setAttribute("users.{name,ok}", "Johnny", False)
     expecting = "Terence"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
@@ -2837,7 +2837,7 @@ def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
     t.setAttribute("users.{name,ok}", "Johnny", True)
     expecting = "TomTom,FrankFrank,JohnnyJohnny"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_IteratedConditionalWithEmptyElseValueGetsSeparator():
@@ -2853,7 +2853,7 @@ def test_IteratedConditionalWithEmptyElseValueGetsSeparator():
     t.setAttribute("users.{name,ok}", "Johnny", False)
     expecting = "Terence,,Frank,"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_WhiteSpaceAtEndOfTemplate():
@@ -2872,7 +2872,7 @@ def test_WhiteSpaceAtEndOfTemplate():
         """
     result = str(pageST)
     logger.info("'" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 class Duh:
@@ -2891,7 +2891,7 @@ def test_SizeZeroButNonNullListGetsNoOutput():
     t.setAttribute("duh", Duh())
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_NullListGetsNoOutput():
@@ -2905,7 +2905,7 @@ def test_NullListGetsNoOutput():
     # t.setAttribute("users", Duh())
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyListGetsNoOutput():
@@ -2919,7 +2919,7 @@ def test_EmptyListGetsNoOutput():
     t.setAttribute("users", list())
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyListNoIteratorGetsNoOutput():
@@ -2933,7 +2933,7 @@ def test_EmptyListNoIteratorGetsNoOutput():
     t.setAttribute("users", list())
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyExprAsFirstLineGetsNoOutput():
@@ -2946,7 +2946,7 @@ def test_EmptyExprAsFirstLineGetsNoOutput():
         end""")
     expecting = "end"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SizeZeroOnLineByItselfGetsNoOutput():
@@ -2961,7 +2961,7 @@ def test_SizeZeroOnLineByItselfGetsNoOutput():
         end""")
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SizeZeroOnLineWithIndentGetsNoOutput():
@@ -2976,7 +2976,7 @@ def test_SizeZeroOnLineWithIndentGetsNoOutput():
         end""")
     expecting = "beginend"
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SimpleAutoIndent():
@@ -3009,7 +3009,7 @@ def test_ComputedPropertyName():
     expecting = "variable property type=int"
     result = str(t)
     assert "" == str(errors)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_NonNullButEmptyIteratorTestsFalse():
@@ -3021,7 +3021,7 @@ def test_NonNullButEmptyIteratorTestsFalse():
     t.setAttribute("users", list())
     expecting = ""
     result = str(t)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DoNotInheritAttributesThroughFormalArgs():
@@ -3038,7 +3038,7 @@ def test_DoNotInheritAttributesThroughFormalArgs():
     expecting = "x=y   # "
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ArgEvaluationContext():
@@ -3058,7 +3058,7 @@ def test_ArgEvaluationContext():
     expecting = "x=y   # foo"
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_PassThroughAttributes():
@@ -3073,7 +3073,7 @@ def test_PassThroughAttributes():
     expecting = "x=y   # foo"
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_PassThroughAttributes2():
@@ -3090,7 +3090,7 @@ def test_PassThroughAttributes2():
     expecting = "x=34   # foo"
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgument():
@@ -3107,7 +3107,7 @@ def test_DefaultArgument():
     expecting = "x=99   # foo"
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgument2():
@@ -3121,7 +3121,7 @@ def test_DefaultArgument2():
     expecting = "x=99   # foo"
     result = str(b)
     logger.info("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 class Field:
@@ -3146,7 +3146,7 @@ def test_DefaultArgumentManuallySet():
     m.setAttribute("fields", Field())
     expecting = "x=parrt   # parrt"
     result = str(m)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgumentImplicitlySet():
@@ -3173,7 +3173,7 @@ def test_DefaultArgumentImplicitlySet():
     m.setAttribute("fields", Field())
     expecting = "x=parrt   # parrt"
     result = str(m)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgumentImplicitlySet2():
@@ -3189,7 +3189,7 @@ def test_DefaultArgumentImplicitlySet2():
     m.setAttribute("fields", Field())
     expecting = "x=parrt   # parrt"
     result = str(m)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgumentAsTemplate():
@@ -3207,7 +3207,7 @@ def test_DefaultArgumentAsTemplate():
     expecting = "x=foo   # foo"
     result = str(b)
     logger.debug("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgumentAsTemplate2():
@@ -3225,7 +3225,7 @@ def test_DefaultArgumentAsTemplate2():
     expecting = "x= [foo]    # foo"
     result = str(b)
     logger.debug("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DoNotUseDefaultArgument():
@@ -3241,7 +3241,7 @@ def test_DoNotUseDefaultArgument():
     b["name"] = "foo"
     expecting = "x=34   # foo"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 class Counter:
@@ -3265,7 +3265,7 @@ def test_DefaultArgumentInParensToEvalEarly():
     expecting = "0 1 2 0"
     result = str(b)
     logger.debug("result='" + result + "'")
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ArgumentsAsTemplates():
@@ -3282,7 +3282,7 @@ def test_ArgumentsAsTemplates():
     b["size"] = "34"
     expecting = "x=34;"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_TemplateArgumentEvaluatedInSurroundingContext():
@@ -3302,7 +3302,7 @@ def test_TemplateArgumentEvaluatedInSurroundingContext():
     f["m"] = m
     expecting = "x=34.0;"
     result = str(m)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ArgumentsAsTemplatesDefaultDelimiters():
@@ -3319,7 +3319,7 @@ def test_ArgumentsAsTemplatesDefaultDelimiters():
     b["size"] = "34"
     expecting = "x=34;"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_DefaultArgsWhenNotInvoked():
@@ -3331,156 +3331,7 @@ def test_DefaultArgsWhenNotInvoked():
     b = group.getInstanceOf("b")
     expecting = ".foo."
     result = str(b)
-    assert expecting == result
-
-
-class DateRenderer(AttributeRenderer):
-    def __init__(self):
-        AttributeRenderer.__init__(self)
-
-    def str(self, obj):
-        return obj.strftime("%Y.%M.%D")
-
-    def str(self, obj, format_string):
-        return obj.strftime(format_string)
-
-
-class DateRenderer2(AttributeRenderer):
-    def __init__(self):
-        AttributeRenderer.__init__(self)
-
-    def str(self, obj):
-        return obj.strftime("%M/%D/%Y")
-
-    def str(self, obj, format_string):
-        return obj.strftime(format_string)
-
-
-class DateRenderer3(AttributeRenderer):
-    def __init__(self):
-        AttributeRenderer.__init__(self)
-
-    def str(self, obj):
-        return obj.strftime("%M/%D/%Y")
-
-    def str(self, obj, format_string):
-        return str(obj)
-
-
-class StringRenderer(AttributeRenderer):
-    def __init__(self):
-        AttributeRenderer.__init__(self)
-
-    def str(self, obj):
-        return str(obj)
-
-    def str(self, obj, format_string):
-        if format_string == "upper":
-            return str(obj).upper()
-        return str(obj)
-
-
-def test_RendererForST():
-    st = St3T(
-        "date: <created>",
-        AngleBracketTemplateLexer.Lexer)
-    st.setAttribute("created", sample_day)
-    st.registerRenderer(calendar, DateRenderer())
-    expecting = "date: 2005.07.05"
-    result = str(st)
-    assert expecting == result
-
-
-def test_RendererWithFormat():
-    st = St3T(
-        "date: <created; format=\"yyyy.MM.dd\">",
-        AngleBracketTemplateLexer.Lexer)
-    st.setAttribute("created", sample_day)
-    st.registerRenderer(calendar, DateRenderer3())
-    expecting = "date: 2005.07.05"
-    result = str(st)
-    assert expecting == result
-
-
-def test_RendererWithFormatAndList():
-    st = St3T(
-        "The names: <names; format=\"upper\">",
-        AngleBracketTemplateLexer.Lexer)
-    st["names"] = "ter"
-    st["names"] = "tom"
-    st["names"] = "sriram"
-    st.registerRenderer(str, StringRenderer())
-    expecting = "The names: TERTOMSRIRAM"
-    result = str(st)
-    assert expecting == result
-
-
-def test_RendererWithFormatAndSeparator():
-    st = St3T(
-        "The names: <names; separator=\" and \", format=\"upper\">",
-        AngleBracketTemplateLexer.Lexer)
-    st["names"] = "ter"
-    st["names"] = "tom"
-    st["names"] = "sriram"
-    st.registerRenderer(str, StringRenderer())
-    expecting = "The names: TER and TOM and SRIRAM"
-    result = str(st)
-    assert expecting == result
-
-
-def test_RendererWithFormatAndSeparatorAndNull():
-    st = St3T(
-        "The names: <names; separator=\" and \", None=\"n/a\", format=\"upper\">",
-        AngleBracketTemplateLexer.Lexer)
-    names = ["ter", None, "sriram"]
-    st["names"] = names
-    st.registerRenderer(str, StringRenderer())
-    expecting = "The names: TER and N/A and SRIRAM"
-    result = str(st)
-    assert expecting == result
-
-
-def test_EmbeddedRendererSeesEnclosing():
-    """ st is embedded in outer; set renderer on outer, st should still see it. """
-    outer = St3T("X: <x>",
-                 AngleBracketTemplateLexer.Lexer)
-    st = St3T("date: <created>",
-              AngleBracketTemplateLexer.Lexer)
-    st.setAttribute("created", sample_day)
-    outer["x"] = st
-    outer.registerRenderer(calendar, DateRenderer())
-    expecting = "X: date: 2005.07.05"
-    result = str(outer)
-    assert expecting == result
-
-
-def test_RendererForGroup():
-    templates = """
-            group test;
-            dateThing(created) ::= \"date: <created>\"
-            """
-    group = St3G(io.StringIO(templates))
-    st = group.getInstanceOf("dateThing")
-    st.setAttribute("created", sample_day)
-    group.registerRenderer(calendar, DateRenderer())
-    expecting = "date: 2005.07.05"
-    result = str(st)
-    assert expecting == result
-
-
-def test_OverriddenRenderer():
-    templates = """
-            group test;
-            dateThing(created) ::= \"date: <created>\"
-            """
-    group = St3G(io.StringIO(templates))
-    st = group.getInstanceOf("dateThing")
-    st.setAttribute("created", sample_day)
-    group.registerRenderer(calendar, DateRenderer())
-    st.registerRenderer(calendar, DateRenderer2())
-    expecting = "date: 07/05/2005"
-    result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_Map():
@@ -3495,7 +3346,7 @@ def test_Map():
     st["name"] = "x"
     expecting = "int x = 0;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapValuesAreTemplates():
@@ -3511,7 +3362,7 @@ def test_MapValuesAreTemplates():
     st["name"] = "x"
     expecting = "int x = 0L;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapKeyLookupViaTemplate():
@@ -3530,7 +3381,7 @@ def test_MapKeyLookupViaTemplate():
     st["name"] = "x"
     expecting = "int x = 0L;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapMissingDefaultValueIsEmpty():
@@ -3546,7 +3397,7 @@ def test_MapMissingDefaultValueIsEmpty():
     st["name"] = "x"
     expecting = "double x = ;"  # weird, but tests default value is key
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapHiddenByFormalArg():
@@ -3561,7 +3412,7 @@ def test_MapHiddenByFormalArg():
     st["name"] = "x"
     expecting = "int x = ;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapEmptyValueAndAngleBracketStrings():
@@ -3576,7 +3427,7 @@ def test_MapEmptyValueAndAngleBracketStrings():
     st["name"] = "x"
     expecting = "float x = ;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapDefaultValue():
@@ -3591,7 +3442,7 @@ def test_MapDefaultValue():
     st["name"] = "x"
     expecting = "UserRecord x = None;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapEmptyDefaultValue():
@@ -3606,7 +3457,7 @@ def test_MapEmptyDefaultValue():
     st["name"] = "x"
     expecting = "UserRecord x = ;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapDefaultValueIsKey():
@@ -3621,7 +3472,7 @@ def test_MapDefaultValueIsKey():
     st["name"] = "x"
     expecting = "UserRecord x = UserRecord;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapDefaultStringAsKey():
@@ -3641,7 +3492,7 @@ def test_MapDefaultStringAsKey():
     st["name"] = "x"
     expecting = "default x = foo;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapDefaultIsDefaultString():
@@ -3658,7 +3509,7 @@ def test_MapDefaultIsDefaultString():
     st = group.getInstanceOf("t1")
     expecting = "default"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapViaEnclosingTemplates():
@@ -3674,7 +3525,7 @@ def test_MapViaEnclosingTemplates():
     st["name"] = "x"
     expecting = "int x = 0;"
     result = str(st)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_MapViaEnclosingTemplates2():
@@ -3692,7 +3543,7 @@ def test_MapViaEnclosingTemplates2():
     intermediate["stuff"] = var
     expecting = "int x = 0;"
     result = str(intermediate)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyGroupTemplate():
@@ -3704,7 +3555,7 @@ def test_EmptyGroupTemplate():
     a = group.getInstanceOf("foo")
     expecting = ""
     result = str(a)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingAngleBracketLexer():
@@ -3717,7 +3568,7 @@ def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingAngleBracketLexer():
     a = group.getInstanceOf("top")
     expecting = "a=, b="
     result = str(a)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingDollarLexer():
@@ -3730,7 +3581,7 @@ def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingDollarLexer():
     a = group.getInstanceOf("top")
     expecting = "a=, b="
     result = str(a)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_8BitEuroChars():
@@ -4041,7 +3892,7 @@ def test_ApplyTemplateWithSingleFormalArgs():
     e["names"] = "Tom"
     expecting = "*Ter*, *Tom* "
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ApplyTemplateWithNoFormalArgs():
@@ -4056,7 +3907,7 @@ def test_ApplyTemplateWithNoFormalArgs():
     e["names"] = "Tom"
     expecting = "*Ter*, *Tom* "
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_AnonTemplateArgs():
@@ -4243,7 +4094,7 @@ def test_ListAsTemplateArgument():
     e["phones"] = "2"
     expecting = "*Ter**Tom**1**2*"
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SingleExprTemplateArgument():
@@ -4257,7 +4108,7 @@ def test_SingleExprTemplateArgument():
     e["name"] = "Ter"
     expecting = "*Ter*"
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SingleExprTemplateArgumentInApply():
@@ -4276,7 +4127,7 @@ def test_SingleExprTemplateArgumentInApply():
     e["x"] = "ick"
     expecting = "*ick**ick*"
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SoleFormalTemplateArgumentInMultiApply():
@@ -4293,7 +4144,7 @@ def test_SoleFormalTemplateArgumentInMultiApply():
     e["names"] = "Tom"
     expecting = "*Ter*_Tom_"
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_SingleExprTemplateArgumentError():
@@ -4326,7 +4177,7 @@ def test_InvokeIndirectTemplateWithSingleFormalArgs():
     e["arg"] = "Ter"
     expecting = "_Ter_"
     result = str(e)
-    assert expecting == result
+    assert result == expecting
 
 
 def test_ParallelAttributeIteration():
@@ -4473,7 +4324,7 @@ def test_OverrideThroughConditional():
     b = subgroup.getInstanceOf("body")
     expecting = "bar"
     result = str(b)
-    assert expecting == result
+    assert result == expecting
 
 
 class NonPublicProperty:

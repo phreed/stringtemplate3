@@ -370,7 +370,7 @@ class ASTExpr(Expr):
                 argumentContext[soleArgName] = ithValue
 
     # # Return o.getPropertyName() given o and propertyName.  If o is
-    #  a stringtemplate then access it's attributes looking for propertyName
+    #  a stringtemplate then access its attributes looking for propertyName
     #  instead (don't check any of the enclosing scopes; look directly into
     #  that object).  Also try isXXX() for booleans.  Allow HashMap,
     #  Hashtable as special case (grab value for key).
@@ -410,7 +410,7 @@ class ASTExpr(Expr):
             return value
 
         # Special case: if it's a template, pull property from
-        # it's attribute table.
+        # its attribute table.
         # TODO: TJP just asked himself why we can't do inherited attr here?
         elif isinstance(o, stringtemplate3.StringTemplate):
             attributes = o.attributes
@@ -568,9 +568,9 @@ class ASTExpr(Expr):
                         if renderer is not None:
                             # you pay a penalty for applying format option to a
                             # template because the template must be written to
-                            # a temp StringWriter so it can be formatted before
+                            # a temp StringWriter, so it can be formatted before
                             # being written to the real output.
-                            buf = StringIO
+                            buf = StringIO(u'')
                             sw = this.getGroup().getStringTemplateWriter(buf)
                             o.write(sw)
                             n = out.write(renderer.toString(buf.getvalue(), self.formatString))
@@ -599,7 +599,6 @@ class ASTExpr(Expr):
                         seenPrevValue = True
                         n += self._write(this, iterValue, out)
 
-
             else:
                 renderer = this.getAttributeRenderer(o.__class__)
                 if renderer is not None:
@@ -620,7 +619,7 @@ class ASTExpr(Expr):
 
     def evaluateExpression(self, this, expr):
         """
-        A expr is normally just a string literal, but is still an AST that
+        An expr is normally just a string literal, but is still an AST that
         we must evaluate.  The expr can be any expression such as a template
         include or string cat expression etc...  Evaluate with its own writer
         so that we can convert to string and then reuse, don't want to compute
@@ -631,8 +630,8 @@ class ASTExpr(Expr):
             return None
 
         if isinstance(expr, StringTemplateAST):
-            # must evaluate, writing to a string so we can hang on to it
-            buf = StringIO()
+            # must evaluate, writing to a string, so we can hang on to it
+            buf = StringIO(u'')
 
             sw = this.group.getStringTemplateWriter(buf)
             evaluator = ActionEvaluator.Walker()
