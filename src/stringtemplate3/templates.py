@@ -1378,8 +1378,7 @@ class StringTemplate(object):
         try:
             self.write(wr)
         except IOError as io:
-            self.error("Got IOError writing to writer" + \
-                       str(wr.__class__.__name__))
+            self.error("Got IOError writing to writer" + str(wr.__class__.__name__))
 
         # reset so next toString() does not wrap; normally this is a new writer
         # each time, but just in case they override the group to reuse the

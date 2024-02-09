@@ -974,11 +974,11 @@ def test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttrib
     group = St3G("dummy", ".")
     group.defineTemplate(name="link",
                          template='<a href="$url$"><b>$title$</b></a>')
-    duh = St3T(group=group,
-               template=dedent("""aa\
-               start|$p:{$link(url="/member/view?ID="+it.ID, title=it.firstName)$ $if(it.canEdit)$canEdit$endif$}:
-               {$it$<br>\n}$|end
-               """))
+    duh_txt = dedent("""\
+start|$p:{$link(url="/member/view?ID="+it.ID, title=it.firstName)$ $if(it.canEdit)$canEdit$endif$}:
+{$it$<br>\n}$|end
+        """)
+    duh = St3T(group=group, template=duh_txt)
     duh["p"] = Connector()
     duh["p"] = Connector2()
     assert str(duh) == dedent("""\
@@ -1014,9 +1014,9 @@ def test_Recursion():
     group.defineTemplate("tree",
                          template=dedent("""\
                             <if(it.firstChild)>
-                              ( <it.text> <it.children:tree(); separator=" "> )
+                            ( <it.text> <it.children:tree(); separator=" "> )
                             <else>
-                              <it.text>
+                            <it.text>
                             <endif>
                             """))
     tree = group.getInstanceOf("tree")

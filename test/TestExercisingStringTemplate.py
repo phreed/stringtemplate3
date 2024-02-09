@@ -794,8 +794,6 @@ def test_GroupSatisfiesSingleInterface():
     assert str(errors) == ""  # there should be no errors
 
 
-
-
 def test_GroupExtendsSuperGroup():
     """ this also tests the group loader """
     errors = ErrorBuffer()
@@ -821,8 +819,6 @@ def test_GroupExtendsSuperGroup():
         st["x"] = "foo"
 
     assert str(st) == "*foo*"
-
-
 
 
 def test_GroupExtendsSuperGroupWithAngleBrackets():
@@ -962,7 +958,6 @@ def test_FormalArgumentAssignmentInApply():
     t = group.getInstanceOf("page")
     t["name"] = "Ter"
     assert str(t) == "<font face=Times><b>Ter</b></font>"
-
 
 
 def test_ExprInParens():
