@@ -132,7 +132,7 @@ class AutoIndentWriter(StringTemplateWriter):
     It may be screwed up for '\r' '\n' on PC's.
     """
 
-    def __init__(self, out):
+    def __init__(self, out, newline=None):
         StringTemplateWriter.__init__(self)
 
         # # stack of indents
@@ -143,6 +143,8 @@ class AutoIndentWriter(StringTemplateWriter):
 
         self.out = out
         self.atStartOfLine = True
+
+        self.newline_normalization = newline
 
         # # Track char position in the line (later we can think about tabs).
         #  Indexed from 0.  We want to keep charPosition <= lineWidth.
@@ -182,8 +184,8 @@ class AutoIndentWriter(StringTemplateWriter):
         Write out a string literal or attribute expression or expression
         element.
 
-        If doing line wrap, then check wrap before emitting this str.  If
-        at or beyond desired line width then emit a \n and any indentation
+        If doing line wrap, then check wrap before emitting this str.
+        If at or beyond desired line width then emit a \n and any indentation
         before spitting out this str.
         """
 
@@ -194,10 +196,15 @@ class AutoIndentWriter(StringTemplateWriter):
             n += self.writeWrapSeparator(wrap)
 
         for c in text:
+            buffer = c
             if c == '\n':
                 self.atStartOfLine = True
                 self.charPosition = -1  # set so the write below sets to 0
+                if self.newline_normalization is not None:
+                    buffer = self.newline_normalization
 
+            elif self.newline_normalization is not None and c == '\r':
+                continue
             else:
                 if self.atStartOfLine:
                     n += self.indent()
@@ -205,7 +212,7 @@ class AutoIndentWriter(StringTemplateWriter):
 
             n += 1
             try:
-                self.out.write(c)
+                self.out.write(buffer)
             except TypeError as te:
                 pass
             self.charPosition += 1

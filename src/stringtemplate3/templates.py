@@ -600,7 +600,11 @@ class StringTemplate(object):
                 aggr[property_] = value
             self.setAttribute(aggrName, aggr)
 
-    __setitem__ = setAttribute
+    def __setitem__(self, key, value):
+        if isinstance(value, tuple):
+            self.setAttribute(key, *value)
+        else:
+            self.setAttribute(key, value)
 
 
     def parseAggregateAttributeSpec(self, aggrSpec):

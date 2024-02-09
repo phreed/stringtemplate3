@@ -101,13 +101,11 @@ class Connector3:
 def test_ApplyAnonymousTemplateToArrayAndMapProperty():
     st = St3T("$x.values:{<li>$it$</li>}$")
     st.setAttribute("x", Connector3())
-    expecting = "<li>1</li><li>2</li><li>3</li>"
-    assert expecting == str(st)
+    assert str(st) == "<li>1</li><li>2</li><li>3</li>"
 
     st = St3T("$x.stuff:{<li>$it$</li>}$")
     st.setAttribute("x", Connector3())
-    expecting = "<li>1</li><li>2</li>"
-    assert expecting == str(st)
+    assert str(st) == "<li>1</li><li>2</li>"
 
 
 def test_HashMapPropertyFetch():
@@ -134,15 +132,12 @@ def test_SimpleAutoIndent():
     a["title"] = "foo"
     a["name"] = "Terence"
     a["name"] = "Frank"
-    results = str(a)
-    logger.info(results)
-    expecting = """
+    assert str(a) == """
         foo: {
             Terence
             Frank
         }
         """
-    assert results == expecting
 
 
 
@@ -460,8 +455,7 @@ def test_ParallelAttributeIterationWithMissingArgs():
     e["phones"] = "2"
     e["salaries"] = "big"
     str(e)  # generate the error
-    errorExpecting = "missing arguments in anonymous template in context [anonymous]"
-    assert errorExpecting == str(errors)
+    assert str(errors) == "missing arguments in anonymous template in context [anonymous]"
 
 
 def test_AnonTemplateOnLeftOfApply():
@@ -499,21 +493,15 @@ def test_Backslash():
 
 def test_Backslash2():
     group = St3G("test")
-
-    t = group.defineTemplate("t", "\\ ")
-
-    expecting = "\\ "
-
-    assert str(t) == expecting
+    t = group.defineTemplate("t", template="\\ ")
+    assert str(t) == "\\ "
 
 
 def test_EscapeEscape():
     group = St3G("test")
-    t = group.defineTemplate("t", "\\\\$v$")
-
+    t = group.defineTemplate("t", template="\\\\$v$")
     t["v"] = "Joe"
     logger.info(t)
-
     assert str(t) == "\\Joe"
 
 
@@ -650,20 +638,19 @@ def test_GroupTrailingSemiColon():
 
 
 def test_interfaceFileFormat():
-    groupI = dedent("""
+    groupI = dedent("""\
         interface test;
         t();
         bold(item);
         optional duh(a,b,c);
     """)
     ix = St3Gi(file=io.StringIO(groupI))
-
-    expecting = "interface test;\n"\
-                "bold(item);\n" \
-                "optional duh(a, b, c);\n" \
-                "t();\n"
-    assert str(ix) == expecting
-
+    assert str(ix) == dedent("""\
+        interface test;
+        bold(item);
+        optional duh(a, b, c);
+        t();
+        """)
 
 
 def test_DumpMapAndSet():
@@ -1021,9 +1008,9 @@ def test_CollectionAttributes():
     t["a3"] = [1.2, 1.3]
     t["a4"] = [8.7, 9.2]
     logger.info(t)
-    expecting = "123, <b>1</b><b>2</b><b>3</b>, " \
-                "<b><b>a</b></b><b><b>b</b></b><b><b>c</b></b>, xy, 1020, 1.21.3, 8.79.2"
-    assert str(t) == expecting
+    assert str(t) == "123, <b>1</b><b>2</b><b>3</b>, " \
+                     "<b><b>a</b></b><b><b>b</b></b><b><b>c</b></b>, " \
+                     "xy, 1020, 1.21.3, 8.79.2"
 
 
 def test_ParenthesizedExpression():
@@ -1163,13 +1150,9 @@ def test_StringConcatenationOnSingleValuedAttributeViaTemplateLiteral():
     group = St3G("test")
     bold = group.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
-    # a =    ST3(group, "$" Parr":bold()$")
     b = St3T(group=group, template='$bold(it={$name$ Parr})$')
-    # a["name"] = "Terence"
     b["name"] = "Terence"
-    expecting = "<b>Terence Parr</b>"
-    # assert str(a) ==  expecting
-    assert str(b) == expecting
+    assert str(b) == "<b>Terence Parr</b>"
 
 
 def test_StringConcatenationOpOnArg():
@@ -1177,11 +1160,8 @@ def test_StringConcatenationOpOnArg():
     bold = group.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
     b = St3T(group=group, template='$bold(it=name+" Parr")$')
-    # a["name"] = "Terence"
     b["name"] = "Terence"
-    expecting = "<b>Terence Parr</b>"
-    # assert str(a) == expecting
-    assert str(b) == expecting
+    assert str(b) == "<b>Terence Parr</b>"
 
 
 def test_StringConcatenationOpOnArgWithEqualsInString():
@@ -1189,13 +1169,8 @@ def test_StringConcatenationOpOnArgWithEqualsInString():
     bold = group.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
     b = St3T(group=group, template='$bold(it=name+" Parr=")$')
-    # a["name"] = "Terence"
     b["name"] = "Terence"
-    expecting = "<b>Terence Parr=</b>"
-    # assert str(a) == expecting
-    assert str(b) == expecting
-
-
+    assert str(b) == "<b>Terence Parr=</b>"
 
 
 def test_ApplyTemplateToSingleValuedAttribute():
@@ -1324,7 +1299,6 @@ def test_Escapes():
     assert str(v) == '{dog}" && ick is cool'
 
 
-
 def test_TemplateAlias():
     templates = """
             group test;
@@ -1350,6 +1324,18 @@ def test_EmptyIteratedValueGetsSeparator():
     t["names"] = "Frank"
     t["names"] = ""
     assert str(t) == "Terence,,,Tom,Frank,"
+
+
+class Decl:
+    def __init__(self, name, atype):
+        self.name = name
+        self.type = atype
+
+    def getName(self):
+        return self.name
+
+    def getType(self):
+        return self.type
 
 
 def test_ComputedPropertyName():

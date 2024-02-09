@@ -7,7 +7,7 @@ from collections import deque
 import temppathlib
 
 import stringtemplate3
-from stringtemplate3.writers import StringTemplateWriter
+from stringtemplate3.writers import StringTemplateWriter, AutoIndentWriter
 from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
 from stringtemplate3.language import (DefaultTemplateLexer,
@@ -412,9 +412,7 @@ def test_RegionRefWithImplicitDefInConditional():
     result = str(st)
     assert result == "XAyoBY"
 
-    err_result = str(errors)
-    err_expecting = "group test line 3: redefinition of template region: @a.r"
-    assert err_expecting == err_result
+    assert str(errors) == "group test line 3: redefinition of template region: @a.r"
 
 
 def test_RegionOverride():
@@ -750,7 +748,7 @@ def test_NullTemplateToMultiValuedApplication():
     except Exception as ex:
         pass
 
-    assert error == "Can't find template bold.st; context is [anonymous]; group hierarchy is [test]"
+    assert error == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
 
 
 def test_ApplyingTemplateFromDiskWithPrecompiledIF():
@@ -846,8 +844,8 @@ def test_FindTemplateInSysPath():
 def test_ApplyAnonymousTemplateToAggregateAttribute():
     """ also testing wacky spaces in aggregate spec """
     st = St3T("$items:{$it.lastName$, $it.firstName$\n}$")
-    st["items.{firstName, lastName}"] = ["Ter", "Parr"]
-    st["items.{firstName, lastName}"] = ["Tom", "Burns"]
+    st["items.{firstName, lastName}"] = ("Ter", "Parr")
+    st["items.{firstName, lastName}"] = ("Tom", "Burns")
     
     assert str(st) == dedent("""\
             Parr, Ter
@@ -904,11 +902,11 @@ def test_NestedIFTemplate():
 
 def test_IFConditionWithTemplateApplication():
     group = St3G(name="dummy", rootDir=".")
-    t = St3T(group=group,
-             template='$if(names:{$it$})$Fail!$endif$ $if(!names:{$it$})$Works!$endif$',
-             lexer="default")
-    t["names"] = [True]
-    assert str(t) == " Works!"
+    st = St3T(group=group,
+              template='$if(names:{$it$})$Fail!$endif$ $if(!names:{$it$})$Works!$endif$',
+              lexer="default")
+    st["names"] = True
+    assert str(st) == " Works!"
 
 
 class Connector:
@@ -977,7 +975,7 @@ def test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttrib
     group.defineTemplate(name="link",
                          template='<a href="$url$"><b>$title$</b></a>')
     duh = St3T(group=group,
-               template=dedent("""\
+               template=dedent("""aa\
                start|$p:{$link(url="/member/view?ID="+it.ID, title=it.firstName)$ $if(it.canEdit)$canEdit$endif$}:
                {$it$<br>\n}$|end
                """))
@@ -1005,7 +1003,7 @@ class Tree:
         if len(self.children) < 1:
             return None
 
-        return self.children.index(0)
+        return self.children[0]
 
     def getChildren(self):
         return self.children
@@ -1045,11 +1043,7 @@ def test_NestedAnonymousTemplates():
                 """))
     t["A"] = "parrt"
     
-    assert str(t) == dedent("""
-            <i>
-              <b>parrt</b>
-            </i>
-     """)
+    assert str(t) == '\n  <i>\n    <b>parrt</b>\n  </i>\n\n'
 
 
 def test_AnonymousTemplateAccessToEnclosingAttributes():
@@ -1065,11 +1059,7 @@ def test_AnonymousTemplateAccessToEnclosingAttributes():
     t["A"] = "parrt"
     t["B"] = "tombu"
     
-    assert str(t) == dedent("""
-        <i>
-          <b>parrt, tombu</b>
-        </i>
-     """)
+    assert str(t) == '\n  <i>\n    <b>parrt, tombu</b>\n  </i>\n""\n'
 
 
 def test_NestedAnonymousTemplatesAgain():
@@ -1105,7 +1095,7 @@ def test_ElseClause():
 
 
 def test_ElseIfClause():
-    e = St3T(template=dedent("""
+    e = St3T(template=dedent("""\
             $if(x)$
             foo
             $elseif(y)$
@@ -1117,9 +1107,10 @@ def test_ElseIfClause():
 
 
 def test_ElseIfClauseAngleBrackets():
-    e = St3T(template=dedent("""
+    e = St3T(template=dedent("""\
             <if(x)>foo
             <elseif(y)>bar
+            <else>baz
             <endif>
             """),
              lexer=AngleBracketTemplateLexer.Lexer)
@@ -1142,7 +1133,7 @@ def test_ElseIfClause2():
 
 
 def test_ElseIfClauseAndElse():
-    e = St3T(template=dedent("""
+    e = St3T(template=dedent("""\
             $if(x)$
             foo
             $elseif(y)$
@@ -1184,36 +1175,34 @@ def test_EmbeddedMultiLineIF():
     main = St3T(group=group, template='$sub$')
     sub = St3T(group=group,
                template=dedent("""\
-            begin
-            $if(foo)$
-            $foo$
-            $else$
-            blort
-            $endif$
-        """))
+                    begin
+                    $if(foo)$
+                    $foo$
+                    $else$
+                    blort
+                    $endif$
+                """))
     sub["foo"] = "stuff"
     main["sub"] = sub
     
     assert str(main) == dedent("""\
         begin
-        stuff
-        """)
+        stuff""")
 
     main = St3T(group=group, template='$sub$')
     sub = sub.getInstanceOf()
     main["sub"] = sub
     
-    assert str(main) == dedent("""
+    assert str(main) == dedent("""\
         begin
-        blort
-        """)
+        blort""")
 
 
 def test_SimpleIndentOfAttributeList():
     templates = dedent("""\
             group test;
             list(names) ::= <<
-              $names; separator="\n"$
+              $names; separator="\\n"$
             >>
     """)
     errors = ErrorBuffer()
@@ -1225,18 +1214,14 @@ def test_SimpleIndentOfAttributeList():
     t["names"] = "Jim"
     t["names"] = "Sriram"
     
-    assert str(t) == dedent("""\
-              Terence
-              Jim
-              Sriram
-            """)
+    assert str(t) == '  Terence\n  Jim\n  Sriram'
 
 
 def test_IndentOfMultilineAttributes():
     templates = dedent("""\
             group test;
             list(names) ::= <<
-              $names; separator="\n"$
+              $names; separator="\\n"$
             >>
     """)
     errors = ErrorBuffer()
@@ -1248,16 +1233,7 @@ def test_IndentOfMultilineAttributes():
     t["names"] = "Jim"
     t["names"] = "Sriram\nis\ncool"
     
-    assert str(t) == dedent("""
-              Terence
-              is
-              a
-              maniac
-              Jim
-              Sriram
-              is
-              cool
-              """)
+    assert str(t) == '  Terence\n  is\n  a\n  maniac\n  Jim\n  Sriram\n  is\n  cool'
 
 
 def test_IndentOfMultipleBlankLines():
@@ -1275,10 +1251,7 @@ def test_IndentOfMultipleBlankLines():
     t = group.getInstanceOf("list")
     t["names"] = "Terence\n\nis a maniac"
     
-    assert str(t) == dedent("""\
-              Terence
-              is a maniac
-            """)
+    assert str(t) == '  Terence\n\n  is a maniac'
 
 
 def test_IndentBetweenLeftJustifiedLiterals():
@@ -1286,7 +1259,7 @@ def test_IndentBetweenLeftJustifiedLiterals():
             group test;
             list(names) ::= <<
             Before:
-              $names; separator="\n"$
+              $names; separator="\\n"$
             after
             >>
             """)
@@ -1311,12 +1284,12 @@ def test_NestedIndent():
             group test;
             method(name,stats) ::= <<
             void $name$() {
-            \t$stats; separator="\n"$
+            \t$stats; separator="\\n"$
 
             >>
             ifstat(expr,stats) ::= <<
             if ($expr$) {
-              $stats; separator="\n"$
+              $stats; separator="\\n"$
             }
             >>
             assign(lhs,expr) ::= <<$lhs$=$expr$;>>
@@ -1440,12 +1413,9 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
         str(st)
 
     except IllegalArgumentException as iae:
-        error = tsh.getMsg(iae)
+        assert tsh.getMsg(iae) == "base has no super group; invalid template: super.bold"
     except Exception as ex:
-        pass
-
-    expectingError = "base has no super group; invalid template: super.bold"
-    assert expectingError == error
+        assert False
 
 
 def test_ListOfEmbeddedTemplateSeesEnclosingAttributes():
@@ -1547,8 +1517,8 @@ def test_TemplateGetPropertyGetsAttribute():
             group test;
             Cfile(funcs) ::= <<
             #include <stdio.h>
-            <funcs:{public void <it.name>(<it.args>);}; separator="\n">
-            <funcs; separator="\n">
+            <funcs:{public void <it.name>(<it.args>);}; separator="\\n">
+            <funcs; separator="\\n">
             >>
             func(name,args,body) ::= <<
             public void <name>(<args>) {<body>}
@@ -1593,21 +1563,30 @@ def test_ComplicatedIndirectTemplateApplication():
             group Java;
             
             file(variables) ::= <<
-            <variables:{ v | <v.decl:(v.format)()>}; separator="\n">
+            <variables:{ v | <v.decl:(v.format)()>}; separator="\\n">
             >>
             intdecl(decl) ::= "int <decl.name> = 0;"
             intarray(decl) ::= "int[] <decl.name> = None;"
             """)
     group = St3G(file=io.StringIO(templates))
     f = group.getInstanceOf("file")
-    f["variables.{decl, format}"] = Decl("i", "int"), "intdecl"
-    f["variables.{decl, format}"] = Decl("a", "int-array"), "intarray"
-    logger.info("f='" + f + "'")
+    f.setAttribute("variables.{decl,format}", Decl("i", "int"), "intdecl")
+    f.setAttribute("variables.{decl,format}", Decl("a", "int-array"), "intarray")
+    logger.info(f"{f=}")
     
-    assert str(f) == dedent("""
+    assert str(f) == dedent("""\
     int i = 0;
-    int[] a = None;
-    """)
+    int[] a = None;""")
+
+    group = St3G(file=io.StringIO(templates))
+    f = group.getInstanceOf("file")
+    f["variables.{decl,format}"] = (Decl("i", "int"), "intdecl")
+    f["variables.{decl,format}"] = (Decl("a", "int-array"), "intarray")
+    logger.info(f"{f=}")
+
+    assert str(f) == dedent("""\
+    int i = 0;
+    int[] a = None;""")
 
 
 def test_IndirectTemplateApplication():
@@ -1703,22 +1682,18 @@ def test_EmbeddedComments():
     assert str(st) == "boo"
 
     st = St3T(template=dedent("""\
-        $! back !$$! to back !$ // can't detect; leaves \n
+        $! back !$$! to back !$ // can't detect; leaves \\n
         $! ick
         !$boo
     """))
-
-    result = str(st)
-    assert result == dedent("""\
-        boo
-    """)
+    assert str(st) == 'boo\n'
 
 
 def test_EmbeddedCommentsAngleBracketed():
-    st = St3T("""
+    st = St3T(template=dedent("""\
             Foo <! ignore !>bar,
             AngleBracketTemplateLexer.Lexer
-            """)
+            """))
     assert str(st) == "Foo bar"
 
     st = St3T(template=dedent("""\
@@ -1743,21 +1718,15 @@ def test_EmbeddedCommentsAngleBracketed():
         !>boo"""),
               lexer=AngleBracketTemplateLexer.Lexer
               )
-    expecting = "boo"
-    result = str(st)
-    logger.info(result)
-    assert result == expecting
+    assert str(st) == "boo"
 
     st = St3T(template=dedent("""\
-        <! back !><! to back !> // can't detect; leaves \n
+        <! back !><! to back !> // can't detect; leaves \\n
         <! ick
         !>boo"""),
               lexer=AngleBracketTemplateLexer.Lexer
               )
-    expecting = """ 
-        boo"""
-    result = str(st)
-    assert result == expecting
+    assert str(st) == 'boo'
 
 
 def test_LineBreak():
@@ -1767,72 +1736,64 @@ def test_LineBreak():
     st = St3T(template=dedent("""
               Foo <\\\\>
               \t  bar"""),
-              lexer=AngleBracketTemplateLexer.Lexer )
-    # sw = StringWriter()
-    # st.write(AutoIndentWriter(sw,))
-    # result =  str(sw)
-    expecting = "Foo bar"
-    # assert  result == expecting
+              lexer=AngleBracketTemplateLexer.Lexer)
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_LineBreak2():
     """ expect \n in output
     TODO: use custom auto indent writer
+    force \n as newline
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo <\\\\>       
               \t  bar"""),
-              lexer=AngleBracketTemplateLexer.Lexer )
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo bar"
-    # assert  result == expecting
+              lexer=AngleBracketTemplateLexer.Lexer)
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_LineBreakNoWhiteSpace():
     """ expect \n in output
     TODO: use custom auto indent writer
+    force \n as newline
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo <\\\\>
             bar"""),
-              lexer=AngleBracketTemplateLexer.Lexer )
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo bar"
-    # assert  result == expecting
+              lexer=AngleBracketTemplateLexer.Lexer)
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_LineBreakDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo $\\\\$
               \t  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo bar"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_LineBreakDollar2():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo $\\\\$          
               \t  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo bar"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_LineBreakNoWhiteSpaceDollar():
@@ -1843,99 +1804,88 @@ def test_LineBreakNoWhiteSpaceDollar():
             Foo $\\\\$
             bar"""),
               lexer=DefaultTemplateLexer.Lexer)
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo bar"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo bar"
 
 
 def test_CharLiterals():
     """ expect \n in output
     TODO: use custom auto indent writer
+    force \n as newline
     """
-    st = St3T(template=dedent("""
-            Foo <\\r\n><\n><\\t> bar"""),
+    st = St3T(template=dedent("""\
+            Foo <\\r\\n> <\\n> <\\t> bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result =  str(sw);
-    expecting = "Foo \n\n\t bar"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw))
+    assert sw.getvalue() == "Foo \r\n \n \t bar"
 
-    st = St3T(template=dedent("""
-            Foo $\n$$\\t$ bar"""))
-    # sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    expecting = "Foo \n\t bar"
-    # result = str(sw)
-    # assert  result == expecting
+    st = St3T(template=dedent("""\
+            Foo $\\n$$\\t$ bar"""))
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw))
+    assert sw.getvalue() == "Foo \n\t bar"
 
-    st = St3T("Foo$\\ $bar$\n$")
-    # sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))   # force \n as newline
-    # result = str(sw);
-    # expecting ="Foo bar"
-    # assert  result == expecting
+    st = St3T(template="Foo$\\ $bar$\\n$")
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw))
+    assert sw.getvalue() == "Foo bar\n"
 
 
 def test_NewlineNormalizationInTemplateString():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo\r
-            Bar"""),
+            Bar
+            """),
               lexer=AngleBracketTemplateLexer.Lexer
               )
-    # StringWriter sw = new StringWriter()
-    # st.write(new AutoIndentWriter(sw,))
-    # result =  str(sw)
-    # expecting = "Foo\nBar"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, "\n"))
+    assert sw.getvalue() == "Foo\nbar\n"
 
 
 def test_NewlineNormalizationInTemplateStringPC():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo\r
-            Bar"""),
+            Bar
+            """),
               lexer=AngleBracketTemplateLexer.Lexer)
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,\r))   # force \r\n as newline
-    # result =  str(sw);
-    # expecting = Foo\r\nBar\r     // expect \r\n in output
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, "\r\n"))
+    assert sw.getvalue() == "Foo\r\nBar\r\n"
 
 
 def test_NewlineNormalizationInAttribute():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
             Foo\r
             <name>"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     st["name"] = "a\nb\r\nc"
-    # StringWriter sw = new StringWriter();
-    # st.write(new AutoIndentWriter(sw,))
-    # result =  str(sw)
-    # expecting = "Foo\na\nb\nc"
-    # assert  result == expecting
+    sw = io.StringIO(u'')
+    st.write(AutoIndentWriter(sw, newline="\n"))
+    assert sw.getvalue() == "Foo\na\nb\nc"
 
 
 def test_UnicodeLiterals():
-    st = St3T(template='Foo <\uFEA5\n\u00C2> bar',
+    st = St3T(template='Foo <\\uFEA5\\n\\u00C2> bar',
               lexer=AngleBracketTemplateLexer.Lexer)
-    assert str(st) == "Foo \ufea5\u00C2 bar"
+    assert str(st) == "Foo \ufea5\n\u00C2 bar"
 
-    st = St3T(template='Foo $\uFEA5\n\u00C2$ bar')
-    assert str(st) == "Foo \ufea5\u00C2 bar"
+    st = St3T(template='Foo $\\uFEA5\\n\\u00C2$ bar\n')
+    assert str(st) == "Foo \ufea5\n\u00C2 bar\n"
 
-    st = St3T("Foo$\\ $bar$\n$")
-    assert str(st) == "Foo bar"
+    st = St3T("Foo$\\ $bar$\\n$")
+    assert str(st) == "Foo bar\n"
 
 
 def test_MissingIteratedConditionalValueGetsNOSeparator():
@@ -1944,10 +1894,10 @@ def test_MissingIteratedConditionalValueGetsNOSeparator():
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$users:{$if(it.ok)$$it.name$$endif$}; separator=","$')
-    t["users.{name,ok}"] =  "Terence", True
-    t["users.{name,ok}"] =  "Tom", False
-    t["users.{name,ok}"] =  "Frank", True
-    t["users.{name,ok}"] =  "Johnny", False
+    t["users.{name,ok}"] = "Terence", True
+    t["users.{name,ok}"] = "Tom", False
+    t["users.{name,ok}"] = "Frank", True
+    t["users.{name,ok}"] = "Johnny", False
     assert str(t) == "Terence,Frank"
 
 
@@ -2097,12 +2047,12 @@ def test_SizeZeroOnLineWithIndentGetsNoOutput():
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-        template=dedent("""\
-        begin
-          $name$
-            $users:{name: $it$}$
-            $users:{name: $it$$\n$}$
-        end"""))
+             template=dedent("""\
+                        begin
+                            $name$
+                        $users:{name: $it$}$
+                        $users:{name: $it$$\\n$}$
+                    end"""))
     assert str(t) == "beginend"
 
 
@@ -2129,10 +2079,7 @@ def test_DoNotInheritAttributesThroughFormalArgs():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("method")
     b["name"] = "foo"
-    expecting = "x=y   # "
-    result = str(b)
-    logger.info("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=y   # "
 
 
 def test_ArgEvaluationContext():
@@ -2149,10 +2096,7 @@ def test_ArgEvaluationContext():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("method")
     b["name"] = "foo"
-    expecting = "x=y   # foo"
-    result = str(b)
-    logger.info("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=y   # foo"
 
 
 def test_PassThroughAttributes():
@@ -2164,10 +2108,7 @@ def test_PassThroughAttributes():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("method")
     b["name"] = "foo"
-    expecting = "x=y   # foo"
-    result = str(b)
-    logger.info("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=y   # foo"
 
 
 def test_PassThroughAttributes2():
@@ -2195,10 +2136,7 @@ def test_DefaultArgument():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("method")
     b["name"] = "foo"
-    expecting = "x=99   # foo"
-    result = str(b)
-    logger.info("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=99   # foo"
 
 
 def test_DefaultArgument2():
@@ -2209,10 +2147,7 @@ def test_DefaultArgument2():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("stat")
     b["name"] = "foo"
-    expecting = "x=99   # foo"
-    result = str(b)
-    logger.info("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=99   # foo"
 
 
 class Field:
@@ -2289,10 +2224,7 @@ def test_DefaultArgumentAsTemplate():
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "2"
-    expecting = "x=foo   # foo"
-    result = str(b)
-    logger.debug("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x=foo   # foo"
 
 
 def test_DefaultArgumentAsTemplate2():
@@ -2307,10 +2239,7 @@ def test_DefaultArgumentAsTemplate2():
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "2"
-    expecting = "x= [foo]    # foo"
-    result = str(b)
-    logger.debug("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "x= [foo]    # foo"
 
 
 def test_DoNotUseDefaultArgument():
@@ -2345,10 +2274,7 @@ def test_DefaultArgumentInParensToEvalEarly():
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("A")
     b["x"] = Counter()
-    expecting = "0 1 2 0"
-    result = str(b)
-    logger.debug("result='" + result + "'")
-    assert result == expecting
+    assert str(b) == "0 1 2 0"
 
 
 def test_ArgumentsAsTemplates():
@@ -2872,7 +2798,7 @@ def test_InvokeIndirectTemplateWithSingleFormalArgs():
 
 
 def test_ParallelAttributeIteration():
-    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
+    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2884,7 +2810,7 @@ def test_ParallelAttributeIteration():
 
 
 def test_ParallelAttributeIterationWithNullValue():
-    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
+    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2893,14 +2819,15 @@ def test_ParallelAttributeIterationWithNullValue():
     e["salaries"] = "big"
     e["salaries"] = "huge"
     e["salaries"] = "enormous"
-    expecting = """Ter@1: big
-                       Tom@: huge
-                       Sriram@3: enormous"""
-    assert str(e) == expecting
+
+    assert str(e) == dedent("""\
+        Ter@1: big
+        Tom@: huge
+        Sriram@3: enormous""")
 
 
 def test_ParallelAttributeIterationHasI():
-    e = St3T("$names,phones,salaries:{n,p,s | $i0$. $n$@$p$: $s$\n}$")
+    e = St3T("$names,phones,salaries:{n,p,s | $i0$. $n$@$p$: $s$\\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2972,7 +2899,7 @@ class NonPublicProperty:
 
 def test_IndexVar():
     group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A:{$i$. $it$}; separator="\n"$')
+    t = St3T(group=group, template='$A:{$i$. $it$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
 
@@ -2984,7 +2911,7 @@ def test_IndexVar():
 
 def test_Index0Var():
     group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A:{$i0$. $it$}; separator="\n"$')
+    t = St3T(group=group, template='$A:{$i0$. $it$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
 
@@ -2996,7 +2923,7 @@ def test_Index0Var():
 
 def test_IndexVarWithMultipleExprs():
     group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A,B:{a,b|$i$. $a$@$b$}; separator="\n"$')
+    t = St3T(group=group, template='$A,B:{a,b|$i$. $a$@$b$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
     t["B"] = "x5707"
@@ -3010,7 +2937,7 @@ def test_IndexVarWithMultipleExprs():
 
 def test_Index0VarWithMultipleExprs():
     group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A,B:{a,b|$i0$. $a$@$b$}; separator="\n"$')
+    t = St3T(group=group, template='$A,B:{a,b|$i0$. $a$@$b$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
     t["B"] = "x5707"
@@ -3044,23 +2971,21 @@ def test_NoDotsInTemplateNames():
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
                  errors=errors)
-    logger.debug(f'group: {group}')
-    expecting = "template group parse error: line 2:1: unexpected token:"
-    assert str(errors).startswith(expecting)
+    logger.debug(f'group: {group!s}')
+    assert str(errors).startswith("template group parse error: line 2:1: unexpected token:")
 
 
 def test_LineWrap():
     templates = dedent("""\
             group test;
-            array(values) ::= <<int[] a = { <values; wrap="\n", separator=","> };>>
+            array(values) ::= <<int[] a = { <values; wrap="\\n", separator=","> };>>
     """)
     group = St3G(file=io.StringIO(templates))
 
     a = group.getInstanceOf("array")
-    a.setAttribute("values",
-                   [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
-                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
-                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5])
+    a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
+                   4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
+                   3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
 
     assert a.toString(40) == dedent("""
         int[] a = { 3,9,20,2,1,4,6,32,5,6,77,888,
@@ -3073,40 +2998,36 @@ def test_LineWrap():
 def test_LineWrapWithNormalizedNewlines():
     templates = dedent("""\
             group test;
-            array(values) ::= <<int[] a = { <values; wrap="\\r\n", separator=","> };>>
+            array(values) ::= <<int[] a = { <values; wrap="\\r\\n", separator=","> };>>
     """)
     group = St3G(file=io.StringIO(templates))
 
     a = group.getInstanceOf("array")
-    a.setAttribute("values",
-                   [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
-                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
-                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5])
-    expecting = """[ 3,9,20,2,1,4,6,32,5,6,77,888,
-        2,1,6,32,5,6,77,4,9,20,2,1,4,63,9,20,2,1,
-        4,6,32,5,6,77,6,32,5,6,77,3,9,20,2,1,4,6,
-        32,5,6,77,888,1,6,32,5 ]"""
-
-    # StringWriter sw = new StringWriter();
-    # StringTemplateWriter stw = new AutoIndentWriter(sw,)   # force \n as newline
-    # stw.setLineWidth(40);
-    # a.write(stw);
-    # result =  str(sw);
-    # assert  result == expecting
+    a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
+                   4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
+                   3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
+    sw = io.StringIO(u'')
+    stw = AutoIndentWriter(sw, newline='\n')
+    stw.setLineWidth(40)
+    a.write(stw)
+    assert sw.getvalue() == dedent("""\
+            [ 3,9,20,2,1,4,6,32,5,6,77,888,
+            2,1,6,32,5,6,77,4,9,20,2,1,4,63,9,20,2,1,
+            4,6,32,5,6,77,6,32,5,6,77,3,9,20,2,1,4,6,
+            32,5,6,77,888,1,6,32,5 ]""")
 
 
 def test_LineWrapAnchored():
     template = dedent("""
             group test;
-            array(values) ::= <<int[] a = { <values; anchor, wrap="\n", separator=","> };>>
+            array(values) ::= <<int[] a = { <values; anchor, wrap="\\n", separator=","> };>>
             """)
     group = St3G(file=io.StringIO(template))
 
     a = group.getInstanceOf("array")
-    a.setAttribute("values",
-                   [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
-                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
-                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5])
+    a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
+                   4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
+                   3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
 
     assert str(a) == dedent("""[3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888,
                  2, 1, 6, 32, 5, 6, 77, 4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1,
@@ -3121,7 +3042,7 @@ def test_SubtemplatesAnchorToo():
     """)
     group = St3G(file=io.StringIO(templates))
 
-    x = St3T(group=group, template='<\n>{ <stuff; anchor, separator=",\n"> }<\n>')
+    x = St3T(group=group, template='<\\n>{ <stuff; anchor, separator=",\\n"> }<\\n>')
     x["stuff"] = "1"
     x["stuff"] = "2"
     x["stuff"] = "3"
@@ -3140,13 +3061,12 @@ def test_SubtemplatesAnchorToo():
 def test_FortranLineWrap():
     template = dedent("""
             group test;
-            func(args) ::= <<       FUNCTION line( <args; wrap="\n      c", separator=","> )>>
+            func(args) ::= <<       FUNCTION line( <args; wrap="\\n      c", separator=","> )>>
             """)
     group = St3G(file=io.StringIO(template))
 
     a = group.getInstanceOf("func")
-    a.setAttribute("args",
-                   ["a", "b", "c", "d", "e", "f"])
+    a["args"] = ["a", "b", "c", "d", "e", "f"]
 
     assert a.toString(30) == dedent("""
                FUNCTION line( a,b,c,d,
@@ -3162,9 +3082,8 @@ def test_LineWrapWithDiffAnchor():
     group = St3G(file=io.StringIO(template))
 
     a = group.getInstanceOf("array")
-    a.setAttribute("values",
-                   [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
-                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6])
+    a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
+                   4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6]
 
     assert a.toString(30) == dedent("""
         int[] a = { 1,9,2,3,9,20,2,1,4,
@@ -3179,7 +3098,7 @@ def test_LineWrapEdgeCase():
     """ lineWidth==3 implies that we can have 3 characters at most """
     template = dedent("""
             group test;
-            duh(chars) ::= <<<chars; wrap="\n"\\>>>
+            duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3196,7 +3115,7 @@ def test_LineWrapLastCharIsNewline():
     """ don't do \n if it's last element anyway """
     template = dedent("""
             group test;
-            duh(chars) ::= <<<chars; wrap="\n"\\>>>
+            duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3215,7 +3134,7 @@ def test_LineWrapCharAfterWrapIsNewline():
     People will expect a newline if it's in the data. """
     template = dedent("""
             group test;
-            duh(chars) ::= <<<chars; wrap="\n"\\>>>
+            duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3266,7 +3185,7 @@ def test_LineWrapForAnonTemplateComplicatedWrap():
     template = dedent("""
             group test;
             "top(s) ::= <<  <s>.>>"
-            str(data) ::= <<!<data:{v|[<v>]}; wrap="!+\n!">!>>
+            str(data) ::= <<!<data:{v|[<v>]}; wrap="!+\\n!">!>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3290,7 +3209,7 @@ def test_LineWrapForAnonTemplateComplicatedWrap():
 def test_IndentBeyondLineWidth():
     template = dedent("""
             group test;
-            duh(chars) ::= <<    <chars; wrap="\n"\\>>>
+            duh(chars) ::= <<    <chars; wrap="\\n"\\>>>
     """)
     group = St3G(file=io.StringIO(template))
 
@@ -3309,7 +3228,7 @@ def test_IndentBeyondLineWidth():
 def test_IndentedExpr():
     template = dedent("""
             group test;
-            duh(chars) ::= <<    <chars; wrap="\n"\\>>>
+            duh(chars) ::= <<    <chars; wrap="\\n"\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3327,7 +3246,7 @@ def test_NestedIndentedExpr():
     template = dedent("""
             group test;
             top(d) ::= <<  <d>!>>
-            duh(chars) ::= <<  <chars; wrap="\n"\\>>>
+            duh(chars) ::= <<  <chars; wrap="\\n"\\>>>
     """)
     group = St3G(file=io.StringIO(template))
 
@@ -3347,7 +3266,7 @@ def test_NestedWithIndentAndTrackStartOfExpr():
     template = dedent("""
             group test;
             top(d) ::= <<  <d>!>>
-            duh(chars) ::= <<x: <chars; anchor, wrap="\n"\\>>>
+            duh(chars) ::= <<x: <chars; anchor, wrap="\\n"\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
@@ -3367,13 +3286,12 @@ def test_LineDoesNotWrapDueToLiteral():
     """ make it wrap because of ") throws Ick { " literal """
     template = dedent("""
             group test;
-            m(args,body) ::= <<public void foo(<args; wrap="\n",separator=", ">) throws Ick { <body> }>>
+            m(args,body) ::= <<public void foo(<args; wrap="\\n",separator=", ">) throws Ick { <body> }>>
             """)
     group = St3G(file=io.StringIO(template))
 
     a = group.getInstanceOf("m")
-    a.setAttribute("args",
-                   ["a", "b", "c"])
+    a["args"] = ["a", "b", "c"]
     a["body"] = "i=3;"
     n = len("public void foo(a, b, c")
 
@@ -3386,7 +3304,7 @@ def test_SingleValueWrap():
     """ make it wrap because of ") throws Ick { " literal """
     template = dedent("""
             group test;
-            m(args,body) ::= <<{ <body; anchor, wrap="\n"> }>>
+            m(args,body) ::= <<{ <body; anchor, wrap="\\n"> }>>
             """)
 
     group = St3G(file=io.StringIO(template))
@@ -3394,33 +3312,31 @@ def test_SingleValueWrap():
 
     m["body"] = "i=3;"
 
-
-    assert m.toString(2) == dedent("""
+    assert m.toString(2) == dedent("""\
         {
         "  i=3; }"
      """)
 
 
 def test_LineWrapInNestedExpr():
-    template = dedent("""
+    template = dedent("""\
             group test;
             top(arrays) ::= <<Arrays: <arrays>done>>
-            array(values) ::= <<int[] a = { <values; anchor, wrap="\n", separator=","> };<\n\\>>>
+            array(values) ::= <<int[] a = { <values; anchor, wrap="\\n", separator=","> };<\\n\\>>>
             """)
     group = St3G(file=io.StringIO(template))
 
     top = group.getInstanceOf("top")
     a = group.getInstanceOf("array")
 
-    a.setAttribute("values",
-                   [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
-                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
-                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5])
+    a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
+                   4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
+                   3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
 
     top["arrays"] = a
     top["arrays"] = a  # add twice
 
-    assert top.toString(40) == dedent("""
+    assert top.toString(40) == dedent("""\
         Arrays: int[] a = { 3,9,20,2,1,4,6,32,5,
                             6,77,888,2,1,6,32,5,
                             6,77,4,9,20,2,1,4,63,
@@ -3432,9 +3348,8 @@ def test_LineWrapInNestedExpr():
                     2,1,6,32,5,6,77,4,9,20,2,1,4,
                     63,9,20,2,1,4,6,32,5,6,77,6,
                     32,5,6,77,3,9,20,2,1,4,6,32,
-                    5,6,77,888,1,6,32,5 }
-        done
-        """)
+                    5,6,77,888,1,6,32,5 };
+        done""")
 
 
 def test_EscapeEscapeNestedAngle():
@@ -3452,7 +3367,7 @@ def test_ListOfIntArrays():
 
     t = group.defineTemplate("t", "<data:array()>")
 
-    group.defineTemplate("array", "[<it:element(); separator=",">]")
+    group.defineTemplate("array", template='[<it:element(); separator=",">]')
     group.defineTemplate("element", "<it>")
     data = [[1, 2, 3], [10, 20, 30]]
     t["data"] = data
@@ -3508,11 +3423,12 @@ def test_NullValueInListNoNullOption():
 
 def test_NullValueInListWithTemplateApply():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", template='<data:array(); null="-1", separator=", ">')
+    t = group.defineTemplate("t",
+                             template='<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None, 0, None, 2]
     t["data"] = data
-    assert str(t) == "0, -1, 2, -1"
+    assert str(t) == "-1, 0, -1, 2"
 
 
 def test_NullValueInListWithTemplateApplyNullFirstValue():
@@ -3541,17 +3457,17 @@ def test_NullSingleValueWithTemplateApply():
 
 
 def test_ReUseOfStripResult():
-    template = dedent("""
+    template = dedent("""\
         group test;
         a(names) ::= "<b(strip(names))>"
         b(x) ::= "<x>, <x>"
         """)
 
     group = St3G(file=io.StringIO(template))
-    e = group.getInstanceOf("a")
+    a = group.getInstanceOf("a")
     names = ["Ter", None, "Tom"]
-    e["names"] = names
-    assert str(e) == "TerTom, TerTom"
+    a["names"] = names
+    assert str(a) == "TerTom, TerTom"
 
 
 def test_MapKeys():
@@ -3588,9 +3504,9 @@ def test_MapKeysWithIntegerType():
 
 def test_ArgumentContext2():
     """ t is referenced within foo and so will be evaluated in that context.
-     it can therefore see name.
+    it can therefore see name.
     Use when super.attr name is implemented
-     """
+    """
     group = St3G("test")
     main = group.defineTemplate("main", '$foo(t={Hi, $super.name$}, name="parrt")$')
     main["name"] = "tombu"
