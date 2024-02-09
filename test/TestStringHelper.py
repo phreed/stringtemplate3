@@ -40,6 +40,18 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 """
 
 
+def getMsg(ex):
+    if ex is None:
+        return "no message provided"
+    if hasattr(ex, "getMessage"):
+        return ex.getMessage()
+    if hasattr(ex, "message"):
+        return ex.message
+    if hasattr(ex, "__str__"):
+        return ex.__str__()
+    return f'{ex}'
+
+
 class ErrorBuffer(StringTemplateErrorListener):
     def __init__(self):
         self.errorOutput = io.StringIO(u'')
@@ -53,7 +65,7 @@ class ErrorBuffer(StringTemplateErrorListener):
         if self.n > 1:
             self.errorOutput.write('\n')
         if ex is not None:
-            self.errorOutput.write(ex.message + '\n')
+            self.errorOutput.write(getMsg(ex) + '\n')
         else:
             self.errorOutput.write(msg)
 
@@ -76,10 +88,6 @@ class IllegalArgumentException(Exception):
 
     def __init__(self, *args):
         super().__init__(*args)
-
-    @property
-    def message(self):
-        return self.getMessage() if hasattr(self, 'getMessage') else f'{self}'
 
 
 with open('logging_config.yml', 'rt') as cfg:

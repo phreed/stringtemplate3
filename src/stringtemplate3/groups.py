@@ -582,7 +582,7 @@ class StringTemplateGroup(object):
             enclosingTemplateName = self.getMangledRegionName(enclosingTemplate, regionName)
 
         regionST = self.defineTemplate(enclosingTemplateName, template)
-        regionST.setIsRegion(True)
+        regionST.isRegion = True
         regionST.regionDefType = a_type
         return regionST
 
@@ -628,7 +628,7 @@ class StringTemplateGroup(object):
     def isDefinedInThisGroup(self, name):
         st = self.templates.get(name, None)
         if st is not None:
-            if st.isRegion():
+            if st.isRegion:
                 # don't allow redef of @t.r() ::= "..." or <@r>...<@end>
                 if st.regionDefType == REGION_IMPLICIT:
                     return False

@@ -443,8 +443,7 @@ class ASTExpr(Expr):
                                        o.__class__.__name__ + ' instance', ae2)
                     except AttributeError as ae:
                         this.error('Class ' + o.__class__.__name__ +
-                                   ' has no such attribute: ' + propertyName +
-                                   ' in template context ' +
+                                   f' has no such attribute: {propertyName} in template context ' +
                                    this.enclosingInstanceStackString, ae)
 
             if m is not None:

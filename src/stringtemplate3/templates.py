@@ -631,8 +631,8 @@ class StringTemplate(object):
         if self.formalArguments != UNKNOWN_ARGS and \
                 not self.hasFormalArgument(name):
             # a normal call to setAttribute with unknown attribute
-            raise KeyError("no such attribute: " + name +
-                           " in template context " + self.enclosingInstanceStackString)
+            raise KeyError(f"no such attribute: {name} in template context " +
+                           self.enclosingInstanceStackString)
         if value is not None:
             attributes[name] = value
         elif isinstance(value, list) or \
@@ -650,8 +650,7 @@ class StringTemplate(object):
 
         if embedded.formalArguments != UNKNOWN_ARGS and \
                 not embedded.hasFormalArgument(name):
-            raise KeyError("template " + embedded.name +
-                           " has no such attribute: " + name + " in template context " +
+            raise KeyError(f"template {embedded.name} has no such attribute: {name} in template context " +
                            self.enclosingInstanceStackString)
         if value:
             attributes[name] = value
@@ -1128,8 +1127,7 @@ class StringTemplate(object):
         else:
             formalArg = this.lookupFormalArgument(attribute)
             if not formalArg:
-                raise KeyError('no such attribute: ' + str(attribute) +
-                               ' in template context ' +
+                raise KeyError(f'no such attribute: {attribute} in template context ' +
                                self.enclosingInstanceStackString)
 
     def checkForTrouble(self):
