@@ -3464,7 +3464,7 @@ def test_NullOptionSingleNullValue():
     """ Test None option """
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
     t = group.defineTemplate("t",
-                             template='<data; None="0">')
+                             template='<data; null="0">')
     logger.info(t)
     assert str(t) == "0"
 
@@ -3472,7 +3472,7 @@ def test_NullOptionSingleNullValue():
 def test_NullOptionHasEmptyNullValue():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
     t = group.defineTemplate("t",
-                             template='<data; None="", separator=", ">')
+                             template='<data; null="", separator=", ">')
     data = [None, 1]
     t["data"] = data
     assert str(t) == ", 1"
@@ -3480,7 +3480,7 @@ def test_NullOptionHasEmptyNullValue():
 
 def test_NullOptionSingleNullValueInList():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", template='<data; None="0">')
+    t = group.defineTemplate("t", template='<data; null="0">')
     data = [None]
     t["data"] = data
     logger.info(t)
@@ -3489,7 +3489,7 @@ def test_NullOptionSingleNullValueInList():
 
 def test_NullValueInList():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", template='<data; None="-1", separator=", ">')
+    t = group.defineTemplate("t", template='<data; null="-1", separator=", ">')
 
     data = [None, 1, None, 3, 4, None]
     t["data"] = data
@@ -3508,7 +3508,7 @@ def test_NullValueInListNoNullOption():
 
 def test_NullValueInListWithTemplateApply():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", template='<data:array(); None="-1", separator=", ">')
+    t = group.defineTemplate("t", template='<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None, 0, None, 2]
     t["data"] = data
@@ -3517,7 +3517,7 @@ def test_NullValueInListWithTemplateApply():
 
 def test_NullValueInListWithTemplateApplyNullFirstValue():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", template='<data:array(); None="-1", separator=", ">')
+    t = group.defineTemplate("t", template='<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None, 0, None, 2]
     t["data"] = data
@@ -3526,7 +3526,7 @@ def test_NullValueInListWithTemplateApplyNullFirstValue():
 
 def test_NullSingleValueInListWithTemplateApply():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", '<data:array(); None="-1", separator=", ">')
+    t = group.defineTemplate("t", '<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None]
     t["data"] = data
@@ -3535,7 +3535,7 @@ def test_NullSingleValueInListWithTemplateApply():
 
 def test_NullSingleValueWithTemplateApply():
     group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
-    t = group.defineTemplate("t", '<data:array(); None="-1", separator=", ">')
+    t = group.defineTemplate("t", '<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     assert str(t) == "-1"
 
@@ -3649,7 +3649,7 @@ def test_SuperReferenceInIfClause():
 
 def test_ListLiteralWithEmptyElements():
     """ Added  feature  for ST - 21 """
-    e = St3T('$["Ter",,"Jesse"]:{n | $i$:$n$}; separator=", ", None=""$')
+    e = St3T('$["Ter",,"Jesse"]:{n | $i$:$n$}; separator=", ", null=""$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["phones"] = "1"
