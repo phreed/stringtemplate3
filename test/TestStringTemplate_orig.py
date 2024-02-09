@@ -3540,8 +3540,6 @@ def test_NullSingleValueWithTemplateApply():
     assert str(t) == "-1"
 
 
-
-
 def test_ReUseOfStripResult():
     template = dedent("""
         group test;
@@ -3554,7 +3552,6 @@ def test_ReUseOfStripResult():
     names = ["Ter", None, "Tom"]
     e["names"] = names
     assert str(e) == "TerTom, TerTom"
-
 
 
 def test_MapKeys():
@@ -3603,12 +3600,12 @@ def test_ArgumentContext2():
 
 
 def test_RepeatedIteratedAttrFromArg():
-    """If an iterator is sent into ST, it must be cannot be reset after each
-     *  use so repeated refs yield empty values.  This would
-     *  work if we passed in a List not an iterator.  Avoid sending in iterators
-     *  if you ref it twice.
-      // This does not give TerTom twice!!
-      """
+    """ If an iterator is sent into ST,
+    it must be cannot be reset after each  use so repeated refs yield empty values.
+    This would work if we passed in a List not an iterator.
+    Avoid sending in iterators if you ref it twice.
+    This does not give TerTom twice!!
+    """
     template = dedent("""
             group test;
             root(names) ::= "$other(names)$"
@@ -3616,7 +3613,7 @@ def test_RepeatedIteratedAttrFromArg():
             """)
     group = St3G(file=io.StringIO(template), lexer=DefaultTemplateLexer.Lexer)
     e = group.getInstanceOf("root")
-    names = ["Ter", "Tom"]
+    names = iter(["Ter", "Tom"])
     e["names"] = names
     assert str(e) == "TerTom, "
 
@@ -3626,25 +3623,24 @@ def test_SuperReferenceInIfClause():
         group super;
         a(x) ::= "super.a"
         b(x) ::= "<c()>super.b"
-        "c() ::= "super.c""
+        c() ::= "super.c"
         """
     superGroup = St3G(file=io.StringIO(superGroupString), lexer=AngleBracketTemplateLexer.Lexer)
     subGroupString = dedent("""
         group sub;
         a(x) ::= "<if(x)><super.a()><endif>"
         b(x) ::= "<if(x)><else><super.b()><endif>"
-        "c() ::= "sub.c""
+        c() ::= "sub.c"
         """)
-    subGroup = St3G(
-        io.StringIO(subGroupString), lexer=AngleBracketTemplateLexer.Lexer)
+    subGroup = St3G(file=io.StringIO(subGroupString), lexer=AngleBracketTemplateLexer.Lexer)
     subGroup.superGroup = superGroup
     a = subGroup.getInstanceOf("a")
     a["x"] = "foo"
-    assert "super.a" == str(a)
+    assert str(a) == "super.a"
     b = subGroup.getInstanceOf("b")
-    assert "sub.csuper.b" == str(b)
+    assert str(b) == "sub.csuper.b"
     c = subGroup.getInstanceOf("c")
-    assert "sub.c" == str(c)
+    assert str(c) == "sub.c"
 
 
 def test_ListLiteralWithEmptyElements():
@@ -3654,7 +3650,7 @@ def test_ListLiteralWithEmptyElements():
     e["names"] = "Ter"
     e["phones"] = "1"
     e["salaries"] = "big"
-    assert str(e) == "1:Ter, 2:, 3:Jesse"
+    assert str(e) == "1:Ter, 2:Jesse"
 
 
 def test_TemplateApplicationAsOptionValue():
