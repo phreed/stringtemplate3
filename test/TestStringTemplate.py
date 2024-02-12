@@ -6,7 +6,7 @@
 # does not work as expected, if the stringtemplate3 egg is installed, because
 # that gets inserted into the path even before PYTHONPATH!
 import sys
-sys.path.insert(0, '../..')
+sys.path.insert(0, '../src')
 
 # bailout on warnings
 import warnings
@@ -22,7 +22,7 @@ import textwrap
 import antlr
 
 from stringtemplate3.test.odict import OrderedDict
-from stringtemplate3.test.brokentest import broken
+from brokentest import broken
 
 from stringtemplate3 import (
     StringTemplate, StringTemplateGroup,

@@ -7,7 +7,7 @@
 # that gets inserted into the path even before PYTHONPATH!
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../src'))
 
 import cgi
 import codecs

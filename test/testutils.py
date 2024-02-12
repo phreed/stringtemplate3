@@ -6,7 +6,7 @@
 # does not work as expected, if the stringtemplate3 egg is installed, because
 # that gets inserted into the path even before PYTHONPATH!
 import sys
-sys.path.insert(0, '../..')
+sys.path.insert(0, '../src')
 
 # Bail out on any warning
 import warnings

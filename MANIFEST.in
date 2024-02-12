@@ -1,1 +1,1 @@
-include LICENSE.txt README.txt CHANGES.txt
+include LICENSE.txt README.adoc CHANGES.adoc

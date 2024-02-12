@@ -4,75 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10628002-535b-4241-abed-9825fcf70017" name="Changes" comment="added defaultGroup property to StringTemplate">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/stringtemplate3.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CHANGES" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CHANGES.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LICENSE.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MANIFEST" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MANIFEST.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TODO" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/changelists" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/changelists.done" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/done-cl.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/list-new-cls.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/next-cl.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pylintrc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluatorTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParserTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexerTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/GroupParserTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/InterfaceParserTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParserTokenTypes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/action.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/angle.bracket.template.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/eval.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/group.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/interface.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/openfiles.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/template.g" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/TestStringTemplate.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/body.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/brokentest.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/cell.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/method.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/odict.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/page.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/row.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/table.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/test.stg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/test_utf8.stg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/expected" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page.stg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page_index.st" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testutils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/users_list.st" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/grouploaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/grouploaders.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/groups.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/groups.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ASTExpr.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ASTExpr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/CatIterator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/CatIterator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/StringTemplateAST.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/StringTemplateAST.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/templates.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/templates.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/writers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/writers.py" afterDir="false" />
+    <list default="true" id="10628002-535b-4241-abed-9825fcf70017" name="Changes" comment="received last known updates from Ben Niemann">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CHANGES" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CHANGES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGES.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MANIFEST.in" beforeDir="false" afterPath="$PROJECT_DIR$/MANIFEST.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/README.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO" beforeDir="false" afterPath="$PROJECT_DIR$/TODO" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/test/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/TestStringTemplate.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/TestStringTemplate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/body.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/body.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/brokentest.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/brokentest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/cell.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/cell.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/method.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/method.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/odict.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/odict.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/page.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/page.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/row.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/row.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/table.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/table.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/test.stg" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.stg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/test_utf8.stg" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_utf8.stg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/expected" beforeDir="false" afterPath="$PROJECT_DIR$/test/testencoding-data/expected" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page.stg" beforeDir="false" afterPath="$PROJECT_DIR$/test/testencoding-data/page.stg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page_index.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/testencoding-data/page_index.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/testencoding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/testutils.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/testutils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/test/users_list.st" beforeDir="false" afterPath="$PROJECT_DIR$/test/users_list.st" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,10 +116,10 @@
       <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\docs" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test" />
       <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3" />
       <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\src" />
       <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test\templates" />
-      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test" />
     </key>
   </component>
   <component name="RunManager" selected="Python tests.pytest for TestPortedStringTemplate.test_ArgumentContext2">
@@ -296,7 +255,7 @@
       <workItem from="1707150698623" duration="111034000" />
       <workItem from="1707506582095" duration="167000" />
       <workItem from="1707743816550" duration="4219000" />
-      <workItem from="1707748071584" duration="11952000" />
+      <workItem from="1707748071584" duration="13541000" />
     </task>
     <task id="LOCAL-00001" summary="futurize stage 2">
       <option name="closed" value="true" />
@@ -586,7 +545,23 @@
       <option name="project" value="LOCAL" />
       <updated>1707761305323</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="received last known updates from Ben Niemann">
+      <option name="closed" value="true" />
+      <created>1707769978167</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1707769978167</updated>
+    </task>
+    <task id="LOCAL-00038" summary="received last known updates from Ben Niemann">
+      <option name="closed" value="true" />
+      <created>1707770005595</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1707770005595</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -604,7 +579,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="apply standard python formatting" />
     <MESSAGE value="optimize imports" />
     <MESSAGE value="provide from for import of `antlr`" />
     <MESSAGE value="provide a develop version number&#10;remove the dependency on future" />
@@ -629,7 +603,8 @@
     <MESSAGE value="dedent can fail to do its job in some situations&#10;it may be the keyword 'start' that is causing the problem" />
     <MESSAGE value="remove all deprecated getter setters and replace them with properties" />
     <MESSAGE value="added defaultGroup property to StringTemplate" />
-    <option name="LAST_COMMIT_MESSAGE" value="added defaultGroup property to StringTemplate" />
+    <MESSAGE value="received last known updates from Ben Niemann" />
+    <option name="LAST_COMMIT_MESSAGE" value="received last known updates from Ben Niemann" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
