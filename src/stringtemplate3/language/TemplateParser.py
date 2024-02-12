@@ -119,9 +119,9 @@ class Parser(antlr.LLkParser):
                 pass
                 a = self.LT(1)
                 self.match(ACTION)
-                indent = a._indentation
+                indent = a.indentation
                 c = this.parseAction(a.getText())
-                c._indentation = indent
+                c.indentation = indent
                 this.addChunk(c)
             elif la1 and la1 in [IF]:
                 pass
@@ -134,7 +134,8 @@ class Parser(antlr.LLkParser):
                 subtemplate.name = i.getText() + "_subtemplate"
                 this.addChunk(c)
                 self.template(subtemplate)
-                if c: c.subtemplate = subtemplate
+                if c:
+                    c.subtemplate = subtemplate
                 while True:
                     if (self.LA(1) == ELSEIF):
                         pass
@@ -162,7 +163,8 @@ class Parser(antlr.LLkParser):
                     elseSubtemplate.enclosingInstance = this
                     elseSubtemplate.name = "else_subtemplate"
                     self.template(elseSubtemplate)
-                    if c: c.elseSubtemplate = elseSubtemplate
+                    if c:
+                        c.elseSubtemplate = elseSubtemplate
                 elif la1 and la1 in [ENDIF]:
                     pass
                 else:
@@ -227,7 +229,7 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rd.indentation
                     c = this.parseAction(regionST.name + "()")
-                    c._indentation = indent
+                    c.indentation = indent
                     this.addChunk(c)
 
                 else:

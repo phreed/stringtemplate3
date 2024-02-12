@@ -628,7 +628,6 @@ class Parser(antlr.LLkParser):
                 else:
                     raise antlr.NoViableAltException(self.LT(1), self.getFilename())
 
-
         except antlr.RecognitionException as ex:
             if not self.inputState.guessing:
                 self.reportError(ex)
