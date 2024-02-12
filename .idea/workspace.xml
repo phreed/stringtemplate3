@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="10628002-535b-4241-abed-9825fcf70017" name="Changes" comment="added defaultGroup property to StringTemplate">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/stringtemplate3.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CHANGES" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CHANGES.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MANIFEST" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MANIFEST.in" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TODO" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/changelists" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/changelists.done" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/done-cl.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/list-new-cls.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/next-cl.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pylintrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluatorTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParserTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexerTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/GroupParserTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/InterfaceParserTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParserTokenTypes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/action.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/angle.bracket.template.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/eval.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/group.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/interface.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/openfiles.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/language/template.g" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/TestStringTemplate.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/body.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/brokentest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/cell.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/method.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/odict.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/page.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/row.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/table.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/test.stg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/test_utf8.stg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/expected" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page.stg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding-data/page_index.st" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testencoding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/testutils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stringtemplate3/test/users_list.st" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/grouploaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/grouploaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/groups.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/groups.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ASTExpr.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ASTExpr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionEvaluator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/ActionParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/AngleBracketTemplateLexer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/CatIterator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/CatIterator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/StringTemplateAST.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/StringTemplateAST.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/language/TemplateParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/templates.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/templates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stringtemplate3/writers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/stringtemplate3/writers.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="original" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2YSK16R4AtxenSefbx52iUT92NS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.source.executor": "Run",
+    "Python tests.pytest for TestExercisingStringTemplate.test_IncomingListsAreNotModified.executor": "Run",
+    "Python tests.pytest for TestPortedStringTemplate.test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute.executor": "Run",
+    "Python tests.pytest for TestPortedStringTemplate.test_ArgumentContext2.executor": "Debug",
+    "Python tests.pytest for TestPortedStringTemplate.test_ElseIfClauseAngleBrackets.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_CannotFindInterfaceFile.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_CharLiterals.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_ComplicatedIndirectTemplateApplication.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_DumpMapAndSet.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_EscapedTemplateDelimiters.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_GroupExtendsSuperGroup.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_GroupSatisfiesSingleInterface.executor": "Debug",
+    "Python tests.pytest for TestStringTemplate_orig.test_LineWrapInNestedExpr.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_MismatchedInterfaceTemplate.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_MissingEndDelimiter.executor": "Debug",
+    "Python tests.pytest for TestStringTemplate_orig.test_MultiDirGroupLoading.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_NewlineNormalizationInAttribute.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_NewlineNormalizationInTemplateString.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_NewlineNormalizationInTemplateStringPC.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_NullTemplateApplication.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_PassThroughAttributes2.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_RepeatedIteratedAttrFromArg.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_SuperReferenceInIfClause.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_UndefinedArgumentAssignmentInApply.executor": "Debug",
+    "Python tests.pytest for TestStringTemplate_orig.test_UndefinedAttributeReference.executor": "Debug",
+    "Python tests.pytest for TestStringTemplate_orig.test_UnicodeLiterals.executor": "Run",
+    "Python tests.pytest for TestStringTemplate_orig.test_interfaceFileFormat.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.test_RendererForDate.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.test_basic_format_renderer_combined.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.test_basic_format_renderer_upper.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.test_date_renderer.executor": "Run",
+    "Python tests.pytest for TestUsingStringTemplate.test_renderer_with_format_and_list.executor": "Run",
+    "Python tests.pytest in TestExercisingStringTemplate.py.executor": "Run",
+    "Python tests.pytest in TestPortedStringTemplate.py.executor": "Run",
+    "Python tests.pytest in TestStringTemplate.py.executor": "Run",
+    "Python tests.pytest in TestStringTemplate_orig.py.executor": "Run",
+    "Python tests.pytest in TestUsingStringTemplate.py.executor": "Run",
+    "Python.antlr.executor": "Debug",
+    "Python.writers.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "v3.1-2010",
+    "last_opened_file_path": "C:/Users/feisele/PycharmProjects/stringtemplate3/test",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test" />
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\docs" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3" />
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\src" />
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test\templates" />
+      <recent name="C:\Users\feisele\PycharmProjects\stringtemplate3\test" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python tests.pytest for TestPortedStringTemplate.test_ArgumentContext2">
+    <configuration name="pytest for TestPortedStringTemplate.test_ArgumentContext2" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="stringtemplate3" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;TestPortedStringTemplate.test_ArgumentContext2&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for TestPortedStringTemplate.test_ElseIfClauseAngleBrackets" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="stringtemplate3" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;TestPortedStringTemplate.test_ElseIfClauseAngleBrackets&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestExercisingStringTemplate.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="stringtemplate3" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/TestExercisingStringTemplate.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestPortedStringTemplate.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="stringtemplate3" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/TestPortedStringTemplate.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestUsingStringTemplate.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="stringtemplate3" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test/TestUsingStringTemplate.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python tests.pytest for TestPortedStringTemplate.test_ArgumentContext2" />
+      <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestExercisingStringTemplate.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestPortedStringTemplate.py" />
+      <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestUsingStringTemplate.py" />
+      <item itemvalue="Python tests.pytest for TestPortedStringTemplate.test_ElseIfClauseAngleBrackets" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.pytest for TestPortedStringTemplate.test_ArgumentContext2" />
+        <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestPortedStringTemplate.py" />
+        <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestExercisingStringTemplate.py" />
+        <item itemvalue="Python tests.pytest in C:/Users/feisele/PycharmProjects/stringtemplate3/test/TestUsingStringTemplate.py" />
+        <item itemvalue="Python tests.pytest for TestPortedStringTemplate.test_ElseIfClauseAngleBrackets" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-5a2391486177-2887949eec09-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.13763.11" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="10628002-535b-4241-abed-9825fcf70017" name="Changes" comment="split to try to avoid cyclic dependencies" />
+      <created>1700513327263</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1700513327263</updated>
+      <workItem from="1700513328846" duration="5990000" />
+      <workItem from="1700576746430" duration="16216000" />
+      <workItem from="1702056079058" duration="8020000" />
+      <workItem from="1702080315258" duration="612000" />
+      <workItem from="1702396296967" duration="57000" />
+      <workItem from="1706724862765" duration="51896000" />
+      <workItem from="1706915382182" duration="45000" />
+      <workItem from="1707150698623" duration="111034000" />
+      <workItem from="1707506582095" duration="167000" />
+      <workItem from="1707743816550" duration="4219000" />
+      <workItem from="1707748071584" duration="11952000" />
+    </task>
+    <task id="LOCAL-00001" summary="futurize stage 2">
+      <option name="closed" value="true" />
+      <created>1700513813539</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1700513813539</updated>
+    </task>
+    <task id="LOCAL-00002" summary="futurize stage 1 antlr.py">
+      <option name="closed" value="true" />
+      <created>1700514082813</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1700514082813</updated>
+    </task>
+    <task id="LOCAL-00003" summary="futurize stage 2 antlr.py">
+      <option name="closed" value="true" />
+      <created>1700514116288</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1700514116288</updated>
+    </task>
+    <task id="LOCAL-00004" summary="cleanup antlr.py">
+      <option name="closed" value="true" />
+      <created>1700514979507</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1700514979507</updated>
+    </task>
+    <task id="LOCAL-00005" summary="correct imports&#10;&#10;removed version 2 definitions of boolean values">
+      <option name="closed" value="true" />
+      <created>1700518359892</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1700518359892</updated>
+    </task>
+    <task id="LOCAL-00006" summary="apply standard python formatting">
+      <option name="closed" value="true" />
+      <created>1700519368465</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1700519368465</updated>
+    </task>
+    <task id="LOCAL-00007" summary="optimize imports">
+      <option name="closed" value="true" />
+      <created>1700591463282</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1700591463282</updated>
+    </task>
+    <task id="LOCAL-00008" summary="provide from for import of `antlr`">
+      <option name="closed" value="true" />
+      <created>1700597419505</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1700597419505</updated>
+    </task>
+    <task id="LOCAL-00009" summary="provide a develop version number&#10;remove the dependency on future">
+      <option name="closed" value="true" />
+      <created>1700599354312</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1700599354312</updated>
+    </task>
+    <task id="LOCAL-00010" summary="provide a develop version number&#10;remove the dependency on future">
+      <option name="closed" value="true" />
+      <created>1702070446959</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1702070446959</updated>
+    </task>
+    <task id="LOCAL-00011" summary="replace `basestring` with `str`&#10;it may be that in some cases `bytes` should be used">
+      <option name="closed" value="true" />
+      <created>1702078237428</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1702078237428</updated>
+    </task>
+    <task id="LOCAL-00012" summary="recovering tests from java source">
+      <option name="closed" value="true" />
+      <created>1706746297294</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1706746297294</updated>
+    </task>
+    <task id="LOCAL-00013" summary="first pass at converting to python">
+      <option name="closed" value="true" />
+      <created>1706836386903</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1706836386903</updated>
+    </task>
+    <task id="LOCAL-00014" summary="improve formatting">
+      <option name="closed" value="true" />
+      <created>1706836580225</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1706836580225</updated>
+    </task>
+    <task id="LOCAL-00015" summary="split the tests into those which pass and those which have yet to pass">
+      <option name="closed" value="true" />
+      <created>1707242156339</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1707242156339</updated>
+    </task>
+    <task id="LOCAL-00016" summary="add documentation related to python usage">
+      <option name="closed" value="true" />
+      <created>1707251998259</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1707251998259</updated>
+    </task>
+    <task id="LOCAL-00017" summary="improved formatting documentation related to python usage">
+      <option name="closed" value="true" />
+      <created>1707254182004</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1707254182004</updated>
+    </task>
+    <task id="LOCAL-00018" summary="added the test_HelloWorld">
+      <option name="closed" value="true" />
+      <created>1707259518552</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1707259518552</updated>
+    </task>
+    <task id="LOCAL-00019" summary="added examples from documentation as tests">
+      <option name="closed" value="true" />
+      <created>1707264230070</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1707264230070</updated>
+    </task>
+    <task id="LOCAL-00020" summary="added examples from documentation as tests and specifically tested boolean logic">
+      <option name="closed" value="true" />
+      <created>1707317924735</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1707317924735</updated>
+    </task>
+    <task id="LOCAL-00021" summary="added examples from documentation as tests which work with *.stg files">
+      <option name="closed" value="true" />
+      <created>1707333411286</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1707333411286</updated>
+    </task>
+    <task id="LOCAL-00022" summary="added examples from documentation as tests which work with *.stg files">
+      <option name="closed" value="true" />
+      <created>1707334022995</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1707334022995</updated>
+    </task>
+    <task id="LOCAL-00023" summary="test custom no-indent writer&#10;added examples from documentation as tests">
+      <option name="closed" value="true" />
+      <created>1707343514471</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1707343514471</updated>
+    </task>
+    <task id="LOCAL-00024" summary="added examples from documentation as tests">
+      <option name="closed" value="true" />
+      <created>1707349511095</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1707349511095</updated>
+    </task>
+    <task id="LOCAL-00025" summary="added examples from documentation as tests">
+      <option name="closed" value="true" />
+      <created>1707418460933</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1707418460933</updated>
+    </task>
+    <task id="LOCAL-00026" summary="separate the passing tests from the failing">
+      <option name="closed" value="true" />
+      <created>1707426164334</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1707426164334</updated>
+    </task>
+    <task id="LOCAL-00027" summary="repaired PathGroupLoader to work with lists of directories rather than trying to split it based on ':' separators">
+      <option name="closed" value="true" />
+      <created>1707431527336</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1707431527336</updated>
+    </task>
+    <task id="LOCAL-00028" summary="corrected reading of unicode files">
+      <option name="closed" value="true" />
+      <created>1707435756910</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1707435756910</updated>
+    </task>
+    <task id="LOCAL-00029" summary="corrected reading of unicode files">
+      <option name="closed" value="true" />
+      <created>1707451262703</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1707451262703</updated>
+    </task>
+    <task id="LOCAL-00030" summary="handle null (not None)">
+      <option name="closed" value="true" />
+      <created>1707451401109</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1707451401109</updated>
+    </task>
+    <task id="LOCAL-00031" summary="fixed more tests">
+      <option name="closed" value="true" />
+      <created>1707451820484</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1707451820484</updated>
+    </task>
+    <task id="LOCAL-00032" summary="prefer __setitem__ notation over setter i.e. setAttribute">
+      <option name="closed" value="true" />
+      <created>1707503808245</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1707503808245</updated>
+    </task>
+    <task id="LOCAL-00033" summary="dedent can fail to do its job in some situations&#10;it may be the keyword 'start' that is causing the problem">
+      <option name="closed" value="true" />
+      <created>1707506736062</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1707506736062</updated>
+    </task>
+    <task id="LOCAL-00034" summary="remove all deprecated getter setters and replace them with properties">
+      <option name="closed" value="true" />
+      <created>1707756214827</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1707756214827</updated>
+    </task>
+    <task id="LOCAL-00035" summary="remove all deprecated getter setters and replace them with properties">
+      <option name="closed" value="true" />
+      <created>1707756711851</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1707756711851</updated>
+    </task>
+    <task id="LOCAL-00036" summary="added defaultGroup property to StringTemplate">
+      <option name="closed" value="true" />
+      <created>1707761305323</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1707761305323</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="apply standard python formatting" />
+    <MESSAGE value="optimize imports" />
+    <MESSAGE value="provide from for import of `antlr`" />
+    <MESSAGE value="provide a develop version number&#10;remove the dependency on future" />
+    <MESSAGE value="replace `basestring` with `str`&#10;it may be that in some cases `bytes` should be used" />
+    <MESSAGE value="recovering tests from java source" />
+    <MESSAGE value="first pass at converting to python" />
+    <MESSAGE value="improve formatting" />
+    <MESSAGE value="split the tests into those which pass and those which have yet to pass" />
+    <MESSAGE value="add documentation related to python usage" />
+    <MESSAGE value="improved formatting documentation related to python usage" />
+    <MESSAGE value="added the test_HelloWorld" />
+    <MESSAGE value="added examples from documentation as tests and specifically tested boolean logic" />
+    <MESSAGE value="added examples from documentation as tests which work with *.stg files" />
+    <MESSAGE value="test custom no-indent writer&#10;added examples from documentation as tests" />
+    <MESSAGE value="added examples from documentation as tests" />
+    <MESSAGE value="separate the passing tests from the failing" />
+    <MESSAGE value="repaired PathGroupLoader to work with lists of directories rather than trying to split it based on ':' separators" />
+    <MESSAGE value="corrected reading of unicode files" />
+    <MESSAGE value="handle null (not None)" />
+    <MESSAGE value="fixed more tests" />
+    <MESSAGE value="prefer __setitem__ notation over setter i.e. setAttribute" />
+    <MESSAGE value="dedent can fail to do its job in some situations&#10;it may be the keyword 'start' that is causing the problem" />
+    <MESSAGE value="remove all deprecated getter setters and replace them with properties" />
+    <MESSAGE value="added defaultGroup property to StringTemplate" />
+    <option name="LAST_COMMIT_MESSAGE" value="added defaultGroup property to StringTemplate" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/python_stubs/-744060913/builtins.py</url>
+          <line>3706</line>
+          <option name="timeStamp" value="114" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="tests">
+        <watch expression="out" />
+        <watch expression="c.indentation" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_NullTemplateApplication.coverage" NAME="pytest for TestStringTemplate_orig.test_NullTemplateApplication Coverage Results" MODIFIED="1707448658099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_in_TestUsingStringTemplate_py.coverage" NAME="pytest in TestUsingStringTemplate.py Coverage Results" MODIFIED="1707756716757" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_NewlineNormalizationInAttribute.coverage" NAME="pytest for TestStringTemplate_orig.test_NewlineNormalizationInAttribute Coverage Results" MODIFIED="1707489431400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_NewlineNormalizationInTemplateString.coverage" NAME="pytest for TestStringTemplate_orig.test_NewlineNormalizationInTemplateString Coverage Results" MODIFIED="1707489075514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_CharLiterals.coverage" NAME="pytest for TestStringTemplate_orig.test_CharLiterals Coverage Results" MODIFIED="1707487910720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_MissingEndDelimiter.coverage" NAME="pytest for TestStringTemplate_orig.test_MissingEndDelimiter Coverage Results" MODIFIED="1707446681913" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_SuperReferenceInIfClause.coverage" NAME="pytest for TestStringTemplate_orig.test_SuperReferenceInIfClause Coverage Results" MODIFIED="1707451789120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_CannotFindInterfaceFile.coverage" NAME="pytest for TestStringTemplate_orig.test_CannotFindInterfaceFile Coverage Results" MODIFIED="1707430789077" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestUsingStringTemplate_test_renderer_with_format_and_list.coverage" NAME="pytest for TestUsingStringTemplate Coverage Results" MODIFIED="1707421184409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestUsingStringTemplate_test_basic_format_renderer_combined.coverage" NAME="pytest for TestUsingStringTemplate.test_basic_format_renderer_combined Coverage Results" MODIFIED="1707416441838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestUsingStringTemplate_test_RendererForDate.coverage" NAME="pytest for TestUsingStringTemplate.test_RendererForDate Coverage Results" MODIFIED="1707417739821" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_UndefinedAttributeReference.coverage" NAME="pytest for TestStringTemplate_orig.test_UndefinedAttributeReference Coverage Results" MODIFIED="1707446091845" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_MultiDirGroupLoading.coverage" NAME="pytest for TestStringTemplate_orig.test_MultiDirGroupLoading Coverage Results" MODIFIED="1707434961067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestUsingStringTemplate_test_basic_format_renderer_upper.coverage" NAME="pytest for TestUsingStringTemplate.test_basic_format_renderer_upper Coverage Results" MODIFIED="1707415185550" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestPortedStringTemplate_test_ElseIfClauseAngleBrackets.coverage" NAME="pytest for TestPortedStringTemplate.test_ElseIfClauseAngleBrackets Coverage Results" MODIFIED="1707750293524" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$writers.coverage" NAME="writers Coverage Results" MODIFIED="1707342789091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/stringtemplate3" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_in_TestExercisingStringTemplate_py.coverage" NAME="pytest in TestExercisingStringTemplate.py Coverage Results" MODIFIED="1707756721521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestUsingStringTemplate_test_date_renderer.coverage" NAME="pytest for TestUsingStringTemplate.test_date_renderer Coverage Results" MODIFIED="1707412911437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_RepeatedIteratedAttrFromArg.coverage" NAME="pytest for TestStringTemplate_orig.test_RepeatedIteratedAttrFromArg Coverage Results" MODIFIED="1707451651953" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_ComplicatedIndirectTemplateApplication.coverage" NAME="pytest for TestStringTemplate_orig.test_ComplicatedIndirectTemplateApplication Coverage Results" MODIFIED="1707501786806" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_interfaceFileFormat.coverage" NAME="pytest for TestStringTemplate_orig.test_interfaceFileFormat Coverage Results" MODIFIED="1707426728573" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_EscapedTemplateDelimiters.coverage" NAME="pytest for TestStringTemplate_orig.test_EscapedTemplateDelimiters Coverage Results" MODIFIED="1707487140791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$antlr.coverage" NAME="antlr Coverage Results" MODIFIED="1707243036515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/stringtemplate3" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestExercisingStringTemplate_test_IncomingListsAreNotModified.coverage" NAME="pytest for TestExercisingStringTemplate.test_IncomingListsAreNotModified Coverage Results" MODIFIED="1707503246481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_PassThroughAttributes2.coverage" NAME="pytest for TestStringTemplate_orig.test_PassThroughAttributes2 Coverage Results" MODIFIED="1707440702412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute.coverage" NAME="pytest for TestStringTemplate_orig.test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute Coverage Results" MODIFIED="1707451236151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_in_TestStringTemplate_orig_py.coverage" NAME="pytest in TestPortedStringTemplate.py Coverage Results" MODIFIED="1707504167900" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_in_TestStringTemplate_py.coverage" NAME="pytest in TestStringTemplate.py Coverage Results" MODIFIED="1707319448916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_GroupExtendsSuperGroup.coverage" NAME="pytest for TestStringTemplate_orig.test_GroupExtendsSuperGroup Coverage Results" MODIFIED="1707436303232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestPortedStringTemplate_test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute.coverage" NAME="pytest for TestPortedStringTemplate.test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttribute Coverage Results" MODIFIED="1707504118243" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_MismatchedInterfaceTemplate.coverage" NAME="pytest for TestStringTemplate_orig.test_MismatchedInterfaceTemplate Coverage Results" MODIFIED="1707443906659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_DumpMapAndSet.coverage" NAME="pytest for TestStringTemplate_orig.test_DumpMapAndSet Coverage Results" MODIFIED="1707426974712" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_NewlineNormalizationInTemplateStringPC.coverage" NAME="pytest for TestStringTemplate_orig.test_NewlineNormalizationInTemplateStringPC Coverage Results" MODIFIED="1707489272600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_LineWrapInNestedExpr.coverage" NAME="pytest for TestStringTemplate_orig.test_LineWrapInNestedExpr Coverage Results" MODIFIED="1707487018263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_GroupSatisfiesSingleInterface.coverage" NAME="pytest for TestStringTemplate_orig.test_GroupSatisfiesSingleInterface Coverage Results" MODIFIED="1707435983305" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_UndefinedArgumentAssignmentInApply.coverage" NAME="pytest for TestStringTemplate_orig.test_UndefinedArgumentAssignmentInApply Coverage Results" MODIFIED="1707443577943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestPortedStringTemplate_test_ArgumentContext2.coverage" NAME="pytest for TestPortedStringTemplate.test_ArgumentContext2 Coverage Results" MODIFIED="1707760767079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_for_TestStringTemplate_orig_test_UnicodeLiterals.coverage" NAME="pytest for TestStringTemplate_orig.test_UnicodeLiterals Coverage Results" MODIFIED="1707489671377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/stringtemplate3$pytest_in_TestPortedStringTemplate_py.coverage" NAME="pytest in TestPortedStringTemplate.py Coverage Results" MODIFIED="1707759055665" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+  </component>
+</project>

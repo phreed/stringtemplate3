@@ -26,6 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import sys
 import traceback
 import imp
@@ -40,7 +41,7 @@ from stringtemplate3.language import (
     GroupLexer, GroupParser,
     )
 
-from stringtemplate3.utils import deprecated
+from stringtemplate3.utils import deprecated, decodeFile
 from stringtemplate3.errors import (
     DEFAULT_ERROR_LISTENER
     )
@@ -100,7 +101,7 @@ class StringTemplateGroup(object):
     #  then it is used as an override.
     defaultTemplateLexerClass = DefaultTemplateLexer.Lexer
         
-    def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None):
+    def __init__(self, name=None, rootDir=None, lexer=None, fileName=None, file=None, errors=None, superGroup=None):
         ## What is the group name
         #
         self.name = None
@@ -191,9 +192,13 @@ class StringTemplateGroup(object):
             self.superGroup = superGroup
 
 
+        if fileName is not None:
+            if file is None:
+                file = decodeFile(open(fileName, 'rb'), fileName)
+
         if file is not None:
             assert hasattr(file, 'read')
-            
+
             self.templatesDefinedInGroupFile = True
 
             if lexer is not None:
@@ -466,38 +471,54 @@ class StringTemplateGroup(object):
             self.lastCheckedDisk = time.time()
 
 
-    def loadTemplate(self, name, src):
-        if isinstance(src, basestring):
-            template = None
-            try:
-                br = open(src, 'r')
-                try:
-                    template = self.loadTemplate(name, br)
-                finally:
-                    br.close()
+    def _loadTemplateFromStream(self, name, stream):
+            
+        if not template:
+            self.error("no text in template '"+name+"'")
+            return None
+            
+        return template
 
-            # FIXME: eek, that's ugly
-            except Exception, e:
-                raise
-            
-            return template
-        
-        elif hasattr(src, 'readlines'):
-            buf = src.readlines()
-            
-            # strip newlines etc.. from front/back since filesystem
-            # may add newlines etc...
-            pattern = str().join(buf).strip()
-            
-            if not pattern:
-                self.error("no text in template '"+name+"'")
-                return None
-            
-            return self.defineTemplate(name, pattern)
-        
-        raise TypeError(
-            'loadTemplate should be called with a file or filename'
-            )
+
+    def loadTemplate(self, name, src):
+        stream = None
+        close_stream = False
+
+        try:
+            if isinstance(src, basestring):
+                # src is a filename
+
+                # Make sure the file exists. If it doesn't, return None,
+                # so ST keeps looking in superGroups. If it exists then
+                # subsequence errors should be treated as real errors.
+                if os.path.isfile(src):
+                    close_stream = True
+                    stream = open(src, 'r')
+                    stream = decodeFile(stream, src)
+
+            elif hasattr(src, 'read'):
+                # src is a filelike object
+                stream = decodeFile(src, '<template %r from buffer>' % name)
+
+            else:
+                raise TypeError(
+                    'loadTemplate must be called with a file or filename'
+                    )
+
+            if stream is not None:
+                # strip newlines etc.. from front/back since filesystem
+                # may add newlines etc...
+                template = stream.read().strip()
+
+                if not template:
+                    self.error("no text in template '"+name+"'")
+                    return None
+
+                return self.defineTemplate(name, template)
+
+        finally:
+            if stream is not None and close_stream:
+                stream.close()
 
 
     ## Load a template whose name is derived from the template filename.
@@ -530,7 +551,8 @@ class StringTemplateGroup(object):
 
             return template
         # load via rootDir
-        template = self.loadTemplate(name, self.rootDir + '/' + fileName)
+        template = self.loadTemplate(
+            name, os.path.join(self.rootDir, fileName))
         return template
 
     ## (def that people can override behavior; not a general
@@ -838,13 +860,29 @@ class StringTemplateGroup(object):
     def emitTemplateStartDebugString(self, st, out):
         if (self.noDebugStartStopStrings is None or
             st.name not in self.noDebugStartStopStrings ):
-            out.write("<"+st.name+">")
+            groupPrefix = ""
+            if not st.getName().startswith("if") and not st.getName().startswith("else"):
+                if st.getNativeGroup() is not None:
+                    groupPrefix = st.getNativeGroup().getName() + "."
+
+                else:
+                    groupPrefix = st.getGroup().getName() + "."
+
+            out.write("<" + groupPrefix + st.getName() + ">")
 
 
     def emitTemplateStopDebugString(self, st, out):
         if (self.noDebugStartStopStrings is None or
             st.name not in self.noDebugStartStopStrings ):
-            out.write("</"+st.name+">")
+            groupPrefix = ""
+            if not st.getName().startswith("if") and not st.getName().startswith("else"):
+                if st.getNativeGroup() is not None:
+                    groupPrefix = st.getNativeGroup().getName() + "."
+
+                else:
+                    groupPrefix = st.getGroup().getName() + "."
+
+            out.write("</" + groupPrefix + st.getName() + ">")
 
 
     def toString(self, showTemplatePatterns=True):

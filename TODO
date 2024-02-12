@@ -1,0 +1,21 @@
+- loading via sys.path
+  -> update http://www.antlr.org/wiki/display/ST/Defining+Templates
+- write docs, README, ...
+- accept any object that implements __getitem__ instead of just dict
+  -> update http://www.antlr.org/wiki/display/ST/Expressions
+- more unicode tests
+  - perhaps StringTemplate.write(file, encoding='something')
+- write examples
+- get rid of * imports
+- cleanup testsuite
+- coverage of testsuite?
+- turn ## comments into docstrings
+- formalArgs is sometimes UNKNOWN, when ST seems to expect an empty list.
+  Is this correct?
+- rename 'this' to something meaningful
+- pylint it
+- performance tests
+- build system for packining
+- add boilerplate stuff to all files
+  - __author__
+  - copyright header

@@ -1,0 +1,78 @@
+Changed from 2.x
+
+- renamed package to stringtemplate3
+- constants moved to module level:
+  StringTemplate.REGION_IMPLICIT
+  StringTemplate.REGION_EMBEDDED
+  StringTemplate.REGION_EXPLICIT
+  StringTemplate.ANONYMOUS_ST_NAME
+  StringTemplate.VERSION -> __version__
+- use keyword args:
+  StringTemplate.__init__
+  StringTemplateGroup.__init__
+- deprecated getter/setter methods, use direct attribute access
+|{{StringTemplateGroup.getSuperGroup()}}
+{{StringTemplateGroup.setSuperGroup()}}|{{StringTemplateGroup.superGroup}}|
+|{{StringTemplateGroup.getErrorListener()}}
+{{StringTemplateGroup.setErrorListener()}}|{{StringTemplateGroup.errorListener}}|
+|{{StringTemplateGroup.getName()}}
+{{StringTemplateGroup.setName()}}|{{StringTemplateGroup.name}}|
+|{{StringTemplateGroup.getRootDir()}}
+{{StringTemplateGroup.setRootDir()}}|{{StringTemplateGroup.rootDir}}|
+|{{StringTemplateGroup.getFileCharEncoding()}}
+{{StringTemplateGroup.setFileCharEncoding()}}|{{StringTemplateGroup.fileCharEncoding}}|
+|{{StringTemplateGroup.getFileCharEncoding()}}
+{{StringTemplateGroup.setRefreshInterval()}}|{{StringTemplateGroup.refreshInterval}}|
+|{{StringTemplateGroup.getTemplateLexerClass()}}|{{StringTemplateGroup.templateLexerClass}}|
+|{{StringTemplateGroup.setAttributeRenderers()}}|{{StringTemplateGroup.attributeRenderers}}|
+|{{StringTemplate.getArgumentContent()}}
+{{StringTemplate.setArgumentContent()}}|{{StringTemplate.argumentContext}}|
+|{{StringTemplate.getEnclosingInstance()}}
+{{StringTemplate.setEnclosingInstance()}}|{{StringTemplate.enclosingInstance}}|
+|{{StringTemplate.getArgumentAST()}}
+{{StringTemplate.setArgumentAST()}}|{{StringTemplate.argumentAST}}|
+|{{StringTemplate.getName()}}
+{{StringTemplate.setName()}}|{{StringTemplate.name}}|
+|{{StringTemplate.getGroup()}}
+{{StringTemplate.setGroup()}}|{{StringTemplate.group}}|
+|{{StringTemplate.getNativeGroup()}}
+{{StringTemplate.setNativeGroup()}}|{{StringTemplate.nativeGroup}}|
+|{{StringTemplate.getGroupFileLine()}}
+{{StringTemplate.setGroupFileLine()}}|{{StringTemplate.groupFileLine}}|
+|{{StringTemplate.getTemplate()}}
+{{StringTemplate.setTemplate()}}|{{StringTemplate.template}}|
+|{{StringTemplate.getErrorListener()}}
+{{StringTemplate.setErrorListener()}}|{{StringTemplate.errorListener}}|
+|{{StringTemplate.getTemplateID()}}|{{StringTemplate.templateID}}|
+|{{StringTemplate.getAttributes()}}
+{{StringTemplate.setAttributes()}}|{{StringTemplate.attributes}}|
+|{{StringTemplate.getformalArguments()}}
+{{StringTemplate.setformalArguments()}}|{{StringTemplate.formalArguments}}|
+|{{StringTemplate.setAttributeRenderers()}}|{{StringTemplate.attributeRenderers}}|
+|{{StringTemplate.getRegionDefType()}}
+{{StringTemplate.setRegionDefType()}}|{{StringTemplate.regionDefType}}|
+|{{StringTemplate.getTemplateDeclaratorString()}}|{{StringTemplate.templateDeclaratorString}}|
+|{{StringTemplate.getEnclosingInstanceStackString()}}|{{StringTemplate.enclosingInstanceStackString}}|
+|{{StringTemplate.getFormalArgumentKeys()}}|{{StringTemplate.formalArgumentKeys}}|
+|{{StringTemplate.getChunks()}}|{{StringTemplate.chunks}}|
+|{{PathGroupLoader.getFileCharEncoding()}}
+{{PathGroupLoader.setFileCharEncoding()}}|{{PathGroupLoader.fileCharEncoding}}|
+|{{StringTemplateGroupInterface.getSuperInterface()}}
+{{StringTemplateGroupInterface.setSuperInterface()}}|{{StringTemplateGroupInterface.superInterface}}|
+|{{StringTemplateGroupInterface.getName()}}
+{{StringTemplateGroupInterface.setName()}}|{{StringTemplateGroupInterface.name}}|
+|{{ASTExpr.getAST()}}|{{ASTExpr.exprTree}}|
+|{{ChunkToken.getIndention()}}
+{{ChunkToken.setIndention()}}|{{ChunkToken.indention}}|
+|{{ConditionalExpr.getSubtemplate()}}
+{{ConditionalExpr.setSubtemplate()}}|{{ConditionalExpr.subtemplate}}|
+|{{ConditionalExpr.getElseSubtemplate()}}
+{{ConditionalExpr.setElseSubtemplate()}}|{{ConditionalExpr.elseSubtemplate}}|
+|{{Expr.getEnclosingTemplate()}}|{{Expr.enclosingTemplate}}|
+|{{Expr.getIndention()}}
+{{Expr.setIndention()}}|{{Expr.indention}}|
+
+- changed API
+  StringTemplateGroup.getInstanceOf
+  StringTemplateGroup.getEmbeddedInstanceOf
+  StringTemplateGroup.lookupTemplate

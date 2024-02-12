@@ -153,6 +153,8 @@ REGION_EXPLICIT = 3
 
 ANONYMOUS_ST_NAME = "anonymous"
 
+DEFAULT_GROUP_NAME = 'defaultGroup'
+
 
 ## incremental counter for templates IDs
 templateCounter = 0
@@ -203,9 +205,6 @@ class StringTemplate(object):
         ## Enclosing instance if I'm embedded within another template.
         #  IF-subtemplates are considered embedded as well.
         self._enclosingInstance = None
-
-        ## A list of embedded templates
-        self.embeddedInstances = None
 
         ## If self template is an embedded template such as when you apply
         #  a template to an attribute, then the arguments passed to self
@@ -279,7 +278,8 @@ class StringTemplate(object):
             assert isinstance(group, StringTemplateGroup)
             self.group = group
         else:
-            self.group = StringTemplateGroup(name='defaultGroup', rootDir='.')
+            self.group = StringTemplateGroup(
+                name=DEFAULT_GROUP_NAME, rootDir='.')
 
         if lexer is not None:
             self.group.templateLexerClass = lexer
@@ -396,24 +396,17 @@ class StringTemplate(object):
                                  str(self.name) + ' in itself')
         # set the parent for this template
         self._enclosingInstance = enclosingInstance
-        # make the parent track self template as an embedded template
-        if enclosingInstance:
-            self._enclosingInstance.addEmbeddedInstance(self)
 
     enclosingInstance = property(getEnclosingInstance, setEnclosingInstance)
     getEnclosingInstance = deprecated(getEnclosingInstance)
     setEnclosingInstance = deprecated(setEnclosingInstance)
+
     
     def getOutermostEnclosingInstance(self):
         if self.enclosingInstance is not None:
             return self.enclosingInstance.getOutermostEnclosingInstance()
 
         return self
-
-    def addEmbeddedInstance(self, embeddedInstance):
-        if not self.embeddedInstances:
-            self.embeddedInstances = []
-        self.embeddedInstances.append(embeddedInstance)
 
 
     @deprecated
@@ -518,7 +511,8 @@ class StringTemplate(object):
             return
 
     def removeAttribute(self, name):
-        del self.attributes[name]
+        if self.attributes is not None:
+            del self.attributes[name]
 
     __delitem__ = removeAttribute
 
@@ -543,6 +537,9 @@ class StringTemplate(object):
             return
         if len(values) == 1:
             value = values[0]
+
+            if isinstance(value, str):
+                value = unicode(value)
 
             if value is None or name is None:
                 return
@@ -647,11 +644,11 @@ class StringTemplate(object):
             # a normal call to setAttribute with unknown attribute
             raise KeyError("no such attribute: " + name +
                " in template context " + self.enclosingInstanceStackString)
+
+        if isinstance(value, str):
+            value = unicode(value)
+
         if value is not None:
-            attributes[name] = value
-        elif isinstance(value, list) or \
-             isinstance(value, dict) or \
-             isinstance(value, set):
             attributes[name] = value
 
 
@@ -668,11 +665,11 @@ class StringTemplate(object):
             raise KeyError("template " + embedded.name +
                 " has no such attribute: " + name + " in template context " +
                 self.enclosingInstanceStackString)
-        if value:
-            attributes[name] = value
-        elif isinstance(value, list) or \
-             isinstance(value, dict) or \
-             isinstance(value, set):
+
+        if isinstance(value, str):
+            value = unicode(value)
+
+        if value is not None:
             attributes[name] = value
 
 
@@ -830,7 +827,11 @@ class StringTemplate(object):
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
+
         except Exception, e:
+            if stringtemplate3.crashOnActionParseError:
+                raise
+
             name = "<unknown>"
             outerName = self.getOutermostName()
             if self.name:
@@ -841,7 +842,7 @@ class StringTemplate(object):
 
 
     def parseAction(self, action):
-        lexer = ActionLexer.Lexer(StringIO(str(action)))
+        lexer = ActionLexer.Lexer(StringIO(action))
         parser = ActionParser.Parser(lexer, self)
         parser.setASTNodeClass(StringTemplateAST)
         lexer.setTokenObjectClass(StringTemplateToken)
@@ -855,10 +856,11 @@ class StringTemplate(object):
                 else:
                     a = ASTExpr(self, tree, options)
 
-        except antlr.RecognitionException, re:
-            self.error('Can\'t parse chunk: ' + str(action), re)
-        except antlr.TokenStreamException, tse:
-            self.error('Can\'t parse chunk: ' + str(action), tse)
+        except (antlr.RecognitionException, antlr.TokenStreamException), exc:
+            if stringtemplate3.crashOnActionParseError:
+                raise
+
+            self.error('Can\'t parse chunk: %s' % action, exc)
 
         return a
 
@@ -1438,20 +1440,17 @@ class StringTemplate(object):
 
     def toString(self, lineWidth=StringTemplateWriter.NO_WRAP):
         # Write the output to a StringIO
-        out = StringIO(u'')
+        out = StringIO(u"")
         wr = self.group.getStringTemplateWriter(out)
         wr.lineWidth = lineWidth
         try:
             self.write(wr)
-        except IOError, io:
-            self.error("Got IOError writing to writer" + \
-                       str(wr.__class__.__name__))
-            
-        # reset so next toString() does not wrap; normally this is a new writer
-        # each time, but just in case they override the group to reuse the
-        # writer.
-        wr.lineWidth = StringTemplateWriter.NO_WRAP
-        
+        finally:
+            # reset so next toString() does not wrap; normally this is a new
+            # writer each time, but just in case they override the group to
+            # reuse the writer.
+            wr.lineWidth = StringTemplateWriter.NO_WRAP
+
         return out.getvalue()
 
     __str__ = toString
