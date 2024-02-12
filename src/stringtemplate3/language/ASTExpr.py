@@ -4,7 +4,6 @@ from io import StringIO
 
 from stringtemplate3 import antlr
 
-from stringtemplate3.utils import deprecated
 from stringtemplate3.language.Expr import Expr
 from stringtemplate3.language import ActionEvaluator
 from stringtemplate3.language.StringTemplateAST import StringTemplateAST
@@ -92,13 +91,7 @@ class ASTExpr(Expr):
         "wrap": StringTemplateAST(ActionEvaluator.STRING, "\n")
     }
 
-    supportedOptions = set([
-        "anchor",
-        "format",
-        "null",
-        "separator",
-        "wrap"
-    ])
+    supportedOptions = {"anchor", "format", "null", "separator", "wrap"}
 
     def __init__(self, enclosingTemplate, exprTree, options):
         super(ASTExpr, self).__init__(enclosingTemplate)
@@ -116,7 +109,7 @@ class ASTExpr(Expr):
         #  are null, use this value instead of skipping.  For single valued
         #  attributes like <name; null="n/a"> it's a shorthand for
         #  <if(name)><name><else>n/a<endif>
-        #  For iterated values <values; null="0", separator=",">, you get 0 for
+        #  For iterated values <values; null="0", separator=",">, you get 0
         #  for null list values.  Works for template application like:
         #  <values:{v| <v>}; null="0"> also.
         self.nullValue = None
@@ -130,24 +123,24 @@ class ASTExpr(Expr):
         self.formatString = None
 
     # # Return the tree interpreted when self template is written out.
-    @deprecated
-    def getAST(self):
+    @property
+    def AST(self):
         return self.exprTree
 
     def __str__(self):
         return str(self.exprTree)
 
-    # # To write out the value of an ASTExpr, invoke the evaluator in eval.g
-    #  to walk the tree writing out the values.  For efficiency, don't
-    #  compute a bunch of strings and then pack them together.  Write out
-    #  directly.
-    #
-    #  Compute separator and wrap expressions, save as strings so we don't
-    #  recompute for each value in a multi-valued attribute or expression.
-    #
-    #  If they set anchor option, then inform the writer to push current
-    #  char position.
+    # # To
     def write(self, this, out):
+        """ write out the value of an ASTExpr,
+        invoke the evaluator in eval.g to walk the tree writing out the values.
+        For efficiency, don't compute a bunch of strings and then pack them together.
+        Write out directly.
+        Compute separator and wrap expressions, save as strings,
+        so we don't recompute for each value in a multivalued attribute or expression.
+
+        If they set anchor option, then inform the writer to push current char position.
+        """
         if not self.exprTree or not this or not out:
             return 0
         out.pushIndentation(self.indentation)
@@ -205,10 +198,10 @@ class ASTExpr(Expr):
     #             HELP ROUTINES CALLED BY EVALUATOR TREE WALKER
     # -----------------------------------------------------------------------------
 
-    # # For <names,phones:{n,p | ...}> treat the names, phones as lists
-    #  to be walked in lock step as n=names[i], p=phones[i].
-    #
     def applyTemplateToListOfAttributes(self, this, attributes, templateToApply):
+        """ For <names,phones:{n,p | ...}> treat the names, phones as lists
+        to be walked in lock step as n=names[i], p=phones[i].
+        """
         if (not attributes) or (not templateToApply):
             return None  # do not apply if missing templates or empty values
         argumentContext = None
@@ -369,13 +362,13 @@ class ASTExpr(Expr):
                 soleArgName = argNames[0]
                 argumentContext[soleArgName] = ithValue
 
-    # # Return o.getPropertyName() given o and propertyName.  If o is
-    #  a stringtemplate then access its attributes looking for propertyName
-    #  instead (don't check any of the enclosing scopes; look directly into
-    #  that object).  Also try isXXX() for booleans.  Allow HashMap,
-    #  Hashtable as special case (grab value for key).
-    #
     def getObjectProperty(self, this, o, propertyName):
+        """ Return o.getPropertyName() given o and propertyName.
+        If o is a stringtemplate then access its attributes looking for propertyName instead
+        (don't check any of the enclosing scopes; look directly into that object).
+        Also try isXXX() for booleans.
+        Allow HashMap, Hashtable as special case (grab value for key).
+        """
         if (not o) or (not propertyName):
             return None
         value = None
@@ -457,34 +450,34 @@ class ASTExpr(Expr):
 
         return value
 
-    # # Normally StringTemplate tests presence or absence of attributes
-    #  for adherence to my principles of separation, but some people
-    #  disagree and want to change.
-    #
-    #  For 2.0, if the object is a boolean, do something special. $if(boolean)$
-    #  will actually test the value.  Now, self breaks my rules of entanglement
-    #  listed in my paper, but it truly surprises programmers to have booleans
-    #  always True.  Further, the key to isolating logic in the model is avoiding
-    #  operators (for which you need attribute values).  But, no operator is
-    #  needed to use boolean values.  Well, actually I guess "!" (not) is
-    #  an operator.  Regardless, for practical reasons, I'm going to technically
-    #  violate my rules as I currently have them defined.  Perhaps for a future
-    #  version of the paper I will refine the rules.
-    #
-    #  Post 2.1, I added a check for non-null Iterators, Collections, ...
-    #  with size==0 to return false. TJP 5/1/2005
-    #
     def testAttributeTrue(self, a):
+        """ Normally StringTemplate tests presence or absence of attributes
+        for adherence to my principles of separation,
+        but some people disagree and want to change.
+
+        For 2.0, if the object is a boolean, do something special.
+        $if(boolean)$ will actually test the value.
+        Now, self breaks my rules of entanglement listed in my paper,
+        but it truly surprises programmers to have booleans always True.
+        Further, the key to isolating logic in the model is avoiding
+        operators (for which you need attribute values).
+        But, no operator is needed to use boolean values.
+        Well, actually I guess "!" (not) is an operator.
+        Regardless, for practical reasons,
+        I'm going to technically violate my rules as I currently have them defined.
+        Perhaps for a future version of the paper I will refine the rules.
+
+        Post 2.1, I added a check for non-null Iterators, Collections, ... with size==0 to return false. TJP 5/1/2005
+        """
         if not a:
             return False
         if isinstance(a, bool):
             return a
         return True
 
-    # # For now, we can only add two objects as strings; convert objects to
-    #  strings then cat.
-    #
     def add(self, a, b):
+        """ For now, we can only add two objects as strings;
+        convert objects to  strings then concatenate them."""
         # a None value means don't do cat, just return other value
         if a is None:
             return b
@@ -493,11 +486,11 @@ class ASTExpr(Expr):
 
         return str(a) + str(b)
 
-    # # Call a string template with args and return result.  Do not convert
-    #  to a string yet.  It may need attributes that will be available after
-    #  self is inserted into another template.
-    #
     def getTemplateInclude(self, enclosing, templateName, argumentsAST):
+        """ Call a string template with args and return result.
+        Do not convert to a string yet.
+        It may need attributes that will be available after
+         self is inserted into another template."""
         group = enclosing.group
         embedded = group.getEmbeddedInstanceOf(templateName, enclosing)
         if not embedded:
@@ -510,16 +503,17 @@ class ASTExpr(Expr):
         self.evaluateArguments(embedded)
         return embedded
 
-    # # How to spit out an object.  If it's not a StringTemplate nor a sequence,
-    #  just do o.toString().  If it's a StringTemplate, do o.write(out).
-    #  If it's a sequence, do a write(out, o[i]) for all elements.
-    #  Note that if you do something weird like set the values of a
-    #  multivalued tag to be sequences, it will effectively flatten it.
-    #
-    #  If this is an embedded template, you might have specified
-    #  a separator arg; used when is a sequence.
-    #
     def writeAttribute(self, this, o, out):
+        """ How to spit out an object.
+        If it's not a StringTemplate nor a sequence, just do o.toString().
+        If it's a StringTemplate, do o.write(out).
+        If it's a sequence, do a write(out, o[i]) for all elements.
+
+        Note that if you do something weird like set the values of a
+        multivalued tag to be sequences, it will effectively flatten it.
+
+        If this is an embedded template, you might have specified a separator arg;
+        used when is a sequence."""
         return self._write(this, o, out)
 
     def _write(self, this, o, out):
@@ -570,7 +564,7 @@ class ASTExpr(Expr):
                             # a temp StringWriter, so it can be formatted before
                             # being written to the real output.
                             buf = StringIO(u'')
-                            sw = this.getGroup().getStringTemplateWriter(buf)
+                            sw = this.group.getStringTemplateWriter(buf)
                             o.write(sw)
                             n = out.write(renderer.toString(buf.getvalue(), self.formatString))
                             return n
@@ -683,7 +677,7 @@ class ASTExpr(Expr):
             # evaluate the arg list like bold(item=obj).  Since we pass
             # in any existing arg context, that context gets filled with
             # new values.  With bold(item=obj), context becomes:
-            #:[obj=...],[item=...]}.
+            # :[obj=...],[item=...]}.
             ac = eval_.argList(argumentsAST, this, this.argumentContext)
             this.argumentContext = ac
 
@@ -691,10 +685,9 @@ class ASTExpr(Expr):
             this.error('can\'t evaluate tree: ' + argumentsAST.toStringList(),
                        re)
 
-    # # Return the first attribute if multiple valued or the attribute
-    #  itself if single-valued.  Used in <names:first()>
-    #
     def first(self, attribute):
+        """ Return the first attribute if multiple valued or the attribute itself if single-valued.
+         Used in <names:first()> """
         if not attribute:
             return None
         f = attribute
@@ -703,10 +696,9 @@ class ASTExpr(Expr):
             f = attribute[0]
         return f
 
-    # # Return the everything but the first attribute if multiple valued
-    #  or null if single-valued.  Used in <names:rest()>.
-    #
     def rest(self, attribute):
+        """ Return everything but the first attribute if multiple valued or null if single-valued.
+        Used in <names:rest()>."""
         if not attribute:
             return None
         theRest = attribute
@@ -727,12 +719,13 @@ class ASTExpr(Expr):
             theRest = None
         return theRest
 
-    # # Return the last attribute if multiple valued or the attribute
-    #  itself if single-valued.  Used in <names:last()>.  This is pretty
-    #  slow as it iterates until the last element.  Ultimately, I could
-    #  make a special case for a List or Vector.
+    # #
     #
     def last(self, attribute):
+        """ Return the last attribute if multiple valued or the attribute itself if single-valued.
+        Used in <names:last()>.
+        This is pretty slow as it iterates until the last element.
+        Ultimately, I could make a special case for a List or Vector."""
         if not attribute:
             return None
         l = attribute
@@ -743,7 +736,6 @@ class ASTExpr(Expr):
 
     def strip(self, attribute):
         """Return an iterator that skips all null values."""
-
         if attribute is None:
             yield None
 

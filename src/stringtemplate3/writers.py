@@ -26,7 +26,6 @@
 #
 
 from builtins import object
-from stringtemplate3.utils import deprecated
 
 
 class AttributeRenderer(object):
@@ -80,9 +79,6 @@ class StringTemplateWriter(object):
         raise NotImplementedError
 
     def popAnchorPoint(self):
-        raise NotImplementedError
-
-    def setLineWidth(self, lineWidth):
         raise NotImplementedError
 
     def write(self, a_str, wrap=None):
@@ -151,13 +147,17 @@ class AutoIndentWriter(StringTemplateWriter):
         #  This is the position we are *about* to write not the position
         #  last written to.
         self.charPosition = 0
-        self.lineWidth = self.NO_WRAP
+        self._line_width = self.NO_WRAP
 
         self.charPositionOfStartOfExpr = 0
 
-    @deprecated
-    def setLineWidth(self, lineWidth):
-        self.lineWidth = lineWidth
+    @property
+    def lineWidth(self):
+        return self._line_width
+
+    @lineWidth.setter
+    def lineWidth(self, lineWidth):
+        self._line_width = lineWidth
 
     def pushIndentation(self, indent):
         """
@@ -224,9 +224,9 @@ class AutoIndentWriter(StringTemplateWriter):
 
         # if want wrap and not already at start of line (last char was \n)
         # and we have hit or exceeded the threshold
-        if (self.lineWidth != self.NO_WRAP and
+        if (self._line_width != self.NO_WRAP and
                 not self.atStartOfLine and
-                self.charPosition >= self.lineWidth):
+                self.charPosition >= self._line_width):
             # ok to wrap
             # Walk wrap string and look for A\nB.  Spit out A\n
             # then spit indent or anchor, whichever is larger

@@ -1,7 +1,5 @@
 from stringtemplate3 import antlr
 
-from stringtemplate3.utils import deprecated
-
 
 class ChunkToken(antlr.CommonToken):
     """
@@ -13,17 +11,17 @@ class ChunkToken(antlr.CommonToken):
 
     def __init__(self, type=None, text='', indentation=''):
         antlr.CommonToken.__init__(self, type=type, text=text)
-        self.indentation = indentation
+        self._indentation = indentation
 
-    @deprecated
-    def getIndentation(self):
-        return self.indentation
+    @property
+    def indentation(self):
+        return self._indentation
 
-    @deprecated
-    def setIndentation(self, indentation):
-        self.indentation = indentation
+    @indentation.setter
+    def indentation(self, indentation):
+        self._indentation = indentation
 
     def __str__(self):
         return (antlr.CommonToken.__str__(self) +
-                " <indent='%d'>" % self.indentation
+                " <indent='%d'>" % self._indentation
                 )

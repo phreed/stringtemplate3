@@ -31,6 +31,7 @@ import sys
 import traceback
 from io import StringIO
 from copy import copy
+import logging
 
 from stringtemplate3 import antlr
 
@@ -46,9 +47,9 @@ from stringtemplate3.language import (
 from stringtemplate3.language.FormalArgument import UNKNOWN_ARGS
 
 from stringtemplate3.writers import StringTemplateWriter
-from stringtemplate3.utils import deprecated
 import stringtemplate3
 
+logger = logging.getLogger(__name__)
 
 class STAttributeList(list):
     """
@@ -78,7 +79,7 @@ class Aggregate(object):
     This example will call getName() on the objects in items attribute, but
     what if they aren't objects?  I have perhaps two parallel arrays
     instead of a single array of objects containing two fields.  One
-    solution is allow dictionaries to be handled like properties so that
+    solution is to allow dictionaries to be handled like properties so that
     it.name would fail getName() but then see that it's a dictionary and
     do it.get('name') instead.
 
@@ -221,7 +222,7 @@ class StringTemplate(object):
         #  like resolving variables in pascal-like language with nested
         #  procedures.
         #
-        #  With multi-valued attributes such as <faqList:briefFAQDisplay()>
+        #  With multivalued attributes such as <faqList:briefFAQDisplay()>
         #  attribute "i" is set to 1..n.
         self.argumentContext = None
 
@@ -232,7 +233,7 @@ class StringTemplate(object):
         #  you evaluate once before starting the application loop then it
         #  has a single fixed value.  Eval.g saves the AST rather than evaluating
         #  before invoking applyListOfAlternatingTemplates().  Each iteration
-        #  of a template application to a multi-valued attribute, these args
+        #  of a template application to a multivalued attribute, these args
         #  are re-evaluated with an initial context of:[it=...], [i=...].
         self.argumentsAST = None
 
@@ -370,8 +371,8 @@ class StringTemplate(object):
         to.group = fr.group
         to.listener = copy(fr.listener)
         to.regions = fr.regions
-        to._isRegion = fr.isRegion
-        to.regionDefTyep = fr.regionDefType
+        to.isRegion = fr.isRegion
+        to.regionDefType = fr.regionDefType
 
     def getInstanceOf(self):
         """
@@ -419,50 +420,10 @@ class StringTemplate(object):
             self.embeddedInstances = []
         self.embeddedInstances.append(embeddedInstance)
 
-    @deprecated
-    def getArgumentContext(self):
-        return self.argumentContext
-
-    @deprecated
-    def setArgumentContext(self, ac):
-        self.argumentContext = ac
-
-    @deprecated
-    def getArgumentsAST(self):
-        return self.argumentsAST
-
-    @deprecated
-    def setArgumentsAST(self, argumentsAST):
-        self.argumentsAST = argumentsAST
-
-    @deprecated
-    def getName(self):
-        return self.name
-
-    @deprecated
-    def setName(self, name):
-        self.name = name
-
     def getOutermostName(self):
         if self.enclosingInstance is not None:
             return self.enclosingInstance.getOutermostName()
         return self.name
-
-    @deprecated
-    def getGroup(self):
-        return self.group
-
-    @deprecated
-    def setGroup(self, group):
-        self.group = group
-
-    @deprecated
-    def getNativeGroup(self):
-        return self.nativeGroup
-
-    @deprecated
-    def setNativeGroup(self, group):
-        self.nativeGroup = group
 
     @property
     def groupFileLine(self):
@@ -593,7 +554,7 @@ class StringTemplate(object):
             aggr = Aggregate(self)
             for i, value in enumerate(values):
                 if isinstance(value, StringTemplate):
-                    value.setEnclosingInstance(self)
+                    value.enclosingInstance = self
                 # else:
                 #    value = AST.Expr.convertArrayToList(value)
                 property_ = properties[i]
@@ -605,7 +566,6 @@ class StringTemplate(object):
             self.setAttribute(key, *value)
         else:
             self.setAttribute(key, value)
-
 
     def parseAggregateAttributeSpec(self, aggrSpec):
         """
@@ -672,7 +632,7 @@ class StringTemplate(object):
         for all instances of self template.
         """
 
-        if self.group.debugTemplateOutput:
+        if self.group._debugTemplateOutput:
             self.group.emitTemplateStartDebugString(self, out)
 
         n = 0
@@ -700,12 +660,12 @@ class StringTemplate(object):
                         isinstance(self.chunks[i - 1], NewlineRef) and \
                         (i + 1) < len(self.chunks) and \
                         isinstance(self.chunks[i + 1], NewlineRef):
-                    # sys.stderr.write('found pure \\n blank \\n pattern\n')
+                    logger.debug('found pure \\n blank \\n pattern\n')
                     i += 1  # make it skip over the next chunk, the NEWLINE
                 n += chunkN
                 i += 1
 
-        if self.group.debugTemplateOutput:
+        if self.group._debugTemplateOutput:
             self.group.emitTemplateStopDebugString(self, out)
 
         if stringtemplate3.lintMode:
@@ -765,17 +725,14 @@ class StringTemplate(object):
         if (not o) and \
                 (not this.passThroughAttributes) and \
                 this.hasFormalArgument(attribute):
-            # if you've defined attribute as formal arg for self
-            # template and it has no value, do not look up the
-            # enclosing dynamic scopes.  This avoids potential infinite
-            # recursion.
+            # if you've defined attribute as formal arg for self template,
+            # and it has no value, do not look up the enclosing dynamic scopes.
+            # This avoids potential infinite recursion.
             return None
 
         # not locally defined, check enclosingInstance if embedded
         if (not o) and this.enclosingInstance:
-            # sys.stderr.write('looking for ' + self.getName() + '.' + \
-            #                 str(attribute) + ' in super [=' + \
-            #                 this.enclosingInstance.getName() + ']\n')
+            logger.debug(f'looking for {self.name}.{attribute} in super [={this.enclosingInstance.name}]\n')
             valueFromEnclosing = self.get(this.enclosingInstance, attribute)
             if not valueFromEnclosing:
                 self.checkNullAttributeAgainstFormalArguments(this, attribute)
@@ -799,14 +756,14 @@ class StringTemplate(object):
         chunks: Strings and actions/expressions.
         """
 
-        # sys.stderr.write('parsing template: ' + str(self.pattern) + '\n')
+        logger.debug(f'parsing template: {self.pattern}')
         if not self.pattern:
             return
         try:
             # instead of creating a specific template lexer, use
             # an instance of the class specified by the user.
             # The default is DefaultTemplateLexer.
-            # The only constraint is that you use an ANTLR lexer
+            # The only constraint is that you use an ANTLR lexer,
             # so I can use the special ChunkToken.
             lexerClass = self.group.templateLexerClass
             chunkStream = lexerClass(StringIO(self.pattern))
@@ -833,7 +790,7 @@ class StringTemplate(object):
             options = parser.action()
             tree = parser.getAST()
             if tree:
-                if tree.getType() == ActionParser.CONDITIONAL:
+                if tree.getType() == ActionParser.LITERAL_if:
                     a = ConditionalExpr(self, tree)
                 else:
                     a = ASTExpr(self, tree, options)
@@ -845,23 +802,6 @@ class StringTemplate(object):
 
         return a
 
-    @deprecated
-    def getTemplateID(self):
-        return self.templateID
-
-    @deprecated
-    def getAttributes(self):
-        return self.attributes
-
-    @deprecated
-    def setAttributes(self, attributes):
-        self.attributes = attributes
-
-    # # Get a list of the strings and subtemplates and attribute
-    #  refs in a template.
-    @deprecated
-    def getChunks(self):
-        return self.chunks
 
     def addChunk(self, e):
         if not self.chunks:
@@ -871,18 +811,6 @@ class StringTemplate(object):
     # ----------------------------------------------------------------------------
     #                      F o r m a l  A r g  S t u f f
     # ----------------------------------------------------------------------------
-
-    @deprecated
-    def getFormalArgumentKeys(self):
-        return self.formalArgumentKeys
-
-    @deprecated
-    def getFormalArguments(self):
-        return self.formalArguments
-
-    @deprecated
-    def setFormalArguments(self, args):
-        self.formalArguments = args
 
     def setDefaultArgumentValues(self):
         """
@@ -961,17 +889,6 @@ class StringTemplate(object):
                 self.formalArgumentKeys.append(name)
                 self.formalArguments[name] = a
 
-    @deprecated
-    def setPassThroughAttributes(self, passThroughAttributes):
-        """
-        Normally if you call template y from x, y cannot see any attributes
-        of x that are defined as formal parameters of y.  Setting this
-        passThroughAttributes to true, will override that and allow a
-        template to see through the formal arg list to inherited values.
-        """
-
-        self.passThroughAttributes = passThroughAttributes
-
     def registerRenderer(self, attributeClassType, renderer):
         """
         Register a renderer for all objects of a particular type.  This
@@ -1012,17 +929,15 @@ class StringTemplate(object):
         if self.errorListener is not None:
             self.errorListener.warning(msg)
         else:
-            sys.stderr.write('StringTemplate: warning: ' + msg)
+            logger.info(f'StringTemplate: warning: {msg}')
 
     def error(self, msg, e=None):
         if self.errorListener is not None:
             self.errorListener.error(msg, e)
         elif e:
-            sys.stderr.write('StringTemplate: error: ' + msg + ': ' +
-                             str(e))
-            traceback.print_exc()
+            logger.info('StringTemplate: error: {msg} ', exc_info=e)
         else:
-            sys.stderr.write('StringTemplate: error: ' + msg)
+            logger.info('StringTemplate: error:  {msg} ')
 
     def trackAttributeReference(self, name):
         """
@@ -1179,14 +1094,6 @@ class StringTemplate(object):
     def containsRegionName(self, name):
         return name in self.regions
 
-    @deprecated
-    def getRegionDefType(self):
-        return self.regionDefType
-
-    @deprecated
-    def setRegionDefType(self, regionDefType):
-        self.regionDefType = regionDefType
-
     def toDebugString(self):
         buf = StringIO(u'')
         buf.write('template-' + self.templateDeclaratorString + ': ')
@@ -1327,7 +1234,7 @@ class StringTemplate(object):
                 templateInclude = t.getFirstChild().getText()
                 # System.out.println("found include "+templateInclude);
                 self.putToMultiValuedMap(edges, srcNode, templateInclude)
-                group = self.getGroup()
+                group = self.group
                 if group is not None:
                     st = group.getInstanceOf(templateInclude)
                     # descend into the reference template
@@ -1374,7 +1281,7 @@ class StringTemplate(object):
         # Write the output to a StringIO
         out = StringIO(u'')
         wr = self.group.getStringTemplateWriter(out)
-        wr.lineWidth = lineWidth
+        wr._line_width = lineWidth
         try:
             self.write(wr)
         except IOError as io:
@@ -1383,7 +1290,7 @@ class StringTemplate(object):
         # reset so next toString() does not wrap; normally this is a new writer
         # each time, but just in case they override the group to reuse the
         # writer.
-        wr.lineWidth = StringTemplateWriter.NO_WRAP
+        wr._line_width = StringTemplateWriter.NO_WRAP
 
         return out.getvalue()
 

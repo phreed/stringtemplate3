@@ -694,6 +694,7 @@ def test_MissingEndDelimiter():
     group.errorListener = errors
     st = St3T(group=group, template='stuff $a then more junk etc...')
     logger.info(f"template: {st}")
+    logger.info(f"errors: {errors}")
     assert str(errors).startswith("problem parsing template 'anonymous': line 1:31: expecting '$', found '<EOF>'")
 
 
@@ -1114,7 +1115,10 @@ def test_ElseIfClauseAngleBrackets():
             <endif>
             """),
              lexer=AngleBracketTemplateLexer.Lexer)
-    e["y"] = "yep"
+    e["x"] = "yep"
+    out = io.StringIO(u'')
+    e.printDebugString(out)
+    logger.info(out.getvalue())
     assert str(e) == "bar"
 
 
@@ -1172,6 +1176,7 @@ def test_NestedIF():
 
 def test_EmbeddedMultiLineIF():
     group = St3G("test")
+    group.emitDebugStartStopStrings(True)
     main = St3T(group=group, template='$sub$')
     sub = St3T(group=group,
                template=dedent("""\
@@ -1275,7 +1280,7 @@ def test_IndentBetweenLeftJustifiedLiterals():
               Terence
               Jim
               Sriram
-            after
+            after\
             """)
 
 
@@ -1285,7 +1290,7 @@ def test_NestedIndent():
             method(name,stats) ::= <<
             void $name$() {
             \t$stats; separator="\\n"$
-
+            }
             >>
             ifstat(expr,stats) ::= <<
             if ($expr$) {
@@ -1321,7 +1326,7 @@ def test_NestedIndent():
             \t  y=x+y;
             \t  z=4;
             \t}
-            "}"
+            }\
             """)
 
 
@@ -1351,7 +1356,7 @@ class AlternateWriter(StringTemplateWriter):
         """
         if wrap is None:
             self.buf.write(a_str)
-            return a_str.length()
+            len(a_str)
         return 0
 
     def writeWrapSeparator(self, wrap):
@@ -1371,7 +1376,7 @@ def test_AlternativeWriter():
     assert  str(name) == "<b>Terence</b>"
 
 
-def test_ApplyAnonymousTemplateToMapAndSet():
+def test_ApplyAnonymousTemplateToMapAndSet0():
     st = St3T("$items:{<li>$it$</li>}$")
     m = dict()
     m["a"] = "1"
@@ -1380,14 +1385,16 @@ def test_ApplyAnonymousTemplateToMapAndSet():
     st["items"] = m
     assert str(st) == "<li>1</li><li>2</li><li>3</li>"
 
-    st = st.getInstanceOf()
-    s = {"1", "2", "3"}
-    st["items"] = s
+
+def test_ApplyAnonymousTemplateToMapAndSet1():
+    st = St3T("$items:{<li>$it$</li>}$")
+    m = {"a", "b", "c"}
+    st["items"] = m
     split = str(st).split("(</?li>){1,2}")
     assert "" == split[0]
-    assert "1" == split[1]
-    assert "2" == split[2]
-    assert "3" == split[3]
+    assert "a" == split[1]
+    assert "b" == split[2]
+    assert "c" == split[3]
 
 
 def test_LazyEvalOfSuperInApplySuperTemplateRef():
@@ -1423,7 +1430,7 @@ def test_ListOfEmbeddedTemplateSeesEnclosingAttributes():
             group test;
             output(cond,items) ::= <<page: $items$>>
             my_body() ::= <<$font()$stuff>>
-            "font() ::= <<$if(cond)$this$else$that$endif$>>"
+            font() ::= <<$if(cond)$this$else$that$endif$>>
             """)
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer, errors=errors)
@@ -1501,7 +1508,7 @@ def test_ImmediateTemplateAsAttributeLoop():
     """ the stats value from above since it's a formal arg. """
     templates = dedent("""\
             group test;
-            "block(stats) ::= "{<stats>}""
+            block(stats) ::= "{<stats>}"
             """)
     group = St3G(file=io.StringIO(templates))
     b = group.getInstanceOf("block")
@@ -1655,9 +1662,7 @@ def test_NullIndirectTemplate():
 
 
 def test_EmbeddedComments():
-    st = St3T(template=dedent("""\
-            Foo $! ignore !$bar
-            """))
+    st = St3T("Foo $! ignore !$bar")
     assert str(st) == "Foo bar"
 
     st = St3T(template=dedent("""\
@@ -1690,10 +1695,8 @@ def test_EmbeddedComments():
 
 
 def test_EmbeddedCommentsAngleBracketed():
-    st = St3T(template=dedent("""\
-            Foo <! ignore !>bar,
-            AngleBracketTemplateLexer.Lexer
-            """))
+    st = St3T(template="Foo <! ignore !>bar",
+              lexer=AngleBracketTemplateLexer.Lexer)
     assert str(st) == "Foo bar"
 
     st = St3T(template=dedent("""\

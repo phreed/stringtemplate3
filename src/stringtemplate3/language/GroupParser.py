@@ -100,7 +100,7 @@ class Parser(antlr.LLkParser):
             self.match(LITERAL_group)
             name = self.LT(1)
             self.match(ID)
-            g.name = name.getText()
+            g._name = name.getText()
             la1 = self.LA(1)
             if False:
                 pass

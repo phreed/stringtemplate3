@@ -30,14 +30,12 @@ from builtins import object
 from io import StringIO
 import logging
 
-logger = logging.getLogger(__name__)
-
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser
 )
 
-from stringtemplate3.utils import deprecated
 from stringtemplate3.errors import DEFAULT_ERROR_LISTENER
+logger = logging.getLogger(__name__)
 
 
 class TemplateDefinition(object):
@@ -63,14 +61,14 @@ class StringTemplateGroupInterface(object):
         """Create an interface from the input stream"""
 
         # # What is the group name
-        self.name = None
+        self._name = None
 
         # # Maps template name to TemplateDefinition object
         self.templates = {}
 
         # # Are we derived from another group?  Templates not found in this
         # group will be searched for in the superGroup recursively.
-        self.superInterface = superInterface
+        self._super_interface = superInterface
 
         # # Where to report errors.  All string templates in this group
         #  use this error handler by default.
@@ -81,13 +79,13 @@ class StringTemplateGroupInterface(object):
 
         self.parseInterface(file)
 
-    @deprecated
-    def getSuperInterface(self):
-        return self.superInterface
+    @property
+    def superInterface(self):
+        return self._super_interface
 
-    @deprecated
-    def setSuperInterface(self, superInterface):
-        self.superInterface = superInterface
+    @superInterface.setter
+    def superInterface(self, superInterface):
+        self._super_interface = superInterface
 
     def parseInterface(self, r):
         try:
@@ -96,7 +94,7 @@ class StringTemplateGroupInterface(object):
             parser.groupInterface(self)
 
         except RuntimeError as rtex:
-            name = self.name or "<unknown>"
+            name = self._name or "<unknown>"
             self.error("problem parsing group " + name + ": " + str(rtex), rtex)
         except TypeError as tex:
             logger.exception("problem parsing", tex)
@@ -145,7 +143,7 @@ class StringTemplateGroupInterface(object):
 
                 if not ack:
                     for argName in list(formalArgs.keys()):
-                        if d.formalArgs.get(argName, None) == None:
+                        if d.formalArgs.get(argName, None) is None:
                             ack = True
                             break
 
@@ -154,13 +152,13 @@ class StringTemplateGroupInterface(object):
 
         return mismatched or None
 
-    @deprecated
-    def getName(self):
-        return self.name
+    @property
+    def name(self):
+        return self._name
 
-    @deprecated
-    def setName(self, name):
-        self.name = name
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     def error(self, msg, exc=None):
         if self.listener is not None:
@@ -169,7 +167,7 @@ class StringTemplateGroupInterface(object):
     def toString(self):
         buf = StringIO(u'')
         buf.write("interface ")
-        buf.write(self.name)
+        buf.write(self._name)
         buf.write(";\n")
         templates = list(self.templates.items())
         templates.sort()

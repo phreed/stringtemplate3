@@ -119,9 +119,9 @@ class Parser(antlr.LLkParser):
                 pass
                 a = self.LT(1)
                 self.match(ACTION)
-                indent = a.indentation
+                indent = a._indentation
                 c = this.parseAction(a.getText())
-                c.indentation = indent
+                c._indentation = indent
                 this.addChunk(c)
             elif la1 and la1 in [IF]:
                 pass
@@ -227,14 +227,13 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rd.indentation
                     c = this.parseAction(regionST.name + "()")
-                    c.indentation = indent
+                    c._indentation = indent
                     this.addChunk(c)
 
                 else:
                     this.error("embedded region definition screwed up")
             else:
                 raise antlr.NoViableAltException(self.LT(1), self.getFilename())
-
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)

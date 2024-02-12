@@ -458,8 +458,8 @@ Set the interval to a huge number like Integer.MAX_INT or Int32.MaxValue to have
 [source,python]
 ----
 group = St3G("myGroup", "/tmp")
-group.refreshInterval = 0  # no caching
-group.refreshInterval = sys.maxint # no refreshing
+group._refreshInterval = 0  # no caching
+group._refreshInterval = sys.maxint # no refreshing
 ----
 
 == Setting the expression delimiters
@@ -1019,7 +1019,8 @@ public void <name>() {
 ----
 Suppose that you also want the option for the method template
 to place debugging statements into the generated method code.
-(To be clear about this example: this would be debugging code in the generated Java method,
+(To be clear about this example:
+this would be debugging code in the generated Java method,
 not code to debug the template processing itself.)
 
 You could start placing debug text into the existing template,
@@ -1032,7 +1033,8 @@ Instead, you would like to have all debugging stuff encapsulated in a separate t
 In that template group,
 you could create an overriding template for method
 by copying and pasting the entire existing method template and inserting your additions.
-But then you are duplicating all of that output literal text, which breaks the "single point of change principle."
+But then you are duplicating all of that output literal text,
+which breaks the "single point of change principle."
 
 Instead, just leave a hole in the main method template that a subgroup can override,
 here a location marked with <@preamble()>:
@@ -1075,7 +1077,7 @@ Here the code is marked with the pair of markers <@eval>...<@end>:
 group Java;
 test(expr,code) ::= "if (<@eval><expr><@end>) {<code>}"
 ----
-where <@r>..<@end> marks the region called r.
+where <@r>...<@end> marks the region called r.
 Now a template subgroup can override (replace) this region:
 [source,template]
 ----
@@ -2549,20 +2551,27 @@ Kay Roepke is building a graphical interface similar to ANTLRWorks for StringTem
 You can ask for the enclosing template structure with `St3T.getEnclosingInstanceStackString()` and can get the entire structure with toStructureString() that does not print the values but shows the nested structure with the attribute names.
 
 If for some reason StringTemplate goes into an infinite loop when you try to render a template, you probably have a circular reference in your template containment hierarchy.
-Turning on lint mode with `St3.lintMode = True` will check for these cyclic references and a number of other features.
+Turning on lint mode with `stringtemplate3.lintMode = True` will check for these cyclic references and a number of other features.
 This will slow down template rendering so only use this during debugging.
 
-Added `St3.getDOTForDependencyGraph()` a DOT diagram showing edges from n->m where template n contains template m.
+Added `stringtemplate3.getDOTForDependencyGraph()` a DOT diagram
+showing edges from n->m where template n contains template m.
 It finds all direct template invocations too like <foo()> but not indirect ones like <(name)()>.
 This is done statically and hence StringTemplate cannot see runtime arg values on statically included templates.
 You get a template back that lets you reset node shape, fontsize, width, height attributes.
-Use removeAttribute before setting so you are sure you only get one value.
+Use removeAttribute before setting, so you are sure you only get one value.
 
-Perhaps the most potent debugging tool you have for unraveling the complex structures emitted from nested StringTemplate containment hierarchies is the use of start and stop tags that marked the beginning and end of the text generated from a particular template.
-Method StringTemplateGroup.emitDebugStartStopStrings() indicates whether StringTemplate should emit <templatename>...</templatename> output for templates from this group.
-This easily answers an important question: "what template emitted a particular piece of text in the output?" In many cases you will not want every single template to have those tags in the output.
+Perhaps the most potent debugging tool you have for unraveling the complex structures
+emitted from nested StringTemplate containment hierarchies is the use of start and stop tags
+that marked the beginning and end of the text generated from a particular template.
+Method StringTemplateGroup.emitDebugStartStopStrings() indicates whether StringTemplate should
+emit <templatename>...</templatename> output for templates from this group.
+This easily answers an important question:
+"what template emitted a particular piece of text in the output?"
+In many cases you will not want every single template to have those tags in the output.
 For example, in the ANTLR code generator, there is a template that indicates what the output file extension is.
-Clearly one does not want the file extension to have the debugging information has the code generator could not open a file with those angle brackets and so on.
+Clearly one does not want the file extension to have the debugging information
+as the code generator could not open a file with those angle brackets and so on.
 Here's the snippet from the code generator:
 [source,java]
 ----

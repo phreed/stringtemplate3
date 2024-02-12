@@ -24,7 +24,7 @@ APPLY = 4
 MULTI_APPLY = 5
 ARGS = 6
 INCLUDE = 7
-CONDITIONAL = 8
+LITERAL_if = 8
 VALUE = 9
 TEMPLATE = 10
 FUNCTION = 11
@@ -119,12 +119,12 @@ class Parser(antlr.LLkParser):
                     raise antlr.NoViableAltException(self.LT(1), self.getFilename())
 
                 action_AST = currentAST.root
-            elif la1 and la1 in [CONDITIONAL]:
+            elif la1 and la1 in [LITERAL_if]:
                 pass
                 tmp2_AST = None
                 tmp2_AST = self.astFactory.create(self.LT(1))
                 self.makeASTRoot(currentAST, tmp2_AST)
-                self.match(CONDITIONAL)
+                self.match(LITERAL_if)
                 self.match(LPAREN)
                 self.ifCondition()
                 self.addASTChild(currentAST, self.returnAST)

@@ -29,10 +29,8 @@ from builtins import object
 import sys
 import os
 import traceback
-import codecs
 from pathlib import Path
 
-from stringtemplate3.utils import deprecated
 from stringtemplate3.groups import StringTemplateGroup
 from stringtemplate3.interfaces import StringTemplateGroupInterface
 from stringtemplate3.language import AngleBracketTemplateLexer
@@ -96,7 +94,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
 
         # # How are the files encoded (ascii, UTF8, ...)?
         #  You might want to read UTF8 for example on an ascii machine.
-        self.fileCharEncoding = sys.getdefaultencoding()
+        self._file_char_encoding = sys.getdefaultencoding()
 
     def loadGroup(self, groupName, superGroup=None, lexer=None):
         if lexer is None:
@@ -156,13 +154,13 @@ class PathGroupLoader(StringTemplateGroupLoader):
 
         return None
 
-    @deprecated
-    def getFileCharEncoding(self):
-        return self.fileCharEncoding
+    @property
+    def fileCharEncoding(self):
+        return self._file_char_encoding
 
-    @deprecated
-    def setFileCharEncoding(self, fileCharEncoding):
-        self.fileCharEncoding = fileCharEncoding
+    @fileCharEncoding.setter
+    def fileCharEncoding(self, fileCharEncoding):
+        self._file_char_encoding = fileCharEncoding
 
     def error(self, msg, exc=None):
         if self.errors is not None:
