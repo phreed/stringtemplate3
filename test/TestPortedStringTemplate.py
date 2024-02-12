@@ -1573,7 +1573,7 @@ def test_ComplicatedIndirectTemplateApplication():
             <variables:{ v | <v.decl:(v.format)()>}; separator="\\n">
             >>
             intdecl(decl) ::= "int <decl.name> = 0;"
-            intarray(decl) ::= "int[] <decl.name> = None;"
+            intarray(decl) ::= "int[] <decl.name> = null;"
             """)
     group = St3G(file=io.StringIO(templates))
     f = group.getInstanceOf("file")
@@ -1583,7 +1583,7 @@ def test_ComplicatedIndirectTemplateApplication():
     
     assert str(f) == dedent("""\
     int i = 0;
-    int[] a = None;""")
+    int[] a = null;""")
 
     group = St3G(file=io.StringIO(templates))
     f = group.getInstanceOf("file")
@@ -1593,7 +1593,7 @@ def test_ComplicatedIndirectTemplateApplication():
 
     assert str(f) == dedent("""\
     int i = 0;
-    int[] a = None;""")
+    int[] a = null;""")
 
 
 def test_IndirectTemplateApplication():

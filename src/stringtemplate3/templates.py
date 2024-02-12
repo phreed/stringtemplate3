@@ -183,6 +183,10 @@ class StringTemplate(object):
     out when you call StringTemplate.toString().
     """
 
+    @property
+    def defaultGroup(self):
+        return StringTemplateGroup(name='defaultGroup', rootDir='.')
+
     # # Either:
     #    Create a blank template with no pattern and no attributes
     #  Or:
@@ -193,6 +197,7 @@ class StringTemplate(object):
     #  Or:
     #    Create a template
     #
+
     def __init__(self, template=None, group=None, lexer=None, attributes=None):
         self.referencedAttributes = None
 
