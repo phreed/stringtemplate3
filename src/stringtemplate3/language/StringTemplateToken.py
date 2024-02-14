@@ -19,3 +19,8 @@ class StringTemplateToken(antlr.CommonToken):
             '; args=' + str(self._args)
 
     __repr__ = __str__
+
+    @property
+    def args(self):
+        return self._args
+

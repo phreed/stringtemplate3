@@ -297,7 +297,7 @@ class StringTemplateGroup(object):
                     StringTemplateGroup.nameToGroupMap[superGroup] = superGroup
                     self._superGroup = superGroup
 
-                elif self._groupLoader is None:
+                elif self.groupLoader is None:
                     self._listener.error("no group loader registered", None)
 
         else:
@@ -795,6 +795,10 @@ class StringTemplateGroup(object):
     @property
     def templateNames(self):
         return list(self._templates.keys())
+
+    @property
+    def templateNamesAsStrings(self):
+        return [str(key) for key, value in self._templates.items()]
 
     @property
     def debugTemplateOutput(self):

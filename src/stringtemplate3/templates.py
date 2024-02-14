@@ -354,6 +354,14 @@ class StringTemplate(object):
         return self._attributes
 
     @property
+    def argumentsAST(self):
+        return self._argumentsAST
+
+    @property
+    def argumentContext(self):
+        return self._argumentContext
+
+    @property
     def isRegion(self):
         return self._isRegion
 

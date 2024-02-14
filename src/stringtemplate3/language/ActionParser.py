@@ -188,7 +188,7 @@ class Parser(antlr.LLkParser):
                         self.makeASTRoot(currentAST, c_AST)
                         self.match(COLON)
                         if not self.inputState.guessing:
-                            c_AST.setType(APPLY)
+                            c_AST.type = APPLY
                         self.template()
                         self.addASTChild(currentAST, self._returnAST)
                         while True:
@@ -479,9 +479,9 @@ class Parser(antlr.LLkParser):
             self.match(ANONYMOUS_TEMPLATE)
             if not self.inputState.guessing:
                 anonymous = stringtemplate3.StringTemplate()
-                anonymous._group = self._this.group
+                anonymous.group = self._this.group
                 anonymous.enclosingInstance = self._this
-                anonymous._template = t.text
+                anonymous.template = t.text
                 anonymous.defineFormalArgument(t.args)
                 t_AST.setStringTemplate(anonymous)
             anonymousTemplate_AST = currentAST.root
@@ -665,7 +665,7 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, qid_AST)
                 self.match(ID)
                 if not self.inputState.guessing:
-                    qid_AST.setText("super." + qid_AST.text)
+                    qid_AST.text = f"super.{qid_AST.text}"
                 self.argList()
                 self.addASTChild(currentAST, self._returnAST)
             elif la1 and la1 in [LPAREN]:
@@ -863,8 +863,8 @@ class Parser(antlr.LLkParser):
             self.makeASTRoot(currentAST, lb_AST)
             self.match(LBRACK)
             if not self.inputState.guessing:
-                lb_AST.setType(LIST)
-                lb_AST.setText("value")
+                lb_AST.type = LIST
+                lb_AST.text = "value"
             self.listElement()
             self.addASTChild(currentAST, self._returnAST)
             while True:
@@ -908,7 +908,7 @@ class Parser(antlr.LLkParser):
                     self.makeASTRoot(currentAST, c_AST)
                     self.match(COLON)
                     if not self.inputState.guessing:
-                        c_AST.setType(APPLY)
+                        c_AST.type = APPLY
                     self.template()
                     self.addASTChild(currentAST, self._returnAST)
                 else:
@@ -987,7 +987,7 @@ class Parser(antlr.LLkParser):
                 self.addASTChild(currentAST, qid_AST)
                 self.match(ID)
                 if not self.inputState.guessing:
-                    qid_AST.setText("super." + qid_AST.text)
+                    qid_AST.text = f"super.{qid_AST.text}"
                 self.argList()
                 self.addASTChild(currentAST, self._returnAST)
                 namedTemplate_AST = currentAST.root

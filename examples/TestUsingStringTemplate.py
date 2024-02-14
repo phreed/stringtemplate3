@@ -181,7 +181,7 @@ def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
     with open(stg_path, mode="r") as stg:
         group = St3G(name="demo_auto_indent", file=stg,  lexer="default")
-        logger.info("group templates: {}", group.templateNames)
+        # print("group templates: {}", group.templateNamesAsStrings)
         function = group.getInstanceOf("function")
         function["name"] = "foo"
         body = group.getInstanceOf("slist")

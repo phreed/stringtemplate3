@@ -723,8 +723,6 @@ class ASTExpr(Expr):
             theRest = None
         return theRest
 
-    # #
-    #
     def last(self, attribute):
         """ Return the last attribute if multiple valued or the attribute itself if single-valued.
         Used in <names:last()>.
