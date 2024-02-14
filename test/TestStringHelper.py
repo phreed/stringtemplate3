@@ -22,7 +22,7 @@ from stringtemplate3 import StringTemplateErrorListener
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -46,7 +46,7 @@ def getMsg(ex):
     if hasattr(ex, "getMessage"):
         return ex.getMessage()
     if hasattr(ex, "message"):
-        return ex.message
+        return ex._message
     if hasattr(ex, "__str__"):
         return ex.__str__()
     return f'{ex}'
@@ -54,31 +54,31 @@ def getMsg(ex):
 
 class ErrorBuffer(StringTemplateErrorListener):
     def __init__(self):
-        self.errorOutput = io.StringIO(u'')
-        self.n = 0
+        self._errorOutput = io.StringIO(u'')
+        self._n = 0
 
     def error(self, msg, ex):
         """
         Write the error output into the error buffer
         """
-        self.n += 1
-        if self.n > 1:
-            self.errorOutput.write('\n')
+        self._n += 1
+        if self._n > 1:
+            self._errorOutput.write('\n')
         if ex is not None:
-            self.errorOutput.write(getMsg(ex) + '\n')
+            self._errorOutput.write(getMsg(ex) + '\n')
         else:
-            self.errorOutput.write(msg)
+            self._errorOutput.write(msg)
 
     def warning(self, msg):
-        self.n += 1
-        self.errorOutput.write(msg)
+        self._n += 1
+        self._errorOutput.write(msg)
 
     def equals(self, obj):
         if isinstance(obj, StringTemplateErrorListener):
             return self
 
     def __str__(self):
-        return self.errorOutput.getvalue()
+        return self._errorOutput.getvalue()
 
 
 class IllegalArgumentException(Exception):

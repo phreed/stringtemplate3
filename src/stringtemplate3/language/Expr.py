@@ -12,10 +12,10 @@ class Expr(object):
     """
 
     def __init__(self, enclosingTemplate):
-        # # The StringTemplate object surrounding this expr
+        # The StringTemplate object surrounding this expr
         self._enclosingTemplate = enclosingTemplate
 
-        # # Anything spit out as a chunk (even plain text) must be indented
+        # Anything spit out as a chunk (even plain text) must be indented
         #  according to whitespace before the action that generated it.  So,
         #  plain text in the outermost template is never indented, but the
         #  text and attribute references in a nested template will all be

@@ -34,7 +34,7 @@ from TestStringHelper import (IllegalArgumentException, ErrorBuffer)
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -647,7 +647,7 @@ def test_SimpleInheritance():
     subgroup = St3G("sub")
     bold = supergroup.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
-    subgroup.superGroup = supergroup
+    subgroup._superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -662,7 +662,7 @@ def test_OverrideInheritance():
     subgroup = St3G("sub")
     supergroup.defineTemplate("bold", "<b>$it$</b>")
     subgroup.defineTemplate("bold", "<strong>$it$</strong>")
-    subgroup.superGroup = supergroup
+    subgroup._superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -677,8 +677,8 @@ def test_MultiLevelInheritance():
     level1 = St3G("level1")
     level2 = St3G("level2")
     rootgroup.defineTemplate("bold", "<b>$it$</b>")
-    level1.superGroup = rootgroup
-    level2.superGroup = level1
+    level1._superGroup = rootgroup
+    level2._superGroup = level1
     errors = ErrorBuffer()
     rootgroup.errorListener = errors
     level1.errorListener = errors
@@ -991,23 +991,26 @@ start|$p:{$link(url="/member/view?ID="+it.ID, title=it.firstName)$ $if(it.canEdi
 
 class Tree:
     def __init__(self, t):
-        self.text = t
-        self.children = deque()
+        self._text = t
+        self._children = deque()
 
-    def getText(self):
-        return self.text
+    @property
+    def text(self):
+        return self._text
 
     def addChild(self, c):
-        self.children.append(c)
+        self._children.append(c)
 
-    def getFirstChild(self):
-        if len(self.children) < 1:
+    @property
+    def firstChild(self):
+        if len(self._children) < 1:
             return None
 
-        return self.children[0]
+        return self._children[0]
 
-    def getChildren(self):
-        return self.children
+    @property
+    def children(self):
+        return self._children
 
 
 def test_Recursion():
@@ -1409,7 +1412,7 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
     """
     group = St3G("base")
     subGroup = St3G("sub")
-    subGroup.superGroup = group
+    subGroup._superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
     group.defineTemplate("page", "$name:super.bold()$")
@@ -3552,7 +3555,7 @@ def test_SuperReferenceInIfClause():
         c() ::= "sub.c"
         """)
     subGroup = St3G(file=io.StringIO(subGroupString), lexer=AngleBracketTemplateLexer.Lexer)
-    subGroup.superGroup = superGroup
+    subGroup._superGroup = superGroup
     a = subGroup.getInstanceOf("a")
     a["x"] = "foo"
     assert str(a) == "super.a"

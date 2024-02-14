@@ -19,7 +19,7 @@ suffixes = [
     "+"
 ]
 
-## When template arguments are not available such as when the user
+# When template arguments are not available such as when the user
 #  uses "new StringTemplate(...)", then the list of formal arguments
 #  must be distinguished from the case where a template can specify
 #  args and there just aren't any such as the t() template above.
@@ -54,24 +54,24 @@ class FormalArgument(object):
     """
 
     def __init__(self, name, defaultValueST=None):
-        self.name = name
-        # self.cardinality = REQUIRED
+        self._name = name
+        # self._cardinality = REQUIRED
         # # If they specified name="value", store the template here
         #
-        self.defaultValueST = defaultValueST
+        self._defaultValueST = defaultValueST
 
     def __eq__(self, other):
         if not isinstance(other, FormalArgument):
             return False
 
-        if self.name != other.name:
+        if self._name != other._name:
             return False
 
         # only check if there is a default value; that's all
-        if ((self.defaultValueST is not None
-             and other.defaultValueST is None) or
-                (self.defaultValueST is None
-                 and other.defaultValueST is not None)):
+        if ((self._defaultValueST is not None
+             and other._defaultValueST is None) or
+                (self._defaultValueST is None
+                 and other._defaultValueST is not None)):
             return False
 
         return True
@@ -80,8 +80,8 @@ class FormalArgument(object):
         return not self.__eq__(other)
 
     def __str__(self):
-        if self.defaultValueST:
-            return self.name + '=' + str(self.defaultValueST)
-        return self.name
+        if self._defaultValueST:
+            return self._name + '=' + str(self._defaultValueST)
+        return self._name
 
     __repr__ = __str__

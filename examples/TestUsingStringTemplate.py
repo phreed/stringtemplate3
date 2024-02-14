@@ -40,7 +40,7 @@ from TestStringHelper import ErrorBuffer
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -238,11 +238,11 @@ class NoIndentWriter(AutoIndentWriter):
         super().__init__(out)
 
     def write(self, text, wrap=None):
-        self.out.write(text)
+        self._out.write(text)
         return len(text)
 
     def __str__(self):
-        return self.out.getvalue()
+        return self._out.getvalue()
 # end::no_indent_writer[]
 
 
@@ -296,7 +296,7 @@ def test_trap_infinite_recursion():
         result = str(block)
         logger.info(f"result: {result}")
     except IllegalStateException as ise:
-        msg = ise.message
+        msg = ise._message
         assert str(msg) == dedent("""\
         infinite recursion to <ifstat([stats])@4> referenced in <block([stats])@3>; stack trace:
 <ifstat([stats])@4>, attributes=[stats=<block()@3>]>

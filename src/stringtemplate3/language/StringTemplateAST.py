@@ -3,20 +3,20 @@ from stringtemplate3 import antlr
 
 class StringTemplateAST(antlr.CommonAST):
 
-    def __init__(self, type=None, text=None):
+    def __init__(self, a_type=None, text=None):
         super(StringTemplateAST, self).__init__()
 
-        if type is not None:
-            self.setType(type)
+        if a_type is not None:
+            self._type = a_type
 
         if text is not None:
-            self.setText(text)
+            self._text = text
 
         # track template for ANONYMOUS blocks
-        self.st = None
+        self._st = None
 
     def getStringTemplate(self):
-        return self.st
+        return self._st
 
     def setStringTemplate(self, st):
-        self.st = st
+        self._st = st

@@ -9,8 +9,8 @@ class ChunkToken(antlr.CommonToken):
     ASTExpr created for the $...$ attribute reference.
     """
 
-    def __init__(self, type=None, text='', indentation=''):
-        antlr.CommonToken.__init__(self, type=type, text=text)
+    def __init__(self, a_type=None, text='', indentation=''):
+        super().__init__(type=a_type, text=text)
         self._indentation = indentation
 
     @property

@@ -48,28 +48,26 @@ COMMENT = 23
 # ## *  and attribute expressions.
 # ## */
 class Parser(antlr.LLkParser):
-   # ## user action >>>
+    # ## user action >>>
     def reportError(self, e):
-        group = self.this.group
-        if group == stringtemplate3.StringTemplate.defaultGroup:
-            self.this.error("template parse error; template context is " + self.this.enclosingInstanceStackString, e)
+        group = self._this.group
+        if group == stringtemplate3.DEFAULT_GROUP_NAME:
+            self._this.error("template parse error; template context is " + self._this.enclosingInstanceStackString, e)
 
         else:
-            self.this.error("template parse error in group " + self.this.group.name + " line " + str(
-                self.this.groupFileLine) + "; template context is " + self.this.enclosingInstanceStackString, e)
+            self._this.error("template parse error in group " + self._this.group.name + " line " + str(
+                self._this.groupFileLine) + "; template context is " + self._this.enclosingInstanceStackString, e)
 
-   # ## user action <<<
+    # ## user action <<<
 
     def __init__(self, *args, **kwargs):
-        antlr.LLkParser.__init__(self, *args, **kwargs)
-        self.tokenNames = _tokenNames
-       # ## __init__ header action >>> 
-        self.this = None
-       # ## __init__ header action <<< 
+        super().__init__(*args, **kwargs)
+        self._tokenNames = _tokenNames
+        # ## __init__ header action >>>
+        self._this = None
+        # ## __init__ header action <<<
 
-    def template(self,
-                 this
-                 ):
+    def template(self, this):
 
         s = None
         nl = None
@@ -83,28 +81,25 @@ class Parser(antlr.LLkParser):
                     pass
                     s = self.LT(1)
                     self.match(LITERAL)
-                    this.addChunk(StringRef(this, s.getText()))
+                    this.addChunk(StringRef(this, s.text))
                 elif la1 and la1 in [NEWLINE]:
                     pass
                     nl = self.LT(1)
                     self.match(NEWLINE)
                     if self.LA(1) != ELSE and self.LA(1) != ENDIF:
-                        this.addChunk(NewlineRef(this, nl.getText()))
+                        this.addChunk(NewlineRef(this, nl.text))
                 elif la1 and la1 in [ACTION, IF, REGION_REF, REGION_DEF]:
                     pass
                     self.action(this)
                 else:
                     break
 
-
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             self.consume()
             self.consumeUntil(_tokenSet_0)
 
-    def action(self,
-               this
-               ):
+    def action(self, this):
 
         a = None
         i = None
@@ -120,32 +115,32 @@ class Parser(antlr.LLkParser):
                 a = self.LT(1)
                 self.match(ACTION)
                 indent = a.indentation
-                c = this.parseAction(a.getText())
+                c = this.parseAction(a.text)
                 c.indentation = indent
                 this.addChunk(c)
             elif la1 and la1 in [IF]:
                 pass
                 i = self.LT(1)
                 self.match(IF)
-                c = this.parseAction(i.getText())
+                c = this.parseAction(i.text)
                 # create and precompile the subtemplate
                 subtemplate = stringtemplate3.StringTemplate(group=this.group)
                 subtemplate.enclosingInstance = this
-                subtemplate.name = i.getText() + "_subtemplate"
+                subtemplate._name = i.text + "_subtemplate"
                 this.addChunk(c)
                 self.template(subtemplate)
                 if c:
                     c.subtemplate = subtemplate
                 while True:
-                    if (self.LA(1) == ELSEIF):
+                    if self.LA(1) == ELSEIF:
                         pass
                         ei = self.LT(1)
                         self.match(ELSEIF)
-                        ec = this.parseAction(ei.getText())
+                        ec = this.parseAction(ei.text)
                         # create and precompile the subtemplate
                         elseIfSubtemplate = stringtemplate3.StringTemplate(group=this.group)
                         elseIfSubtemplate.enclosingInstance = this
-                        elseIfSubtemplate.name = ei.getText() + "_subtemplate"
+                        elseIfSubtemplate.name = ei.text + "_subtemplate"
                         self.template(elseIfSubtemplate)
                         if c is not None:
                             c.addElseIfSubtemplate(ec, elseIfSubtemplate)
@@ -161,14 +156,14 @@ class Parser(antlr.LLkParser):
                     # create and precompile the subtemplate
                     elseSubtemplate = stringtemplate3.StringTemplate(group=this.group)
                     elseSubtemplate.enclosingInstance = this
-                    elseSubtemplate.name = "else_subtemplate"
+                    elseSubtemplate._name = "else_subtemplate"
                     self.template(elseSubtemplate)
                     if c:
                         c.elseSubtemplate = elseSubtemplate
                 elif la1 and la1 in [ENDIF]:
                     pass
                 else:
-                    raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+                    raise antlr.NoViableAltException(self.LT(1), self.filename)
 
                 self.match(ENDIF)
             elif la1 and la1 in [REGION_REF]:
@@ -177,7 +172,7 @@ class Parser(antlr.LLkParser):
                 self.match(REGION_REF)
                 # define implicit template and
                 # convert <@r()> to <region__enclosingTemplate__r()>
-                regionName = rr.getText()
+                regionName = rr.text
                 mangledRef = None
                 err = False
                 # watch out for <@super.r()>; that does NOT def implicit region
@@ -188,13 +183,11 @@ class Parser(antlr.LLkParser):
                     templateScope = this.group.getUnMangledTemplateName(this.name)
                     scopeST = this.group.lookupTemplate(templateScope)
                     if scopeST is None:
-                        this.group.error("reference to region within undefined template: " +
-                                         templateScope)
+                        this.group.error("reference to region within undefined template: " + templateScope)
                         err = True
 
                     if not scopeST.containsRegionName(regionRef):
-                        this.group.error("template " + templateScope + " has no region called " +
-                                         regionRef)
+                        this.group.error("template " + templateScope + " has no region called " + regionRef)
                         err = True
 
                     else:
@@ -215,7 +208,7 @@ class Parser(antlr.LLkParser):
                 pass
                 rd = self.LT(1)
                 self.match(REGION_DEF)
-                combinedNameTemplateStr = rd.getText()
+                combinedNameTemplateStr = rd.text
                 indexOfDefSymbol = combinedNameTemplateStr.find("::=")
                 if indexOfDefSymbol >= 1:
                     regionName = combinedNameTemplateStr[0:indexOfDefSymbol]
@@ -235,7 +228,7 @@ class Parser(antlr.LLkParser):
                 else:
                     this.error("embedded region definition screwed up")
             else:
-                raise antlr.NoViableAltException(self.LT(1), self.getFilename())
+                raise antlr.NoViableAltException(self.LT(1), self.filename)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
@@ -271,9 +264,8 @@ _tokenNames = [
 ]
 
 
-# ## generate bit set
 def mk_tokenSet_0():
-   # ## var1
+    """ generate bit set """
     data = [1792, 0]
     return data
 
@@ -281,9 +273,8 @@ def mk_tokenSet_0():
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
 
-# ## generate bit set
 def mk_tokenSet_1():
-   # ## var1
+    """ generate bit set """
     data = [8176, 0]
     return data
 

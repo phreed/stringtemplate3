@@ -8,7 +8,7 @@ def deprecated(func):
             DeprecationWarning,
             stacklevel=2
         )
-        return func(*args, **kwargs)
+        func()
 
     wrap.__name__ = func.__name__
     wrap.__doc__ = func.__doc__

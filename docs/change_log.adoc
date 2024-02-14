@@ -1,7 +1,114 @@
 = Change Log
 
 // tag::compact[]
-2023-12-0  remove `future` and replace `imp` with `importlib`
-2023-11-09 initialized from https://pypi.org/project/stringtemplate3/#description
+== 2024-02-14: Release 3.3
+- Ported to Python3
 // end::compact[]
 
+== 2008-09-21: Release 3.2b1
+
+- StringTemplate.toString() now returns unicode strings and stringtemplate uses
+  unicode internally as well (i.e. all passed in byte strings are converted to
+  unicode).
+- Added native group name to template name tags in the debug output.
+- Fixed: int map keys didn't work.
+- Added trunc, fixed rest and strip.
+- Fixed ST-33; make [a,b] cat work.
+- Added \r\n normalization in AutoIndentWriter. Converts \r\n or \n
+  to whatever the writer's newline instance var is.  wrap="\n" will
+  give the proper newline by locale as will \n and \r\n in the
+  templates or even incoming data attributes (toString()'d of course).
+  It even works with special literals <\r\n> and <\n>.
+- Fixed ST-36; allow <elseif> keyword.
+
+== 2008-02-17: Release 3.1
+
+- Resolve ST-34.  Super group loading was not using template lexer
+  (<...> or $...$) according to subclass. Updated group loader interface.
+- Improved error message for "template not found"
+- $first(list).prop$ was not allowed.  Fixed and added a unit test.
+
+== 2007-12-03: Release 3.1b1
+
+- Initial beta release of V3.1.
+- Lots of API breaking changes, please read the wiki for more information:
+  <http://www.antlr.org/wiki/display/ST/Python+notes>
+
+== Changed from 2.x
+
+- renamed package to stringtemplate3
+- constants moved to module level:
+  StringTemplate.REGION_IMPLICIT
+  StringTemplate.REGION_EMBEDDED
+  StringTemplate.REGION_EXPLICIT
+  StringTemplate.ANONYMOUS_ST_NAME
+  StringTemplate.VERSION -> __version__
+- use keyword args:
+  StringTemplate.__init__
+  StringTemplateGroup.__init__
+- deprecated getter/setter methods, use direct attribute access
+|{{StringTemplateGroup.getSuperGroup()}}
+{{StringTemplateGroup.setSuperGroup()}}|{{StringTemplateGroup.superGroup}}|
+|{{StringTemplateGroup.getErrorListener()}}
+{{StringTemplateGroup.setErrorListener()}}|{{StringTemplateGroup.errorListener}}|
+|{{StringTemplateGroup.getName()}}
+{{StringTemplateGroup.setName()}}|{{StringTemplateGroup.name}}|
+|{{StringTemplateGroup.getRootDir()}}
+{{StringTemplateGroup.setRootDir()}}|{{StringTemplateGroup.rootDir}}|
+|{{StringTemplateGroup.getFileCharEncoding()}}
+{{StringTemplateGroup.setFileCharEncoding()}}|{{StringTemplateGroup.fileCharEncoding}}|
+|{{StringTemplateGroup.getFileCharEncoding()}}
+{{StringTemplateGroup.setRefreshInterval()}}|{{StringTemplateGroup.refreshInterval}}|
+|{{StringTemplateGroup.getTemplateLexerClass()}}|{{StringTemplateGroup.templateLexerClass}}|
+|{{StringTemplateGroup.setAttributeRenderers()}}|{{StringTemplateGroup.attributeRenderers}}|
+|{{StringTemplate.getArgumentContent()}}
+{{StringTemplate.setArgumentContent()}}|{{StringTemplate.argumentContext}}|
+|{{StringTemplate.getEnclosingInstance()}}
+{{StringTemplate.setEnclosingInstance()}}|{{StringTemplate.enclosingInstance}}|
+|{{StringTemplate.getArgumentAST()}}
+{{StringTemplate.setArgumentAST()}}|{{StringTemplate.argumentAST}}|
+|{{StringTemplate.getName()}}
+{{StringTemplate.setName()}}|{{StringTemplate.name}}|
+|{{StringTemplate.getGroup()}}
+{{StringTemplate.setGroup()}}|{{StringTemplate.group}}|
+|{{StringTemplate.getNativeGroup()}}
+{{StringTemplate.setNativeGroup()}}|{{StringTemplate.nativeGroup}}|
+|{{StringTemplate.getGroupFileLine()}}
+{{StringTemplate.setGroupFileLine()}}|{{StringTemplate.groupFileLine}}|
+|{{StringTemplate.getTemplate()}}
+{{StringTemplate.setTemplate()}}|{{StringTemplate.template}}|
+|{{StringTemplate.getErrorListener()}}
+{{StringTemplate.setErrorListener()}}|{{StringTemplate.errorListener}}|
+|{{StringTemplate.getTemplateID()}}|{{StringTemplate.templateID}}|
+|{{StringTemplate.getAttributes()}}
+{{StringTemplate.setAttributes()}}|{{StringTemplate.attributes}}|
+|{{StringTemplate.getformalArguments()}}
+{{StringTemplate.setformalArguments()}}|{{StringTemplate.formalArguments}}|
+|{{StringTemplate.setAttributeRenderers()}}|{{StringTemplate.attributeRenderers}}|
+|{{StringTemplate.getRegionDefType()}}
+{{StringTemplate.setRegionDefType()}}|{{StringTemplate.regionDefType}}|
+|{{StringTemplate.getTemplateDeclaratorString()}}|{{StringTemplate.templateDeclaratorString}}|
+|{{StringTemplate.getEnclosingInstanceStackString()}}|{{StringTemplate.enclosingInstanceStackString}}|
+|{{StringTemplate.getFormalArgumentKeys()}}|{{StringTemplate.formalArgumentKeys}}|
+|{{StringTemplate.getChunks()}}|{{StringTemplate.chunks}}|
+|{{PathGroupLoader.getFileCharEncoding()}}
+{{PathGroupLoader.setFileCharEncoding()}}|{{PathGroupLoader.fileCharEncoding}}|
+|{{StringTemplateGroupInterface.getSuperInterface()}}
+{{StringTemplateGroupInterface.setSuperInterface()}}|{{StringTemplateGroupInterface.superInterface}}|
+|{{StringTemplateGroupInterface.getName()}}
+{{StringTemplateGroupInterface.setName()}}|{{StringTemplateGroupInterface.name}}|
+|{{ASTExpr.getAST()}}|{{ASTExpr.exprTree}}|
+|{{ChunkToken.getIndention()}}
+{{ChunkToken.setIndention()}}|{{ChunkToken.indention}}|
+|{{ConditionalExpr.getSubtemplate()}}
+{{ConditionalExpr.setSubtemplate()}}|{{ConditionalExpr.subtemplate}}|
+|{{ConditionalExpr.getElseSubtemplate()}}
+{{ConditionalExpr.setElseSubtemplate()}}|{{ConditionalExpr.elseSubtemplate}}|
+|{{Expr.getEnclosingTemplate()}}|{{Expr.enclosingTemplate}}|
+|{{Expr.getIndention()}}
+{{Expr.setIndention()}}|{{Expr.indention}}|
+
+- changed API
+  StringTemplateGroup.getInstanceOf
+  StringTemplateGroup.getEmbeddedInstanceOf
+  StringTemplateGroup.lookupTemplate

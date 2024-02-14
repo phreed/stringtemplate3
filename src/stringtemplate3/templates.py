@@ -13,7 +13,7 @@
 # 3. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -28,7 +28,6 @@
 from builtins import str
 from builtins import object
 import sys
-import traceback
 from io import StringIO
 from copy import copy
 import logging
@@ -50,6 +49,7 @@ from stringtemplate3.writers import StringTemplateWriter
 import stringtemplate3
 
 logger = logging.getLogger(__name__)
+
 
 class STAttributeList(list):
     """
@@ -74,7 +74,7 @@ class Aggregate(object):
 
     using template:
 
-    $items:{$attr.name$=$attr.type$$
+    $items:{$attr.name$=$attr.type$}$
 
     This example will call getName() on the objects in items attribute, but
     what if they aren't objects?  I have perhaps two parallel arrays
@@ -95,7 +95,7 @@ class Aggregate(object):
     After much thought, I finally decided on a simple solution.  I've
     added setAttribute variants that pass in multiple property values,
     with the property names specified as part of the name using a special
-    attribute name syntax: 'name.{propName1,propName2,...'.  This
+    attribute name syntax: 'name.{propName1,propName2,...}'.  This
     object is a special kind of dictionary that hopefully prevents people
     from passing a subclass or other variant that they have created as
     it would be a loophole.  Anyway, the ASTExpr.getObjectProperty()
@@ -104,45 +104,43 @@ class Aggregate(object):
     """
 
     def __init__(self, master):
-        self.properties = {}
-        self.master = master
+        self._properties = {}
+        self._master = master
 
-    # # Allow StringTemplate to add values, but prevent the end
-    #  user from doing so.
-    #
     def __setitem__(self, propName, propValue):
+        """ Allow StringTemplate to add values, but prevent the end user from doing so."""
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
-        if isinstance(self.master, StringTemplate):
-            self.properties[propName] = propValue
+        if isinstance(self._master, StringTemplate):
+            self._properties[propName] = propValue
         else:
             raise AttributeError
 
     def get(self, propName, default=None):
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
-        if isinstance(self.master, StringTemplate):
-            return self.properties.get(propName, default)
+        if isinstance(self._master, StringTemplate):
+            return self._properties.get(propName, default)
         raise AttributeError
 
     def __getitem__(self, propName):
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
-        if isinstance(self.master, StringTemplate):
-            if propName in self.properties:
-                return self.properties[propName]
+        if isinstance(self._master, StringTemplate):
+            if propName in self._properties:
+                return self._properties[propName]
             return None
         raise AttributeError
 
     def __contains__(self, propName):
         # Instead of relying on data hiding, we check the type of the
         # master of this aggregate.
-        if isinstance(self.master, StringTemplate):
-            return propName in self.properties
+        if isinstance(self._master, StringTemplate):
+            return propName in self._properties
         raise AttributeError
 
     def __str__(self):
-        return str(self.properties)
+        return str(self._properties)
 
 
 # <@r()>
@@ -154,7 +152,9 @@ REGION_EXPLICIT = 3
 
 ANONYMOUS_ST_NAME = "anonymous"
 
-## incremental counter for templates IDs
+DEFAULT_GROUP_NAME = 'defaultGroup'
+
+# incremental counter for templates IDs
 templateCounter = 0
 
 
@@ -169,51 +169,47 @@ def resetTemplateCounter():
     reset the template ID counter to 0; def that testing routine
     can access but not really of interest to the user.
     """
-
     global templateCounter
     templateCounter = 0
 
 
 class StringTemplate(object):
     """
-    A StringTemplate is a "document" with holes in it where you can stick
-    values. StringTemplate breaks up your template into chunks of text and
-    attribute expressions.  StringTemplate< ignores everything outside
-    of attribute expressions, treating it as just text to spit
-    out when you call StringTemplate.toString().
+    A StringTemplate is a "document" with holes in it where you can stick values.
+    StringTemplate breaks up your template into chunks of text and attribute expressions.
+    StringTemplate< ignores everything outside of attribute expressions,
+    treating it as just text to spit out when you call StringTemplate.toString().
     """
-
     @property
     def defaultGroup(self):
         return StringTemplateGroup(name='defaultGroup', rootDir='.')
 
-    # # Either:
-    #    Create a blank template with no pattern and no attributes
-    #  Or:
-    #    Create an anonymous template.  It has no name just
-    #    chunks (which point to self anonymous template) and attributes.
-    #  Or:
-    #    Create an anonymous template with no name, but with a group
-    #  Or:
-    #    Create a template
-    #
-
     def __init__(self, template=None, group=None, lexer=None, attributes=None):
-        self.referencedAttributes = None
+        """ Either:
+          Create a blank template with no pattern and no attributes
+        Or:
+          Create an anonymous template.
+          chunks (which point to self anonymous template) and attributes.
+        Or:
+          Create an anonymous template with no name, but with a group
+        Or:
+          Create a template
+        """
+        self._referencedAttributes = None
 
         # # What's the name of self template?
-        self.name = ANONYMOUS_ST_NAME
+        self._name = ANONYMOUS_ST_NAME
 
-        self.templateID = getNextTemplateCounter()
+        self._templateID = getNextTemplateCounter()
 
         # # Enclosing instance if I'm embedded within another template.
         #  IF-subtemplates are considered embedded as well.
         self._enclosingInstance = None
 
         # # A list of embedded templates
-        self.embeddedInstances = None
+        self._embeddedInstances = None
 
-        # # If self template is an embedded template such as when you apply
+        # If self template is an embedded template such as when you apply
         #  a template to an attribute, then the arguments passed to self
         #  template represent the argument context--a set of values
         #  computed by walking the argument assignment list.  For example,
@@ -229,7 +225,7 @@ class StringTemplate(object):
         #
         #  With multivalued attributes such as <faqList:briefFAQDisplay()>
         #  attribute "i" is set to 1..n.
-        self.argumentContext = None
+        self._argumentContext = None
 
         # # If self template is embedded in another template, the arguments
         #  must be evaluated just before each application when applying
@@ -240,7 +236,7 @@ class StringTemplate(object):
         #  before invoking applyListOfAlternatingTemplates().  Each iteration
         #  of a template application to a multivalued attribute, these args
         #  are re-evaluated with an initial context of:[it=...], [i=...].
-        self.argumentsAST = None
+        self._argumentsAST = None
 
         # # When templates are defined in a group file format, the attribute
         #  list is provided including information about attribute cardinality
@@ -250,19 +246,19 @@ class StringTemplate(object):
         #  item is not defined in bold(), then an exception should be thrown.
         #  When actually rendering the template, the cardinality is checked.
         #  This is a {str:FormalArgument} dictionary.
-        self.formalArgumentKeys = None
-        self.formalArguments = UNKNOWN_ARGS
+        self._formalArgumentKeys = None
+        self._formalArguments = UNKNOWN_ARGS
 
         # # How many formal arguments to this template have default values
         #  specified?
-        self.numberOfDefaultArgumentValues = 0
+        self._numberOfDefaultArgumentValues = 0
 
         # # Normally, formal parameters hide any attributes inherited from the
         #  enclosing template with the same name.  This is normally what you
         #  want, but makes it hard to invoke another template passing in all
         #  the data.  Use notation now: <otherTemplate(...)> to say "pass in
         #  all data".  Works great. Can also say <otherTemplate(foo="xxx",...)>
-        self.passThroughAttributes = False
+        self._passThroughAttributes = False
 
         # # What group originally defined the prototype for self template?
         #  This affects the set of templates I can refer to.  super.t() must
@@ -276,29 +272,30 @@ class StringTemplate(object):
         #
         #  group subsub;
         #  t ::= "super.t()3"
-        self.nativeGroup = None
+        self._nativeGroup = None
 
         # # This template was created as part of what group?  Even if this
         #  template was created from a prototype in a supergroup, its group
         #  will be the subgroup.  That's the way polymorphism works.
         if group is not None:
             assert isinstance(group, StringTemplateGroup)
-            self.group = group
+            self._group = group
         else:
-            self.group = StringTemplateGroup(name='defaultGroup', rootDir='.')
+            self._group = StringTemplateGroup(
+                name=DEFAULT_GROUP_NAME, rootDir='.')
 
         if lexer is not None:
-            self.group.templateLexerClass = lexer
+            self._group._templateLexerClass = lexer
 
         # # If this template is defined within a group file, what line number?
         self._groupFileLine = None
 
         # # Where to report errors
-        self.listener = None
+        self._listener = None
 
         # # The original, immutable pattern/language (not really used again
         #  after initial "compilation", setup/parsing).
-        self.pattern = None
+        self._pattern = None
 
         # # Map an attribute name to its value(s).  These values are set by
         #  outside code via st[name] = value.  StringTemplate is like self in
@@ -307,7 +304,7 @@ class StringTemplate(object):
         #  chunks (i.e., compiled down into a series of chunks that can be
         #  evaluated later).
         #  You can have multiple.
-        self.attributes = None
+        self._attributes = None
 
         # # A Map<Class,Object> that allows people to register a renderer for
         #  a particular kind of object to be displayed in this template.  This
@@ -316,12 +313,12 @@ class StringTemplate(object):
         #  Most of the time this map is not used because the StringTemplateGroup
         #  has the general renderer map for all templates in that group.
         #  Sometimes though you want to override the group's renderers.
-        self.attributeRenderers = None
+        self._attributeRenderers = None
 
         # # A list of alternating string and ASTExpr references.
         #  This is compiled when the template is loaded/defined and walked to
         #  write out a template instance.
-        self.chunks = None
+        self._chunks = None
 
         # # If someone refs <@r()> in template t, an implicit
         #
@@ -330,22 +327,30 @@ class StringTemplate(object):
         # is defined, but you can overwrite this def by defining your
         # own.  We need to prevent more than one manual def though.  Between
         # this var and isEmbeddedRegion we can determine these cases.
-        self.regionDefType = None
+        self._regionDefType = None
 
         # # Does this template come from a <@region>...<@end> embedded in
         # another template?
         self._isRegion = False
 
         # # Set of implicit and embedded regions for this template */
-        self.regions = set()
+        self._regions = set()
 
         if template is not None:
             assert isinstance(template, str)
-            self.template = template
+            self._template = template
 
         if attributes is not None:
             assert isinstance(attributes, dict)
-            self.attributes = attributes
+            self._attributes = attributes
+
+    @property
+    def passThroughAttributes(self):
+        return self._passThroughAttributes
+
+    @property
+    def attributes(self):
+        return self._attributes
 
     @property
     def isRegion(self):
@@ -355,26 +360,120 @@ class StringTemplate(object):
     def isRegion(self, value):
         self._isRegion = value
 
+    @property
+    def attributeRenderers(self):
+        return self._attributeRenderers
+
+    @attributeRenderers.setter
+    def attributeRenderers(self, renderers):
+        self._attributeRenderers = renderers
+
+    @property
+    def pattern(self):
+        return self._pattern
+
+    @pattern.setter
+    def pattern(self, pattern):
+        self._pattern = pattern
+
+    @property
+    def chunks(self):
+        return self._chunks
+
+    @chunks.setter
+    def chunks(self, chunks):
+        self._chunks = chunks
+
+    @property
+    def formalArgumentKeys(self):
+        return self._formalArgumentKeys
+
+    @formalArgumentKeys.setter
+    def formalArgumentKeys(self, formalArgumentKeys):
+        self._formalArgumentKeys = formalArgumentKeys
+
+    @property
+    def formalArguments(self):
+        return self._formalArguments
+
+    @formalArguments.setter
+    def formalArguments(self, formalArgument):
+        self._formalArguments = formalArgument
+
+    @property
+    def numberOfDefaultArgumentValues(self):
+        return self._numberOfDefaultArgumentValues
+
+    @numberOfDefaultArgumentValues.setter
+    def numberOfDefaultArgumentValues(self, values):
+        self._numberOfDefaultArgumentValues = values
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def nativeGroup(self):
+        return self._nativeGroup
+
+    @nativeGroup.setter
+    def nativeGroup(self, value):
+        self._nativeGroup = value
+
+    @property
+    def group(self):
+        return self._group
+
+    @group.setter
+    def group(self, grp):
+        self._group = grp
+
+    @property
+    def listener(self):
+        return self._listener
+
+    @listener.setter
+    def listener(self, value):
+        self._listener = value
+
+    @property
+    def regions(self):
+        return self._regions
+
+    @regions.setter
+    def regions(self, value):
+        self._regions = value
+
+    @property
+    def regionDefType(self):
+        return self._regionDefType
+
+    @regionDefType.setter
+    def regionDefType(self, value):
+        self._regionDefType = value
+
     def dup(self, fr, to):
         """
-        Make the 'to' template look exactly like the 'from' template
-        except for the attributes.  This is like creating an instance
-        of a class in that the executable code is the same (the template
-        chunks), but the instance data is blank (the attributes).  Do
-        not copy the enclosingInstance pointer since you will want self
+        Make the 'to' template look exactly like the 'from' template except for the attributes.
+        This is like creating an instance of a class in that the executable code is the same
+        (the template chunks), but the instance data is blank (the attributes).
+        Do not copy the enclosingInstance pointer since you will want self
         template to eval in a context different from the exemplar.
         """
-
         to.attributeRenderers = fr.attributeRenderers
         to.pattern = copy(fr.pattern)
         to.chunks = copy(fr.chunks)
         to.formalArgumentKeys = copy(fr.formalArgumentKeys)
         to.formalArguments = copy(fr.formalArguments)
         to.numberOfDefaultArgumentValues = fr.numberOfDefaultArgumentValues
-        to.name = copy(fr.name)
+        to._name = copy(fr.name)
         to.nativeGroup = fr.nativeGroup
         to.group = fr.group
-        to.listener = copy(fr.listener)
+        to._listener = copy(fr.listener)
         to.regions = fr.regions
         to.isRegion = fr.isRegion
         to.regionDefType = fr.regionDefType
@@ -387,14 +486,14 @@ class StringTemplate(object):
         template but does not have any attribute values.
         """
 
-        if self.nativeGroup is not None:
+        if self._nativeGroup is not None:
             # create a template using the native group for this template
             # but its "group" is set to this.group by dup after creation so
             # polymorphism still works.
-            t = self.nativeGroup.createStringTemplate()
+            t = self._nativeGroup.createStringTemplate()
 
         else:
-            t = self.group.createStringTemplate()
+            t = self._group.createStringTemplate()
 
         self.dup(self, t)
         return t
@@ -407,33 +506,34 @@ class StringTemplate(object):
     def enclosingInstance(self, enclosingInstance):
         if self == self._enclosingInstance:
             raise AttributeError('cannot embed template ' +
-                                 str(self.name) + ' in itself')
+                                 str(self._name) + ' in itself')
         # set the parent for this template
         self._enclosingInstance = enclosingInstance
         # make the parent track self template as an embedded template
         if enclosingInstance:
             self._enclosingInstance.addEmbeddedInstance(self)
 
-    def getOutermostEnclosingInstance(self):
-        if self.enclosingInstance is not None:
-            return self.enclosingInstance.getOutermostEnclosingInstance()
+    @property
+    def outermostEnclosingInstance(self):
+        if self._enclosingInstance is not None:
+            return self._enclosingInstance.outermostEnclosingInstance
 
         return self
 
     def addEmbeddedInstance(self, embeddedInstance):
-        if not self.embeddedInstances:
-            self.embeddedInstances = []
-        self.embeddedInstances.append(embeddedInstance)
+        if not self._embeddedInstances:
+            self._embeddedInstances = []
+        self._embeddedInstances.append(embeddedInstance)
 
-    def getOutermostName(self):
+    @property
+    def outermostName(self):
         if self.enclosingInstance is not None:
             return self.enclosingInstance.getOutermostName()
-        return self.name
+        return self._name
 
     @property
     def groupFileLine(self):
         """Return the outermost template's group file line number"""
-
         if self.enclosingInstance is not None:
             return self.enclosingInstance.getGroupFileLine()
 
@@ -445,34 +545,39 @@ class StringTemplate(object):
 
     @property
     def template(self):
-        return self.pattern
+        return self._pattern
 
     @template.setter
     def template(self, template):
-        self.pattern = template
+        self._pattern = template
         self.breakTemplateIntoChunks()
 
     @property
     def errorListener(self):
-        if not self.listener:
-            return self.group.errorListener
-        return self.listener
+        if not self._listener:
+            return self._group.errorListener
+        return self._listener
 
     @errorListener.setter
     def errorListener(self, listener):
-        self.listener = listener
+        self._listener = listener
 
     def reset(self):
         # just throw out table and make new one
-        self.attributes = {}
+        self._attributes = {}
 
-    def setPredefinedAttributes(self):
+    @property
+    def predefinedAttributes(self):
+        return None
+
+    @predefinedAttributes.setter
+    def predefinedAttributes(self, attrs):
         # only do self method so far in lint mode
         if not stringtemplate3.lintMode:
-            return
+            pass
 
     def removeAttribute(self, name):
-        del self.attributes[name]
+        del self._attributes[name]
 
     __delitem__ = removeAttribute
 
@@ -503,8 +608,8 @@ class StringTemplate(object):
             if '.' in name:
                 raise ValueError("cannot have '.' in attribute names")
 
-            if self.attributes is None:
-                self.attributes = {}
+            if self._attributes is None:
+                self._attributes = {}
 
             if isinstance(value, StringTemplate):
                 value.enclosingInstance = self
@@ -516,9 +621,9 @@ class StringTemplate(object):
 
             # convert plain collections
             # get exactly in this scope (no enclosing)
-            o = self.attributes.get(name, None)
+            o = self._attributes.get(name, None)
             if o is None:  # new attribute
-                self.rawSetAttribute(self.attributes, name, value)
+                self.rawSetAttribute(self._attributes, name, value)
                 return
 
             # it will be a multi-value attribute
@@ -529,13 +634,13 @@ class StringTemplate(object):
                 # must copy to an ST-managed list before adding new attribute
                 v = STAttributeList()
                 v.extend(o)
-                self.rawSetAttribute(self.attributes, name, v)  # replace attribute w/list
+                self.rawSetAttribute(self._attributes, name, v)  # replace attribute w/list
 
             else:
                 # non-list second attribute, must convert existing to ArrayList
                 v = STAttributeList()  # make list to hold multiple values
                 # make it point to list now
-                self.rawSetAttribute(self.attributes, name, v)  # replace attribute w/list
+                self.rawSetAttribute(self._attributes, name, v)  # replace attribute w/list
                 v.append(o)  # add previous single-valued attribute
 
             if isinstance(value, list):
@@ -597,7 +702,7 @@ class StringTemplate(object):
         and a formal argument list exists.
         """
 
-        if self.formalArguments != UNKNOWN_ARGS and \
+        if self._formalArguments != UNKNOWN_ARGS and \
                 not self.hasFormalArgument(name):
             # a normal call to setAttribute with unknown attribute
             raise KeyError(f"no such attribute: {name} in template context " +
@@ -637,23 +742,23 @@ class StringTemplate(object):
         for all instances of self template.
         """
 
-        if self.group._debugTemplateOutput:
-            self.group.emitTemplateStartDebugString(self, out)
+        if self._group.debugTemplateOutput:
+            self._group.emitTemplateStartDebugString(self, out)
 
         n = 0
-        self.setPredefinedAttributes()
+        self.predefinedAttributes = None
         self.setDefaultArgumentValues()
-        if self.chunks:
+        if self._chunks:
             i = 0
-            while i < len(self.chunks):
-                a = self.chunks[i]
+            while i < len(self._chunks):
+                a = self._chunks[i]
                 chunkN = a.write(self, out)
 
                 # expr-on-first-line-with-no-output NEWLINE => NEWLINE
                 if (chunkN == 0 and
                         i == 0 and
-                        i + 1 < len(self.chunks) and
-                        isinstance(self.chunks[i + 1], NewlineRef)):
+                        i + 1 < len(self._chunks) and
+                        isinstance(self._chunks[i + 1], NewlineRef)):
                     # skip next NEWLINE
                     i += 2  # skip *and* advance!
                     continue
@@ -662,16 +767,16 @@ class StringTemplate(object):
                 # Indented $...$ have the indent stored with the ASTExpr
                 # so the indent does not come out as a StringRef
                 if (not chunkN) and (i - 1) >= 0 and \
-                        isinstance(self.chunks[i - 1], NewlineRef) and \
-                        (i + 1) < len(self.chunks) and \
-                        isinstance(self.chunks[i + 1], NewlineRef):
+                        isinstance(self._chunks[i - 1], NewlineRef) and \
+                        (i + 1) < len(self._chunks) and \
+                        isinstance(self._chunks[i + 1], NewlineRef):
                     logger.debug('found pure \\n blank \\n pattern\n')
                     i += 1  # make it skip over the next chunk, the NEWLINE
                 n += chunkN
                 i += 1
 
-        if self.group._debugTemplateOutput:
-            self.group.emitTemplateStopDebugString(self, out)
+        if self._group.debugTemplateOutput:
+            self._group.emitTemplateStopDebugString(self, out)
 
         if stringtemplate3.lintMode:
             self.checkForTrouble()
@@ -737,7 +842,7 @@ class StringTemplate(object):
 
         # not locally defined, check enclosingInstance if embedded
         if (not o) and this.enclosingInstance:
-            logger.debug(f'looking for {self.name}.{attribute} in super [={this.enclosingInstance.name}]\n')
+            logger.debug(f'looking for {self._name}.{attribute} in super [={this.enclosingInstance.name}]\n')
             valueFromEnclosing = self.get(this.enclosingInstance, attribute)
             if not valueFromEnclosing:
                 self.checkNullAttributeAgainstFormalArguments(this, attribute)
@@ -761,8 +866,8 @@ class StringTemplate(object):
         chunks: Strings and actions/expressions.
         """
 
-        logger.debug(f'parsing template: {self.pattern}')
-        if not self.pattern:
+        logger.debug(f'parsing template: {self._pattern}')
+        if not self._pattern:
             return
         try:
             # instead of creating a specific template lexer, use
@@ -770,17 +875,17 @@ class StringTemplate(object):
             # The default is DefaultTemplateLexer.
             # The only constraint is that you use an ANTLR lexer,
             # so I can use the special ChunkToken.
-            lexerClass = self.group.templateLexerClass
-            chunkStream = lexerClass(StringIO(self.pattern))
-            chunkStream.this = self
+            lexerClass = self._group.templateLexerClass
+            chunkStream = lexerClass(StringIO(self._pattern))
+            chunkStream._this = self
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
         except Exception as e:
             name = "<unknown>"
-            outerName = self.getOutermostName()
-            if self.name:
-                name = self.name
+            outerName = self.outermostName
+            if self._name:
+                name = self._name
             if outerName and not name == outerName:
                 name = name + ' nested in ' + outerName
             self.error('problem parsing template \'' + name + '\' ', e)
@@ -793,9 +898,9 @@ class StringTemplate(object):
         a = None
         try:
             options = parser.action()
-            tree = parser.getAST()
+            tree = parser.AST
             if tree:
-                if tree.getType() == ActionParser.LITERAL_if:
+                if tree.type == ActionParser.CONDITIONAL:
                     a = ConditionalExpr(self, tree)
                 else:
                     a = ASTExpr(self, tree, options)
@@ -807,11 +912,10 @@ class StringTemplate(object):
 
         return a
 
-
     def addChunk(self, e):
-        if not self.chunks:
-            self.chunks = []
-        self.chunks.append(e)
+        if not self._chunks:
+            self._chunks = []
+        self._chunks.append(e)
 
     # ----------------------------------------------------------------------------
     #                      F o r m a l  A r g  S t u f f
@@ -830,15 +934,15 @@ class StringTemplate(object):
         the template attributes table just for consistency's sake.
         """
 
-        if not self.numberOfDefaultArgumentValues:
+        if not self._numberOfDefaultArgumentValues:
             return
-        if not self.argumentContext:
-            self.argumentContext = {}
-        if self.formalArguments != UNKNOWN_ARGS:
-            argNames = self.formalArgumentKeys
+        if not self._argumentContext:
+            self._argumentContext = {}
+        if self._formalArguments != UNKNOWN_ARGS:
+            argNames = self._formalArgumentKeys
             for argName in argNames:
                 # use the default value then
-                arg = self.formalArguments[argName]
+                arg = self._formalArguments[argName]
                 if arg.defaultValueST:
                     existingValue = self.getAttribute(argName)
                     if not existingValue:  # value unset?
@@ -846,7 +950,7 @@ class StringTemplate(object):
                         # to the default value.  We don't need an instance
                         # here because no attributes can be set in
                         # the arg templates by the user.
-                        self.argumentContext[argName] = arg.defaultValueST
+                        self._argumentContext[argName] = arg.defaultValueST
 
     def lookupFormalArgument(self, name):
         """
@@ -864,14 +968,14 @@ class StringTemplate(object):
         return arg
 
     def getFormalArgument(self, name):
-        return self.formalArguments[name]
+        return self._formalArguments[name]
 
     def hasFormalArgument(self, name):
-        return name in self.formalArguments
+        return name in self._formalArguments
 
     def defineEmptyFormalArgumentList(self):
-        self.formalArgumentKeys = []
-        self.formalArguments = {}
+        self._formalArgumentKeys = []
+        self._formalArguments = {}
 
     def defineFormalArgument(self, names, defaultValue=None):
         if not names:
@@ -879,20 +983,20 @@ class StringTemplate(object):
         if isinstance(names, str):
             name = names
             if defaultValue:
-                self.numberOfDefaultArgumentValues += 1
+                self._numberOfDefaultArgumentValues += 1
             a = FormalArgument(name, defaultValue)
-            if self.formalArguments == UNKNOWN_ARGS:
-                self.formalArguments = {}
-            self.formalArgumentKeys = [name]
-            self.formalArguments[name] = a
+            if self._formalArguments == UNKNOWN_ARGS:
+                self._formalArguments = {}
+            self._formalArgumentKeys = [name]
+            self._formalArguments[name] = a
         elif isinstance(names, list):
             for name in names:
                 a = FormalArgument(name, defaultValue)
-                if self.formalArguments == UNKNOWN_ARGS:
-                    self.formalArgumentKeys = []
-                    self.formalArguments = {}
-                self.formalArgumentKeys.append(name)
-                self.formalArguments[name] = a
+                if self._formalArguments == UNKNOWN_ARGS:
+                    self._formalArgumentKeys = []
+                    self._formalArguments = {}
+                self._formalArgumentKeys.append(name)
+                self._formalArguments[name] = a
 
     def registerRenderer(self, attributeClassType, renderer):
         """
@@ -900,9 +1004,9 @@ class StringTemplate(object):
         overrides any renderer set in the group for this class type.
         """
 
-        if not self.attributeRenderers:
-            self.attributeRenderers = {}
-        self.attributeRenderers[attributeClassType] = renderer
+        if not self._attributeRenderers:
+            self._attributeRenderers = {}
+        self._attributeRenderers[attributeClassType] = renderer
 
     def getAttributeRenderer(self, attributeClassType):
         """
@@ -911,8 +1015,8 @@ class StringTemplate(object):
         """
 
         renderer = None
-        if self.attributeRenderers is not None:
-            renderer = self.attributeRenderers.get(attributeClassType, None)
+        if self._attributeRenderers is not None:
+            renderer = self._attributeRenderers.get(attributeClassType, None)
 
         if renderer is not None:
             # found it
@@ -924,7 +1028,7 @@ class StringTemplate(object):
             return self.enclosingInstance.getAttributeRenderer(attributeClassType)
 
         # else check group
-        return self.group.getAttributeRenderer(attributeClassType)
+        return self._group.getAttributeRenderer(attributeClassType)
 
     # ----------------------------------------------------------------------------
     #                      U t i l i t y  R o u t i n e s
@@ -949,10 +1053,10 @@ class StringTemplate(object):
         Indicates that 'name' has been referenced in self template.
         """
 
-        if not self.referencedAttributes:
-            self.referencedAttributes = []
-        if not name in self.referencedAttributes:
-            self.referencedAttributes.append(name)
+        if not self._referencedAttributes:
+            self._referencedAttributes = []
+        if name not in self._referencedAttributes:
+            self._referencedAttributes.append(name)
 
     @classmethod
     def isRecursiveEnclosingInstance(cls, st):
@@ -986,18 +1090,18 @@ class StringTemplate(object):
                 break
             seen[hash(p)] = p
             buf.write(p.templateDeclaratorString)
-            if p.attributes:
+            if p._attributes:
                 buf.write(", attributes=[")
                 i = 0
-                for attrName in list(p.attributes.keys()):
+                for attrName in list(p._attributes.keys()):
                     if i > 0:
                         buf.write(", ")
                     i += 1
                     buf.write(attrName)
-                    o = p.attributes[attrName]
+                    o = p._attributes[attrName]
                     if isinstance(o, StringTemplate):
-                        buf.write('=<' + o.name + '()@')
-                        buf.write(str(o.templateID) + '>')
+                        buf.write('=<' + o._name + '()@')
+                        buf.write(str(o._templateID) + '>')
                     elif isinstance(o, list):
                         buf.write("=List[..")
                         n = 0
@@ -1006,15 +1110,15 @@ class StringTemplate(object):
                                 if n > 0:
                                     buf.write(", ")
                                 n += 1
-                                buf.write('<' + st.name + '()@')
-                                buf.write(str(st.templateID) + '>')
+                                buf.write('<' + st._name + '()@')
+                                buf.write(str(st._templateID) + '>')
 
                         buf.write("..]")
 
                 buf.write(']')
-            if p.referencedAttributes:
+            if p._referencedAttributes:
                 buf.write(', references=')
-                buf.write(p.referencedAttributes)
+                buf.write(p._referencedAttributes)
             buf.write('>\n')
             p = p.enclosingInstance
         # if self.enclosingInstance:
@@ -1024,14 +1128,14 @@ class StringTemplate(object):
 
     @property
     def templateDeclaratorString(self):
-        return '<' + self.name + '(' + str(self.formalArgumentKeys) + \
-            ')' + '@' + str(self.templateID) + '>'
+        return '<' + self._name + '(' + str(self._formalArgumentKeys) + \
+            ')' + '@' + str(self._templateID) + '>'
 
     def getTemplateHeaderString(self, showAttributes):
-        if showAttributes and self.attributes is not None:
-            return self.name + str(list(self.attributes.keys()))
+        if showAttributes and self._attributes is not None:
+            return self._name + str(list(self._attributes.keys()))
 
-        return self.name
+        return self._name
 
     def checkNullAttributeAgainstFormalArguments(self, this, attribute):
         """
@@ -1062,12 +1166,12 @@ class StringTemplate(object):
 
         # we have table of set values and list of values referenced
         # compare, looking for SET BUT NOT REFERENCED ATTRIBUTES
-        if not self.attributes:
+        if not self._attributes:
             return
-        for name in list(self.attributes.keys()):
-            if self.referencedAttributes and \
-                    not name in self.referencedAttributes:
-                self.warning(self.name + ': set but not used: ' + name)
+        for name in list(self._attributes.keys()):
+            if self._referencedAttributes and \
+                    name not in self._referencedAttributes:
+                self.warning(self._name + ': set but not used: ' + name)
 
         # can do the reverse, but will have lots of False warnings :(
 
@@ -1082,7 +1186,7 @@ class StringTemplate(object):
         names = []
         p = self
         while p:
-            names.append(p.name)
+            names.append(p._name)
             p = p.enclosingInstance
         names.reverse()
         s = '['
@@ -1094,25 +1198,25 @@ class StringTemplate(object):
         return s + ']'
 
     def addRegionName(self, name):
-        self.regions.add(name)
+        self._regions.add(name)
 
     def containsRegionName(self, name):
-        return name in self.regions
+        return name in self._regions
 
     def toDebugString(self):
         buf = StringIO(u'')
         buf.write('template-' + self.templateDeclaratorString + ': ')
         buf.write('chunks=')
-        if self.chunks:
-            buf.write(str(self.chunks))
+        if self._chunks:
+            buf.write(str(self._chunks))
         buf.write('attributes=[')
-        if self.attributes:
+        if self._attributes:
             n = 0
-            for name in list(self.attributes.keys()):
+            for name in list(self._attributes.keys()):
                 if n > 0:
                     buf.write(',')
                 buf.write(name + '=')
-                value = self.attributes[name]
+                value = self._attributes[name]
                 if isinstance(value, StringTemplate):
                     buf.write(value.toDebugString())
                 else:
@@ -1132,13 +1236,13 @@ class StringTemplate(object):
         buf = StringIO(u'')
 
         buf.write('  ' * indent)  # indent
-        buf.write(self.name)
-        buf.write(str(list(self.attributes.keys())))  # FIXME: errr.. that's correct?
+        buf.write(self._name)
+        buf.write(str(list(self._attributes.keys())))  # FIXME: errr.. that's correct?
         buf.write(":\n")
-        if self.attributes is not None:
-            attrNames = list(self.attributes.keys())
+        if self._attributes is not None:
+            attrNames = list(self._attributes.keys())
             for name in attrNames:
-                value = self.attributes[name]
+                value = self._attributes[name]
                 if isinstance(value, StringTemplate):  # descend
                     buf.write(value.toStructureString(indent + 1))
 
@@ -1202,8 +1306,8 @@ class StringTemplate(object):
         """
 
         srcNode = self.getTemplateHeaderString(showAttributes)
-        if self.attributes is not None:
-            for name, value in self.attributes.items():
+        if self._attributes is not None:
+            for name, value in self._attributes.items():
                 if isinstance(value, StringTemplate):
                     targetNode = value.getTemplateHeaderString(showAttributes)
                     self.putToMultiValuedMap(edges, srcNode, targetNode)
@@ -1225,21 +1329,21 @@ class StringTemplate(object):
                                 o.getDependencyGraph(edges, showAttributes)  # descend
 
         # look in chunks too for template refs
-        for chunk in self.chunks:
+        for chunk in self._chunks:
             if not isinstance(chunk, ASTExpr):
                 continue
 
             from stringtemplate3.language.ActionEvaluator import INCLUDE
-            tree = chunk.getAST()
+            tree = chunk.AST
             includeAST = antlr.CommonAST(
                 antlr.CommonToken(INCLUDE, "include")
             )
 
             for t in tree.findAllPartial(includeAST):
-                templateInclude = t.getFirstChild().getText()
+                templateInclude = t.firstChild.text
                 # System.out.println("found include "+templateInclude);
                 self.putToMultiValuedMap(edges, srcNode, templateInclude)
-                group = self.group
+                group = self._group
                 if group is not None:
                     st = group.getInstanceOf(templateInclude)
                     # descend into the reference template
@@ -1253,16 +1357,16 @@ class StringTemplate(object):
             a_map[key] = [value]
 
     def printDebugString(self, out=sys.stderr):
-        out.write('template-' + self.name + ':\n')
-        out.write('chunks=' + str(self.chunks))
-        if not self.attributes:
+        out.write('template-' + self._name + ':\n')
+        out.write('chunks=' + str(self._chunks))
+        if not self._attributes:
             return
         out.write("attributes=[")
         n = 0
-        for name in list(self.attributes.keys()):
+        for name in list(self._attributes.keys()):
             if n > 0:
                 out.write(',')
-            value = self.attributes[name]
+            value = self._attributes[name]
             if isinstance(value, StringTemplate):
                 out.write(name + '=')
                 value.printDebugString()
@@ -1285,7 +1389,7 @@ class StringTemplate(object):
     def toString(self, lineWidth=StringTemplateWriter.NO_WRAP):
         # Write the output to a StringIO
         out = StringIO(u'')
-        wr = self.group.getStringTemplateWriter(out)
+        wr = self._group.getStringTemplateWriter(out)
         wr._line_width = lineWidth
         try:
             self.write(wr)
@@ -1300,6 +1404,10 @@ class StringTemplate(object):
         return out.getvalue()
 
     __str__ = toString
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
 
 # initialize here, because of cyclic imports

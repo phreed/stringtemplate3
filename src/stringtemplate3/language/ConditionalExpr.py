@@ -8,8 +8,8 @@ from stringtemplate3.language import ActionEvaluator
 
 class ElseIfClauseData(object):
     def __init__(self, expr, st):
-        self.expr = expr
-        self.st = st
+        self._expr = expr
+        self._st = st
 
 
 class ConditionalExpr(ASTExpr):
@@ -51,7 +51,7 @@ class ConditionalExpr(ASTExpr):
         If result is true, then write subtemplate.
         """
 
-        if self.exprTree is None or this is None or out is None:
+        if self._exprTree is None or this is None or out is None:
             return 0
 
         evaluator = ActionEvaluator.Walker()
@@ -60,7 +60,7 @@ class ConditionalExpr(ASTExpr):
         try:
             testedTrue = False
             # get conditional from tree and compute result
-            cond = self.exprTree.getFirstChild()
+            cond = self._exprTree.firstChild
 
             # eval and write out tree. In case the condition refers to an
             # undefined attribute, we catch the KeyError exception and proceed
@@ -93,7 +93,7 @@ class ConditionalExpr(ASTExpr):
 
         except antlr.RecognitionException as re:
             this.error(
-                "can't evaluate tree: " + self.exprTree.toStringList(), re
+                "can't evaluate tree: " + self._exprTree.toStringList(), re
             )
 
         return n
@@ -109,6 +109,6 @@ class ConditionalExpr(ASTExpr):
         s.enclosingInstance = this
         # make sure we evaluate in context of enclosing template's
         # group so polymorphism works. :)
-        s.group = this.group
-        s.nativeGroup = this.nativeGroup
+        s._group = this.group
+        s._nativeGroup = this.nativeGroup
         return s.write(out)

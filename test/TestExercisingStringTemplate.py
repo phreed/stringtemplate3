@@ -34,7 +34,7 @@ from TestStringHelper import (IllegalArgumentException, ErrorBuffer)
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -78,7 +78,7 @@ def test_SingleValuedAttributes():
     query["column"] = "name"
     query["table"] = "User"
     """ System.out.println(query); """
-    assert "SELECT name FROM User;" == str(query)
+    assert str(query) == "SELECT name FROM User;"
 
 
 def test_EscapesOutsideExpressions():
@@ -138,7 +138,6 @@ def test_SimpleAutoIndent():
             Frank
         }
         """
-
 
 
 def test_8BitEuroChars():
@@ -677,7 +676,7 @@ def test_SuperTemplateRef():
     """ you can refer to a template defined in a super group via super.t() """
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup.superGroup = group
+    subGroup._superGroup = group
     group.defineTemplate("page", "$font()$:text")
     group.defineTemplate("font", "Helvetica")
     subGroup.defineTemplate("font", "$super.font()$ and Times")
@@ -688,7 +687,7 @@ def test_SuperTemplateRef():
 def test_ApplySuperTemplateRef():
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup.superGroup = group
+    subGroup._superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
     subGroup.defineTemplate("page", "$name:super.bold()$")
@@ -705,7 +704,7 @@ def test_TemplatePolymorphism():
     """
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup.superGroup = group
+    subGroup._superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     group.defineTemplate("page", "$name:bold()$")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
@@ -884,7 +883,7 @@ def test_ComplicatedInheritance():
         labels() ::= "SL"
     """
     sub = St3G(file=io.StringIO(subTemplates))
-    sub.superGroup = base
+    sub._superGroup = base
     st = sub.getInstanceOf("decls")
     assert str(st) == "DSL"
 
@@ -1323,14 +1322,16 @@ def test_EmptyIteratedValueGetsSeparator():
 
 class Decl:
     def __init__(self, name, atype):
-        self.name = name
-        self.type = atype
+        self._name = name
+        self._type = atype
 
-    def getName(self):
-        return self.name
+    @property
+    def name(self):
+        return self._name
 
-    def getType(self):
-        return self.type
+    @property
+    def type(self):
+        return self._type
 
 
 def test_ComputedPropertyName():

@@ -1,6 +1,6 @@
 = StringTemplate3
-:test_dir: ../test
-:test_file: ../test/TestUsingStringTemplate.py
+:test_dir: ../examples
+:test_file: ../examples/TestUsingStringTemplate.py
 
 == Usage
 The majority of this document was lifted from the https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
@@ -91,22 +91,34 @@ I found that I needed only the following four basic canonical operations (with s
 
 where template references can be recursive.
 
-Language theory supports my premise that even a minimal StringTemplate engine with only these features is very powerful--such an engine can generate the context-free languages (see Enforcing Strict Model-View Separation in Template Engines); e.g., most programming languages are context-free as are any XML pages whose form can be expressed with a DTD.
+Language theory supports my premise that even a minimal StringTemplate engine with only these features is very powerful
+--such an engine can generate the context-free languages (see Enforcing Strict Model-View Separation in Template Engines);
+e.g., most programming languages are context-free as are any XML pages whose form can be expressed with a DTD.
 
-While providing all sorts of dangerous features like assignment that promote the use of computations and logic in templates, many engines miss the key elements.
+While providing all sorts of dangerous features like assignment that promote the use of computations and logic in templates,
+many engines miss the key elements.
 Certain language semantics are absolutely required for generative programming and language translation.
 One is recursion.
-A template engine without recursion seems unlikely to be capable of generating recursive output structures such as nested tables or nested code blocks.
+A template engine without recursion seems unlikely to be capable
+of generating recursive output structures such as nested tables or nested code blocks.
 
 Another distinctive StringTemplate language feature lacking in other engines is lazy-evaluation.
-StringTemplate's attributes are lazily evaluated in the sense that referencing attribute "a" does not actually invoke the data lookup mechanism until the template is asked to render itself to text.
-Lazy evaluation is surprisingly  useful in both the web and code generation worlds because such order decoupling allows code to set attributes when it is convenient or efficient not necessarily before a template that references those attributes is created.
-For example, a complicated web page may consist of many nested templates many of which reference $userName$, but the value of userName does not need to be set by the model until right before the entire page is rendered to text via ToString().
+StringTemplate's attributes are lazily evaluated in the sense that
+referencing attribute "a" does not actually invoke the data lookup mechanism
+until the template is asked to render itself to text.
+Lazy evaluation is surprisingly  useful in both the web and code generation worlds because
+such order decoupling allows code to set attributes when it is convenient or
+efficient not necessarily before a template that references those attributes is created.
+For example, a complicated web page may consist of many nested templates many of which reference $userName$,
+but the value of userName does not need to be set by the model until
+right before the entire page is rendered to text via ToString().
 You can build up the complicated page, setting attribute values in any convenient order.
 
 StringTemplate implements a "poor man's" form of lazy evaluation by simply requiring that all attributes be computed a priori.
-That is, all attributes must be computed and pushed into a template before it is written to text; this is the so-called "push method" whereas most template engines use the "pull method".
-The pull method appears more conventional because programmers mistakenly regard templates as programs, but pulling attributes introduces order-of-computation dependencies.
+That is, all attributes must be computed and pushed into a template before it is written to text;
+this is the so-called "push method" whereas most template engines use the "pull method".
+The pull method appears more conventional because programmers mistakenly regard templates as programs,
+but pulling attributes introduces order-of-computation dependencies.
 Imagine a simple web page that displays a list of names (using some mythical Java-based template engine notation):
 
 [source,html]
@@ -124,20 +136,24 @@ There are $numberNames$ names.
 ----
 
 Using the pull method, the reference to names invokes model.getNames(), which presumably loads a list of names from the database.
-The reference to numberNames invokes model.getNumberNames() which necessarily uses the internal data structure computed by getNames() to compute names.size() or whatever.
+The reference to numberNames invokes model.getNumberNames() which
+necessarily uses the internal data structure computed by getNames() to compute 'names.size()' or whatever.
 Now, suppose a designer moves the numberNames reference to the <title> tag, which is before the reference to names in the foreach statement.
 The names will not yet have been loaded, yielding a null pointer exception at worst or a blank title at best.
 You have to anticipate these dependencies and have getNumberNames() invoke getNames() because of a change in the template.
 
 I'm stunned that other template engine authors with whom I've spoken think this is ok.
-Any time I can get the computer to do something automatically for me that removes an entire class of programming errors, I'll take it! Automatic garbage collection is the obvious analogy here.
+Any time I can get the computer to do something automatically for me that removes an entire class of programming errors, I'll take it!
+Automatic garbage collection is the obvious analogy here.
 
 The pull method requires that programmers do a topological sort in their minds anticipating any order that a programmer or designer could induce.
-To ensure attribute computation safety (i.e., avoid hidden dependency landmines), I have shown trivially in my academic paper that pull reduces to push in the worst case.
+To ensure attribute computation safety (i.e., avoid hidden dependency landmines),
+I have shown trivially in my academic paper that pull reduces to push in the worst case.
 With a complicated mesh of templates, you will miss a dependency, thus, creating a really nasty, difficult-to-find bug.
 
 ==== StringTemplate mission
-When developing StringTemplate, I recalled Frederick Brook's book, "Mythical Man Month", where he identified conceptual integrity as a crucial product ingredient.
+When developing StringTemplate, I recalled Frederick Brook's book, "Mythical Man Month",
+where he identified conceptual integrity as a crucial product ingredient.
 For example, in UNIX everything is a stream.
 My concept, if you will, is strict model-view separation.
 My mission statement is therefore:
@@ -145,7 +161,8 @@ My mission statement is therefore:
 "StringTemplate shall be as simple, consistent, and powerful as possible without sacrificing strict model-view separation."
 
 I ruthlessly evaluate all potential features and functionality against this standard.
-Over the years, however, I have made certain concessions to practicality that one could consider as infringing ever-so-slightly into potential model-view entanglement.
+Over the years, however, I have made certain concessions to practicality that
+one could consider as infringing ever-so-slightly into potential model-view entanglement.
 That said, StringTemplate still seems to enforce separation while providing excellent functionality.
 
 I let my needs dictate the language and tool feature set.
@@ -156,12 +173,16 @@ There are very few special cases and attribute/template scoping rules make a lot
 Everything in the language exists to solve a very real need.
 
 StringTemplate language flavor
-Just so you know, I've never been a big fan of functional languages and I laughed really hard when I realized (while writing the academic paper) that I had implemented a functional language.
+Just so you know, I've never been a big fan of functional languages and I laughed really hard when I realized
+(while writing the academic paper) that I had implemented a functional language.
 The nature of the problem simply dictated a particular solution.
-We are generating sentences in an output language so we should use something akin to a grammar.
+We are generating sentences in an output language, so we should use something akin to a grammar.
 Output grammars are inconvenient so tool builders created template engines.
-Restricted template engines that enforce the universally-agreed-upon goal of strict model-view separation also look remarkably like output grammars as I have shown.
-So, the very nature of the language generation problem dictates the solution: a template engine that is restricted to support a mutually-recursive set of templates with side-effect-free and order-independent attribute references.
+Restricted template engines that enforce the universally-agreed-upon goal of
+strict model-view separation also look remarkably like output grammars as I have shown.
+So, the very nature of the language generation problem dictates the solution:
+a template engine that is restricted to support a mutually-recursive set of templates
+with side-effect-free and order-independent attribute references.
 
 
 === StringTemplate cheat sheet
@@ -172,7 +193,8 @@ See Expressions
 Evaluates to the value of attribute.ToString() if it exists else empty string.
 
 <i>, <i0>::
-The iteration number indexed from one and from zero, respectively, when referenced within a template being applied to an attribute or attributes.
+The iteration number indexed from one and from zero, respectively,
+when referenced within a template being applied to an attribute or attributes.
 
 <attribute.property> ::
 Looks for property of attribute as a property (C#), then accessor methods like getProperty() or isProperty().
@@ -181,7 +203,7 @@ Evaluates to the empty string if no such property is found.
 
 <attribute.(expr)> ::
 Indirect property lookup.
-Same as attribute.property except use the value of expr as the property_ name.
+Same as 'attribute.property' except use the value of expr as the property_ name.
 Evaluates to the empty string if no such property is found.
 
 <multivalued
@@ -200,7 +222,8 @@ Creates a new multivalued
 
 <template(argument-list)> ::
 Include template.
-The argument-list is a list of attribute assignments where each assignment is of the form arg-of-template=expr where expr is evaluated in the context of the surrounding template
+The argument-list is a list of attribute assignments where each assignment is of the form
+'arg-of-template=expr' where expr is evaluated in the context of the surrounding template
 not of the invoked template.
 
 <(expr)(argument-list)> ::
@@ -1499,7 +1522,7 @@ You can set manually with:
 
 [source,python]
 ----
-st.passThroughAttributes = True
+st._passThroughAttributes = True
 ----
 
 Argument evaluation scope
@@ -2155,7 +2178,7 @@ group.registerRenderer(str, EscapeRenderer())
 st = group.getInstanceOf("blogEntry")
 st['comment'] = database.loadComment() # an instance with username, text, url, ... attributes
 ----
-Then you can use $comment.text; format="escape"$ in your templates whenever an attribute is not known to be save.
+Then you can use `$comment.text; format="escape"$` in your templates whenever an attribute is not known to be safe.
 
 
 == Auto-indentation
@@ -2164,22 +2187,28 @@ StringTemplate has auto-indentation on by default.
 To turn it off, use NoIndentWriter rather than (the default) AutoIndentWriter.
 
 At the simplest level, the indentation looks like a simple column count:
-
+[source,template]
+----
 My dogs' names
   $names; separator="\n"$
+----
 The last, unindented line
 will yield output like:
-
+[source,text]
+----
 My dog's names
   Fido
   Rex
   Stinky
-The last, unindented line
-where the last line gets "unindented" after displaying the list.
-StringTemplate tracks the characters to the left of the $ or < rather than the column number so that if you indent with tabs versus spaces, you'll get the same indentation in the output.
+----
+The last, unindented line where the last line gets "unindented" after displaying the list.
+StringTemplate tracks the characters to the left of the $ or < rather than the column number,
+so that if you indent with tabs versus spaces, you'll get the same indentation in the output.
 
 When there are nested templates, StringTemplate tracks the combined indentation:
 
+[source,template]
+----
 // <user> is indented two spaces
 main(user) ::= <<
 Hi
@@ -2187,12 +2216,16 @@ Hi
 >>
 
 quote ::= " '$it$'"
+----
 In this case, you would get output like:
 
+[source,text]
+----
 Hi
 \t 'Bob'
 \t 'Ephram'
 \t 'Mary'
+----
 where the combined indentation is tab plus space for the attribute references in template quote.
 Expression $user$ is indented by 1 tab and hence any attribute generated from it (in this case the $attr$ of quote()) must have
 at least the tab.
@@ -2214,9 +2247,11 @@ The following code:
 include::{test_file}[tag=demo_auto_indent]
 ----
 
-Indentation can only occur at the start of a line so indentation is only tracked in front of attribute expressions following a newline.
+Indentation can only occur at the start of a line,
+so indentation is only tracked in front of attribute expressions following a newline.
 
-The one exception to indentation is that naturally, $if$ actions do not cause indentation as they do not result in any output.
+The one exception to indentation is that naturally,
+$if$ actions do not cause indentation as they do not result in any output.
 However, the subtemplates (THEN and ELSE clauses) will see indentations.
 For example, in the following template, the two subtemplates are indented by exactly 1 space each:
 
@@ -2231,9 +2266,11 @@ $endif$
 
 == Automatic line wrapping
 
-StringTemplate never automatically wraps lines--you must explicitly use the wrap option on an expression to indicate that StringTemplate should wrap lines in between expression elements.
+StringTemplate never automatically wraps lines--you must explicitly use the wrap option on an expression
+to indicate that StringTemplate should wrap lines in between expression elements.
 StringTemplate never breaks literals, but it can break in between a literal and an expression.
-the line wrapping is soft in the sense that an expression that emits text starting before the right edge will spit out that element even if it goes past the right edge.
+the line wrapping is soft in the sense that an expression that emits text starting before the right edge
+will spit out that element even if it goes past the right edge.
 In other words, StringTemplate does not break elements to enforce a hard right edge.
 It will not break line between element and separator to avoid having for example a comma appear at the left edge.
 You may specify the line width as an argument to toString() such as st.toString(72).
@@ -2241,8 +2278,9 @@ By default, toString() does not wrap lines.
 
 That said, if there's a newline in the literal to emit, it will wrap at the newline.
 
-To illustrate the simplest form of line wrapping, consider a simple list of characters that you would like to wrap at, say, line width 3.
-Use the wrap option on the chars expression:
+To illustrate the simplest form of line wrapping,
+consider a simple list of characters that you would like to wrap at, say, line width 3.
+Use the wrap option on the `chars` expression:
 
 [source,template]
 ----
@@ -2274,7 +2312,9 @@ Given parameters `a..f` as the elements of the args list, you would get the foll
 ----
        FUNCTION line( a,b,c,d,e,f )
 ----
-But what if you wanted to wrap lines at a width of 30? Simply use toString(30) and specify that the expression should wrap using newline followed by six spaces followed by the 'c' character, which can be used as the continuation character:
+But what if you wanted to wrap lines at a width of 30? Simply use toString(30)
+and specify that the expression should wrap using newline followed by six spaces followed by the 'c' character,
+which can be used as the continuation character:
 
 [source,template]
 ----
@@ -2288,11 +2328,14 @@ func(args) ::= <<
        FUNCTION line( a,b,c,d,\n" +
       ce,f )
 ----
-Similarly, if you want to break really long strings, use wrap="\"+\n \"", which emits a quote character followed by plus symbol followed by 4 spaces.
+Similarly, if you want to break really long strings, use wrap="\"+\n \"",
+which emits a quote character followed by plus symbol followed by 4 spaces.
 
-StringTemplate properly tracks newlines in the text omitted by your templates so that it can avoid emitting wrap strings right after your template has emitted a newline.
+StringTemplate properly tracks newlines in the text omitted by your templates,
+so that it can avoid emitting wrap strings right after your template has emitted a newline.
 StringTemplate also looks at your wrap string to find the (sole) \n character.
-Wrap strings are of the form A\nB and StringTemplate emits A\n first and then spits out the indentation as required by auto-indentation and then finally B.
+Wrap strings are of the form A\nB and StringTemplate emits A\n first and
+then spits out the indentation as required by auto-indentation and then finally B.
 Again, imagine, the list of characters to emit, but now consider that the expression has been indented:
 
 [source,template]
@@ -2309,7 +2352,8 @@ With the same input a..e and toString(4), you would see the following output:
   cd
   e
 ----
-What if the expression is not indented with whitespace but has some text to the left? Consider dumping out an array of numbers as a Java array definition:
+What if the expression is not indented with whitespace but has some text to the left?
+Consider dumping out an array of numbers as a Java array definition:
 
 [source,template]
 ----
@@ -2335,8 +2379,10 @@ int[] a = { 3,9,20,2,1,4,6,32,5,6,77,888,
 32,5,6,77,888,1,6,32,5 };
 ----
 While correct, that is not particularly beautiful code.
-What you really want, is for the numbers to line up with the start of the expression; in this case under the first "3".
-to do this, use the anchor option, which means StringTemplate should line up all wrapped lines with left edge of expression when wrapping:
+What you really want, is for the numbers to line up with the start of the expression;
+in this case under the first "3".
+to do this, use the anchor option,
+which means StringTemplate should line up all wrapped lines with left edge of expression when wrapping:
 
 [source,template]
 ----
@@ -2356,7 +2402,10 @@ int[] a = { 3,9,20,2,1,4,6,32,5,6,77,888,
 ----
 One final complication.
 Sometimes you want to anchor the left edge of all wrapped lines in a position to the left of where the expression starts.
-For example what if you wanted to print out three literal values first such as "1,9,2"? Because StringTemplate can only anchor at expressions simply wrap the literals and your values expression in an embedded anonymous template (enclose them with <{...}>) and use the anchor on that embedded template:
+For example what if you wanted to print out three literal values first such as "1,9,2"?
+Because StringTemplate can only anchor at expressions simply wrap the literals and
+your values expression in an embedded anonymous template (enclose them with <{...}>)
+and use the anchor on that embedded template:
 
 [source,template]
 ----
@@ -2408,7 +2457,8 @@ Use it like this:
 ----
 include::{test_file}[tag=demo_no_indent_writer]
 ----
-Instead of using nameST.toString(), which calls write with a string write and returns its value, manually invoke write with your writer.
+Instead of using nameST.toString(), which calls write with a string write and returns its value,
+manually invoke write with your writer.
 
 If you want to always use a particular output filter, then use
 
@@ -2421,12 +2471,15 @@ The StringTemplate `str()` method is sensitive to the group's writer class.
 
 == Template and attribute lookup rules
 Template lookup
-When you request a named template via StringTemplateGroup.getInstanceOf() or within a template, there is a specific sequence used to locate the template.
+When you request a named template via StringTemplateGroup.getInstanceOf() or within a template,
+there is a specific sequence used to locate the template.
 
-If a template, t, references another template and t is not specifically associated with any group, t is implicitly associated with a default group whose root directory is ".", the current directory.
+If a template, t, references another template and t is not specifically associated with any group,
+t is implicitly associated with a default group whose root directory is ".", the current directory.
 The referenced template will be looked up in the current directory.
 
-If a template t is associated with a group, but was not defined via a group file format, lookup a referenced template in the group's template table.
+If a template t is associated with a group, but was not defined via a group file format,
+lookup a referenced template in the group's template table.
 If not there, look for it on the disk under the group's root dir.
 If not found, recursively look at any supergroup of the group.
 If not found at all, record this fact and don't look again on the disk until refresh interval.
@@ -2437,14 +2490,18 @@ The refresh interval is not used for group files because the group file is consi
 
 Attribute scoping rules
 A StringTemplate is a list of chunks, text literals and attribute expressions, and an attributes table.
-To render a template to string, the chunks are written out in order; the expressions are evaluated only when asked to during rendering.
+To render a template to string, the chunks are written out in order;
+the expressions are evaluated only when asked during rendering.
 Attributes referenced in expressions are looked up using a very specific sequence similar to an inheritance mechanism.
 
-When you nest a template within another, such as when a page template references a searchbox template, the nested template may see any attributes of the enclosing instance or its enclosing instances.
+When you nest a template within another, such as when a page template references a searchbox template,
+the nested template may see any attributes of the enclosing instance or its enclosing instances.
 This mechanism is called dynamic scoping.
-Contrast this with lexical scoping used in most programming languages like C# and Java where a method may not see the variables defined in invoking methods.
+Contrast this with lexical scoping used in most programming languages like C# and Java
+where a method may not see the variables defined in invoking methods.
 Dynamic scoping is very natural for templates.
-For example, if page has an attribute/value pair font/Times then searchbox could reference $font$ when nested within a page instance.
+For example, if page has an attribute/value pair font/Times
+then searchbox could reference $font$ when nested within a page instance.
 
 Reference to attribute a in template t is resolved as follows:
 
@@ -2455,9 +2512,11 @@ Look recursively up t's group / supergroup chain for a map
 This process is recursively executed until a is found or there are no more enclosing template instances or super groups.
 
 When using a group file format to specify templates, you must specify the formal arguments for that template.
-If you try to access an attribute that is not formally defined in that template or an enclosing template, you will get a InvalidOperationException.
+If you try to access an attribute that is not formally defined in that template or an enclosing template,
+you will get a InvalidOperationException.
 
-When building code generators with StringTemplate, large heavily nested template tree structures are commonplace and, due to dynamic attribute scoping, a nested template could inadvertently use an attribute from an enclosing scope.
+When building code generators with StringTemplate, large heavily nested template tree structures are commonplace and,
+due to dynamic attribute scoping, a nested template could inadvertently use an attribute from an enclosing scope.
 This could lead to infinite recursion during rendering and other surprises.
 To prevent this, formal arguments on template t hide any attribute value with that name in any enclosing scope.
 Here is a test case that illustrates the
@@ -2468,10 +2527,13 @@ point.
 include::{test_file}[tag=hide_infinite_recursion]
 ----
 
-Even though block has a stats value that refers to itself, there is no recursion because each instance of block hides the stats value from above since stats is a formal argument.
+Even though block has a stats value that refers to itself,
+there is no recursion because each instance of block hides the stats value from above since stats is a formal argument.
 
-Sometimes self-recursive (hence infinitely recursive) structures occur through programming error and they are nasty to track down.
-If you turn on "lint mode", StringTemplate will attempt to find cases where a template instance is being evaluated during the evaluation of itself.
+Sometimes self-recursive (hence infinitely recursive)
+structures occur through programming error, and they are nasty to track down.
+If you turn on "lint mode",
+StringTemplate will attempt to find cases where a template instance is being evaluated during the evaluation of itself.
 For example, here is a test case that causes and traps infinite recursion.
 
 [source,python]
@@ -2498,7 +2560,8 @@ The default lexer uses `$...$` delimiters, but the angle.bracket.template.g lexe
 Each of the attribute expression chunks is processed by action.g.
 It builds trees (ASTs) representing the operation indicated in the expression.
 These ASTs
-represent the "precompiled" templates, which are evaluated by the tree grammar eval.g each time a StringTemplate is rendered to string with ToString().
+represent the "precompiled" templates,
+which are evaluated by the tree grammar eval.g each time a StringTemplate is rendered to string with ToString().
 
 The grammar files are:
 
@@ -2510,7 +2573,8 @@ eval.g: evaluate expression ASTs during ToString()
 Anything outside the StringTemplate start/stop delimiters is ignored.
 
 A word about Strings.
-Strings are double-quoted with optional embedded escaped characters that are translated (escapes are not translated outside of strings;
+Strings are double-quoted with optional embedded escaped characters that are translated
+(escapes are not translated outside of strings;
 for example, text outside of attribute expressions do not get escape chars translated except \$, \< and \>).
 [source,bnf]
 ----
@@ -2546,12 +2610,15 @@ Please see the actual grammar files for the formal language specification of Str
 == Debugging
 
 Debugging complex and nested StringTemplate trees can be challenging.
-Kay Roepke is building a graphical interface similar to ANTLRWorks for StringTemplate but until then you have a number of tools that you can use.
 
-You can ask for the enclosing template structure with `St3T.getEnclosingInstanceStackString()` and can get the entire structure with toStructureString() that does not print the values but shows the nested structure with the attribute names.
+You can ask for the enclosing template structure with `St3T.getEnclosingInstanceStackString()`,
+and can get the entire structure with toStructureString() that does not print the values
+but shows the nested structure with the attribute names.
 
-If for some reason StringTemplate goes into an infinite loop when you try to render a template, you probably have a circular reference in your template containment hierarchy.
-Turning on lint mode with `stringtemplate3.lintMode = True` will check for these cyclic references and a number of other features.
+If for some reason StringTemplate goes into an infinite loop when you try to render a template,
+you probably have a circular reference in your template containment hierarchy.
+Turning on lint mode with `stringtemplate3.lintMode = True`
+will check for these cyclic references and a number of other features.
 This will slow down template rendering so only use this during debugging.
 
 Added `stringtemplate3.getDOTForDependencyGraph()` a DOT diagram
@@ -2596,7 +2663,8 @@ StringTemplate 2.0 introduced the notion of a template group file that has two m
 First, it allows you to define lots of small templates more conveniently
 because they may all be defined within a single file.
 Second, (unlike in a simple template file)
-you may specify formal template arguments that help StringTemplate detect errors (such as setting unknown attributes) and make the templates easier to read.
+you may specify formal template arguments that help StringTemplate detect errors
+(such as setting unknown attributes) and make the templates easier to read.
 Here is a sample group file with two templates, vardef and method, that could be used to generate C files:
 
 [source,template]
@@ -2617,18 +2685,23 @@ include::{test_file}[tag=demo_auto_indent]
 ----
 
 Supergroups and interfaces
-Template groups may derive from other template groups, thus inheriting all of the features (templates and maps) from the supergroup.
-Group inheritance provides an appropriate model whereby, for example, a variation on a code generation target may be defined by describing how it differs from a previously defined target.
-Considering Java 1.4 versus 1.5, a Java1_5 group could specify how to alter the main Java (1.4) group templates in order to use generics and enumerated types.
+Template groups may derive from other template groups,
+thus inheriting all the features (templates and maps) from the supergroup.
+Group inheritance provides an appropriate model whereby, for example,
+a variation on a code generation target may be defined by describing how it differs from a previously defined target.
+Considering Java 1.4 versus 1.5, a Java1_5 group could specify how to alter the main Java (1.4) group templates
+in order to use generics and enumerated types.
 
 Group inheritance would not yield its full potential without template polymorphism.
-A parser template instantiated via the Java1_5 group should always look for templates in Java1_5 rather than the Java supergroup even though that template is lexically defined within group Java.
+A parser template instantiated via the Java1_5 group should always look for templates in Java1_5
+rather than the Java supergroup even though that template is lexically defined within group Java.
 
 Templates in a subgroup override same-named templates in a supergroup just as in class inheritance in other languages.
 StringTemplate does not support overloaded templates so group inheritance does not take formal arguments into consideration.
 
 The supergroup for a group may be changed dynamically using the setSuperGroup() method.
-If, however, a group must always derive from another group, use the following syntax in the descendant template group file:
+If, however, a group must always derive from another group,
+use the following syntax in the descendant template group file:
 
 [source,template]
 ----
@@ -2654,8 +2727,10 @@ group mygroup : supergroup implements anInterface;
 
 There are situations where you need to translate a string in one language to a string in another language.
 For example, you might want to translate integer to int when translating Pascal to C.
-You could pass a Map or IDictionary (e.g. hashtable) from the model into the templates, but then you have output literals in your model!  The StringTemplate solution is to support a mapping feature.
-For example, here is a map defined in a template group file, using which ANTLR v3 knows how to initialize local variables to their default values:
+You could pass a Map or IDictionary (e.g. hashtable) from the model into the templates,
+but then you have output literals in your model!  The StringTemplate solution is to support a mapping feature.
+For example, here is a map defined in a template group file,
+using which ANTLR v3 knows how to initialize local variables to their default values:
 
 [source,template]
 ----
@@ -2673,29 +2748,35 @@ typeInitMap ::= [
 ----
 To use the map in a template, refer to it as you would an attribute.
 Continuing the example, <typeInitMap.int> returns "0" from the map.
-If your type name is an attribute not a constant like int, then use an indirect field access: <typeInitMap.(typeName)>.
+If your type name is an attribute not a constant like int,
+then use an indirect field access: <typeInitMap.(typeName)>.
 
-Map strings are actually templates that can refer to attributes that will become visible via dynamic scoping of attributes once the map entry has been embedded within a template.
+Map strings are actually templates that can refer to attributes
+that will become visible via dynamic scoping of attributes once the map entry has been embedded within a template.
 This is useful for referencing things like attribute username from within map values.
 That attribute will eventually become visible when the map a value is embedded within, say, a page template.
 
-Large strings, such as those with newlines, can be specified with the usual large template delimiters from the group file format: `<<...>>`.
+Large strings, such as those with newlines,
+can be specified with the usual large template delimiters from the group file format: `<<...>>`.
 
 The default and other mappings can have empty values (implying no value).
 if no key is matched by the map then an empty value is returned, which is the same as using "default :" explicitly.
 The keyword key is available if you would like to refer to the key that maps to this value.
-This is particularly useful if you would like to filter certain words but otherwise leave a value unchanged; use default : key to return the key unmolested if it is not found in the map.
+This is particularly useful if you would like to filter certain words but otherwise leave a value unchanged;
+use default : key to return the key unmolested if it is not found in the map.
 
 Maps are defined in the group's scope and are visible if no attribute hides them.
-For example, if you define a formal argument called typeInitMap in template foo then foo cannot see the map defined in the group (though you could pass it in as another parameter).
-If a name is not an attribute and it's not in the group's maps table, then the super group is consulted etc...
-You may not redefine a map and it may not have the same name as a template in that group.
+For example, if you define a formal argument called typeInitMap in template foo
+then foo cannot see the map defined in the group (though you could pass it in as another parameter).
+If a name is not an attribute, and it's not in the group's maps table, then the super group is consulted etc...
+You may not redefine a map, and it may not have the same name as a template in that group.
 The default value is used if you use a key as a property that doesn't exist.
 For example <typeInitMap.foo> returns "null".
 The default clause must be at the end of the map.
 
-You'll note that the square brackets will denote data structure in other areas too, such as [a,b,c,...] which makes a singe multivalued
- attribute out of other attributes, so you can iterate across them.
+You'll note that the square brackets will denote data structure in other areas too,
+such as [a,b,c,...] which makes a singe multivalued attribute out of other attributes,
+so you can iterate across them.
 
 === Template Group file format
 
@@ -2749,10 +2830,13 @@ keyValue
 Both /* ... */ and single-line // ... comments are allowed outside of templates.
 Inside templates, you must use <!...!>.
 
-An aside: All along, during my website construction days, I kept in mind that any text output follows a format and, thus, output sentences conform to a language.
+An aside: All along, during my website construction days,
+I kept in mind that any text output follows a format and, thus, output sentences conform to a language.
 Consequently, a grammar should describe the output rather than a bunch of ad hoc print statements in code.
-This helped me formalize the study of templates because I could compare templates (output grammars) to well established ideas from formal language theory and context-free grammars.
-This allowed me to show, among other things, that StringTemplate can easily generate any document describable with an XML DTD even though it is deliberately limited.
+This helped me formalize the study of templates because I could compare templates
+(output grammars) to well established ideas from formal language theory and context-free grammars.
+This allowed me to show, among other things,
+that StringTemplate can easily generate any document describable with an XML DTD even though it is deliberately limited.
 The group file format should look very much like a grammar to you.
 Scoping rules and attribute look-up
 
@@ -2762,8 +2846,10 @@ Group files have a .stg file extension.
 
 === Template Group loaders
 
-When a template group file derives from another group, StringTemplate has to know how to load that group and its supergroups.
-StringTemplate 2.3 introduces the StringTemplateGroupLoader interface to describe objects that know how to load groups and interfaces.
+When a template group file derives from another group,
+StringTemplate has to know how to load that group and its supergroups.
+StringTemplate 2.3 introduces the StringTemplateGroupLoader interface to
+describe objects that know how to load groups and interfaces.
 
 
 [source,python]
@@ -2809,7 +2895,9 @@ In order to use the group file format inheritance specifier, group sub : sup, yo
 === Formal argument default values
 
 Sometimes it is convenient to have default values for formal arguments that are used when no value is set by the model.
-For example, when generating a parser in Java from ANTLR, I want the super class of the generated object to be Parser unless the ANTLR user uses an option to set the super class to some custom class.
+For example, when generating a parser in Java from ANTLR,
+I want the super class of the generated object to be Parser
+unless the ANTLR user uses an option to set the super class to some custom class.
 For example, here is a partial parser template definition:
 
 [source,template]
@@ -2820,7 +2908,8 @@ Any argument may be given a default value by following the name with an equals s
 
 === Formal argument error handling
 When using a group file format to specify templates, you must specify the formal arguments for that template.
-If you try to set an attribute via setAttribute that is not specifically formally defined in that template, you will get the following exception:
+If you try to set an attribute via setAttribute that is not specifically formally defined in that template,
+you will get the following exception:
 
 
 [source,python]
@@ -2828,10 +2917,12 @@ If you try to set an attribute via setAttribute that is not specifically formall
 KeyError
 ----
 
-If you reference an attribute that is not formally defined in that template or any enclosing template, you also get the same exception.
+If you reference an attribute that is not formally defined in that template or any enclosing template,
+you also get the same exception.
 
 === Newline handling
-The first newline following the << in a template definition is ignored as it is usually used just to get the first line of text for the template at the start of a line.
+The first newline following the << in a template definition is ignored
+as it is usually used just to get the first line of text for the template at the start of a line.
 In other words, if you want to have a blank line at the start of your template, use:
 
 [source,template]

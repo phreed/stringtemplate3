@@ -13,7 +13,7 @@
 # 3. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -68,8 +68,8 @@ class StringTemplateGroupLoader(object):
 
 class PathGroupLoader(StringTemplateGroupLoader):
     """
-    A brain-dead loader that looks only in the directory(ies) you
-    specify in the ctor.
+    A brain-dead loader that looks
+    only in the directory(ies) specified in the constructor.
     You may specify the char encoding.
     """
 
@@ -81,16 +81,16 @@ class PathGroupLoader(StringTemplateGroupLoader):
         super().__init__()
 
         if dirs is None:
-            self.dirs = None
+            self._dirs = None
         elif isinstance(dirs, list):
-            self.dirs = dirs
+            self._dirs = dirs
         elif isinstance(dirs, str):
-            self.dirs = [dirs]
+            self._dirs = [dirs]
         elif isinstance(dirs, Path):
-            self.dirs = [dirs]
+            self._dirs = [dirs]
         else:
-            self.dirs = [dirs]
-        self.errors = errors
+            self._dirs = [dirs]
+        self._errors = errors
 
         # # How are the files encoded (ascii, UTF8, ...)?
         #  You might want to read UTF8 for example on an ascii machine.
@@ -109,7 +109,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
                 return StringTemplateGroup(
                     file=fr,
                     lexer=lexer,
-                    errors=self.errors,
+                    errors=self._errors,
                     superGroup=superGroup
                 )
             finally:
@@ -129,7 +129,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
                 return None
 
             try:
-                return StringTemplateGroupInterface(fr, self.errors)
+                return StringTemplateGroupInterface(fr, self._errors)
 
             finally:
                 fr.close()
@@ -142,7 +142,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
     def locate(self, name):
         """Look in each directory for the file called 'name'."""
 
-        for adir in self.dirs:
+        for adir in self._dirs:
             path = os.path.join(adir, name)
             if os.path.isfile(path):
                 stream = open(path, 'r')
@@ -163,8 +163,8 @@ class PathGroupLoader(StringTemplateGroupLoader):
         self._file_char_encoding = fileCharEncoding
 
     def error(self, msg, exc=None):
-        if self.errors is not None:
-            self.errors.error(msg, exc)
+        if self._errors is not None:
+            self._errors.error(msg, exc)
 
         else:
             sys.stderr.write("StringTemplate: " + msg + "\n")

@@ -15,8 +15,8 @@ import stringtemplate3
 class IllegalStateException(Exception):
 
     def __init__(self, message=None, *args):
-        Exception.__init__(self, *args)
-        self.message = message
+        super().__init__(*args)
+        self._message = message
 
 
 def isiterable(o):
@@ -95,15 +95,15 @@ class ASTExpr(Expr):
 
     def __init__(self, enclosingTemplate, exprTree, options):
         super(ASTExpr, self).__init__(enclosingTemplate)
-        self.exprTree = exprTree
+        self._exprTree = exprTree
 
         # # store separator etc...
-        self.options = options
+        self._options = options
 
         # # A cached value of wrap=expr from the <...> expression.
         #  Computed in write(StringTemplate, StringTemplateWriter) and used
         #  in writeAttribute.
-        self.wrapString = None
+        self._wrapString = None
 
         # # For null values in iterated attributes and single attributes that
         #  are null, use this value instead of skipping.  For single valued
@@ -112,23 +112,23 @@ class ASTExpr(Expr):
         #  For iterated values <values; null="0", separator=",">, you get 0
         #  for null list values.  Works for template application like:
         #  <values:{v| <v>}; null="0"> also.
-        self.nullValue = None
+        self._nullValue = None
 
         # # A cached value of separator=expr from the <...> expression.
         #  Computed in write(StringTemplate, StringTemplateWriter) and used
         #  in writeAttribute.
-        self.separatorString = None
+        self._separatorString = None
 
         # A cached value of option format=expr
-        self.formatString = None
+        self._formatString = None
 
     # # Return the tree interpreted when self template is written out.
     @property
     def AST(self):
-        return self.exprTree
+        return self._exprTree
 
     def __str__(self):
-        return str(self.exprTree)
+        return str(self._exprTree)
 
     # # To
     def write(self, this, out):
@@ -141,7 +141,7 @@ class ASTExpr(Expr):
 
         If they set anchor option, then inform the writer to push current char position.
         """
-        if not self.exprTree or not this or not out:
+        if not self._exprTree or not this or not out:
             return 0
         out.pushIndentation(self.indentation)
 
@@ -157,9 +157,9 @@ class ASTExpr(Expr):
         n = 0
         try:
             # eval and write out tree
-            n = evaluator.action(self.exprTree)
+            n = evaluator.action(self._exprTree)
         except antlr.RecognitionException as re:
-            this.error('can\'t evaluate tree: ' + self.exprTree.toStringList(),
+            this.error('can\'t evaluate tree: ' + self._exprTree.toStringList(),
                        re)
         out.popIndentation()
         if anchorAST is not None:
@@ -171,26 +171,26 @@ class ASTExpr(Expr):
 
         # make sure options don't use format / renderer.  They are usually
         # strings which might invoke a string renderer etc...
-        self.formatString = None
+        self._formatString = None
 
         wrapAST = self.getOption("wrap")
         if wrapAST is not None:
-            self.wrapString = self.evaluateExpression(this, wrapAST)
+            self._wrapString = self.evaluateExpression(this, wrapAST)
 
         nullValueAST = self.getOption("null")
         if nullValueAST is not None:
-            self.nullValue = self.evaluateExpression(this, nullValueAST)
+            self._nullValue = self.evaluateExpression(this, nullValueAST)
 
         separatorAST = self.getOption("separator")
         if separatorAST is not None:
-            self.separatorString = self.evaluateExpression(this, separatorAST)
+            self._separatorString = self.evaluateExpression(this, separatorAST)
 
         formatAST = self.getOption("format")
         if formatAST is not None:
-            self.formatString = self.evaluateExpression(this, formatAST)
+            self._formatString = self.evaluateExpression(this, formatAST)
 
-        if self.options is not None:
-            for option in list(self.options.keys()):
+        if self._options is not None:
+            for option in list(self._options.keys()):
                 if option not in self.supportedOptions:
                     this.warning("ignoring unsupported option: " + option)
 
@@ -255,7 +255,7 @@ class ASTExpr(Expr):
             argumentContext[self.DEFAULT_INDEX0_VARIABLE_NAME] = i
             embedded = templateToApply.getInstanceOf()
             embedded.enclosingInstance = this
-            embedded.argumentContext = argumentContext
+            embedded._argumentContext = argumentContext
             results.append(embedded)
             i += 1
 
@@ -274,20 +274,20 @@ class ASTExpr(Expr):
             resultVector = stringtemplate3.STAttributeList()
             for i, ithValue in enumerate(attributeValue):
                 if ithValue is None:
-                    if self.nullValue is None:
+                    if self._nullValue is None:
                         continue
-                    ithValue = self.nullValue
+                    ithValue = self._nullValue
 
                 templateIndex = i % len(templatesToApply)  # rotate through
                 embedded = templatesToApply[templateIndex]
                 # template to apply is an actual stringtemplate.StringTemplate (created in
-                # eval.g), but that is used as the examplar.  We must create
+                # eval.g), but that is used as the exemplar.  We must create
                 # a new instance of the embedded template to apply each time
                 # to get new attribute sets etc...
-                args = embedded.argumentsAST
+                args = embedded._argumentsAST
                 embedded = embedded.getInstanceOf()  # make new instance
                 embedded.enclosingInstance = this
-                embedded.argumentsAST = args
+                embedded._argumentsAST = args
                 argumentContext = {}
                 formalArgs = embedded.formalArguments
                 isAnonymous = embedded.name == stringtemplate3.ANONYMOUS_ST_NAME
@@ -310,7 +310,7 @@ class ASTExpr(Expr):
                         argumentContext[self.DEFAULT_ATTRIBUTE_NAME_DEPRECATED] = ithValue
                 argumentContext[self.DEFAULT_INDEX_VARIABLE_NAME] = i + 1
                 argumentContext[self.DEFAULT_INDEX0_VARIABLE_NAME] = i
-                embedded.argumentContext = argumentContext
+                embedded._argumentContext = argumentContext
                 self.evaluateArguments(embedded)
                 # sys.stderr.write('i=' + str(i) + ': applyTemplate(' +
                 #                 embedded.getName() + ', args=' +
@@ -331,7 +331,7 @@ class ASTExpr(Expr):
             #                 ' to ' + str(attributeValue) + '\n')
             argumentContext = {}
             formalArgs = embedded.formalArguments
-            args = embedded.argumentsAST
+            args = embedded._argumentsAST
             self.setSoleFormalArgumentToIthValue(embedded, argumentContext, attributeValue)
             isAnonymous = embedded.name == stringtemplate3.ANONYMOUS_ST_NAME
             # if it's an anonymous template with a formal arg, don't set it/attr
@@ -342,7 +342,7 @@ class ASTExpr(Expr):
                 argumentContext[self.DEFAULT_ATTRIBUTE_NAME_DEPRECATED] = attributeValue
             argumentContext[self.DEFAULT_INDEX_VARIABLE_NAME] = 1
             argumentContext[self.DEFAULT_INDEX0_VARIABLE_NAME] = 0
-            embedded.argumentContext = argumentContext
+            embedded._argumentContext = argumentContext
             self.evaluateArguments(embedded)
             return embedded
 
@@ -499,7 +499,7 @@ class ASTExpr(Expr):
                             enclosing.getName())
             return None
 
-        embedded.argumentsAST = argumentsAST
+        embedded._argumentsAST = argumentsAST
         self.evaluateArguments(embedded)
         return embedded
 
@@ -525,9 +525,9 @@ class ASTExpr(Expr):
         """
 
         if o is None:
-            if self.nullValue is None:
+            if self._nullValue is None:
                 return 0
-            o = self.nullValue
+            o = self._nullValue
 
         n = 0
         try:
@@ -552,11 +552,11 @@ class ASTExpr(Expr):
                 else:
                     # if we have a wrap string, then inform writer it
                     # might need to wrap
-                    if self.wrapString is not None:
-                        n = out.writeWrapSeparator(self.wrapString)
+                    if self._wrapString is not None:
+                        n = out.writeWrapSeparator(self._wrapString)
 
                     # check if formatting needs to be applied to the stToWrite
-                    if self.formatString is not None:
+                    if self._formatString is not None:
                         renderer = this.getAttributeRenderer(str)
                         if renderer is not None:
                             # you pay a penalty for applying format option to a
@@ -566,7 +566,7 @@ class ASTExpr(Expr):
                             buf = StringIO(u'')
                             sw = this.group.getStringTemplateWriter(buf)
                             o.write(sw)
-                            n = out.write(renderer.toString(buf.getvalue(), self.formatString))
+                            n = out.write(renderer.toString(buf.getvalue(), self._formatString))
                             return n
 
                     n = o.write(out)
@@ -582,12 +582,12 @@ class ASTExpr(Expr):
                 seenPrevValue = False
                 for iterValue in lst:
                     if iterValue is None:
-                        iterValue = self.nullValue
+                        iterValue = self._nullValue
 
                     if iterValue is not None:
                         if (seenPrevValue and
-                                self.separatorString is not None):
-                            n += out.writeSeparator(self.separatorString)
+                                self._separatorString is not None):
+                            n += out.writeSeparator(self._separatorString)
 
                         seenPrevValue = True
                         n += self._write(this, iterValue, out)
@@ -595,12 +595,12 @@ class ASTExpr(Expr):
             else:
                 renderer = this.getAttributeRenderer(o.__class__)
                 if renderer is not None:
-                    v = renderer.toString(o, self.formatString)
+                    v = renderer.toString(o, self._formatString)
                 else:
                     v = str(o)
 
-                if self.wrapString is not None:
-                    n = out.write(v, self.wrapString)
+                if self._wrapString is not None:
+                    n = out.write(v, self._wrapString)
                 else:
                     n = out.write(v)
 
@@ -634,7 +634,7 @@ class ASTExpr(Expr):
 
             except antlr.RecognitionException as re:
                 this.error(
-                    "can't evaluate tree: " + self.exprTree.toStringList(), re
+                    "can't evaluate tree: " + self._exprTree.toStringList(), re
                 )
 
             return buf.getvalue()
@@ -643,20 +643,24 @@ class ASTExpr(Expr):
             # just in case we expand in the future and it's something else
             return str(expr)
 
-    # # Evaluate an argument list within the context of the enclosing
-    #  template but store the values in the context of self, the
-    #  new embedded template.  For example, bold(item=item) means
-    #  that bold.item should get the value of enclosing.item.
+    # #
     #
     def evaluateArguments(self, this):
+        """
+        Evaluate an argument list within the context of the enclosing
+        template but store the values in the context of self,
+        the new embedded template.
+        For example, bold(item=item) means
+        that 'bold.item' should get the value of enclosing.item.
+        """
         argumentsAST = this.argumentsAST
-        if not argumentsAST or not argumentsAST.getFirstChild():
+        if not argumentsAST or not argumentsAST.firstChild:
             # return immediately if missing tree or no actual args
             return
 
         # Evaluate args in the context of the enclosing template, but we
         # need the predefined args like 'it', 'attr', and 'i' to be
-        # available as well so we put a dummy ST between the enclosing
+        # available as well, so we put a dummy ST between the enclosing
         # context and the embedded context.  The dummy has the predefined
         # context as does the embedded.
         enclosing = this.enclosingInstance
@@ -664,9 +668,9 @@ class ASTExpr(Expr):
             group=this.group,
             template=""
         )
-        argContextST.name = '<invoke ' + this.name + ' arg context>'
+        argContextST._name = '<invoke ' + this.name + ' arg context>'
         argContextST.enclosingInstance = enclosing
-        argContextST.argumentContext = this.argumentContext
+        argContextST._argumentContext = this._argumentContext
 
         eval_ = ActionEvaluator.Walker()
         eval_.initialize(argContextST, self, None)
@@ -678,8 +682,8 @@ class ASTExpr(Expr):
             # in any existing arg context, that context gets filled with
             # new values.  With bold(item=obj), context becomes:
             # :[obj=...],[item=...]}.
-            ac = eval_.argList(argumentsAST, this, this.argumentContext)
-            this.argumentContext = ac
+            ac = eval_.argList(argumentsAST, this, this._argumentContext)
+            this._argumentContext = ac
 
         except antlr.RecognitionException as re:
             this.error('can\'t evaluate tree: ' + argumentsAST.toStringList(),
@@ -728,11 +732,11 @@ class ASTExpr(Expr):
         Ultimately, I could make a special case for a List or Vector."""
         if not attribute:
             return None
-        l = attribute
+        rl = attribute
         attribute = convertAnyCollectionToList(attribute)
         if attribute and isinstance(attribute, list):
-            l = attribute[-1]
-        return l
+            rl = attribute[-1]
+        return rl
 
     def strip(self, attribute):
         """Return an iterator that skips all null values."""
@@ -795,8 +799,8 @@ class ASTExpr(Expr):
 
     def getOption(self, name):
         value = None
-        if self.options is not None:
-            value = self.options.get(name, None)
+        if self._options is not None:
+            value = self._options.get(name, None)
             if value == self.EMPTY_OPTION:
                 return self.defaultOptionValues.get(name, None)
 

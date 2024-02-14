@@ -8,7 +8,7 @@ class StringRef(Expr):
 
     def __init__(self, enclosingTemplate, text):
         super(StringRef, self).__init__(enclosingTemplate)
-        self.str = text
+        self._str = text
 
     def write(self, this, out):
         """
@@ -18,12 +18,12 @@ class StringRef(Expr):
         <"foo"; wrap="\n"> should wrap though if necessary.
         """
 
-        if self.str is not None:
-            return out.write(self.str)
+        if self._str is not None:
+            return out.write(self._str)
 
         return 0
 
     def __str__(self):
-        if self.str:
-            return self.str
+        if self._str:
+            return self._str
         return ''

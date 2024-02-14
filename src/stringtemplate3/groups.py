@@ -13,7 +13,7 @@
 # 3. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -189,10 +189,10 @@ class StringTemplateGroup(object):
             self._lastCheckedDisk = time.time()
             StringTemplateGroup.nameToGroupMap[self._name] = self
 
-            self.templateLexerClass = lexer
+            self._templateLexerClass = lexer
 
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
-            self.superGroup = superGroup
+            self._superGroup = superGroup
 
         if file is not None:
             assert hasattr(file, 'read')
@@ -200,12 +200,12 @@ class StringTemplateGroup(object):
             self._templatesDefinedInGroupFile = True
 
             if lexer is not None:
-                self.templateLexerClass = lexer
+                self._templateLexerClass = lexer
             else:
-                self.templateLexerClass = AngleBracketTemplateLexer.Lexer
+                self._templateLexerClass = AngleBracketTemplateLexer.Lexer
 
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
-            self.superGroup = superGroup
+            self._superGroup = superGroup
 
             self.parseGroup(file)
             assert self._name is not None
@@ -253,6 +253,22 @@ class StringTemplateGroup(object):
         self._name = name
 
     @property
+    def templates(self):
+        return self._templates
+
+    @templates.setter
+    def templates(self, templates):
+        self._templates = templates
+
+    @property
+    def maps(self):
+        return self._maps
+
+    @maps.setter
+    def maps(self, maps):
+        self._maps = maps
+
+    @property
     def superGroup(self):
         return self._superGroup
 
@@ -271,12 +287,12 @@ class StringTemplateGroup(object):
                 superGroupName, None)
             if superGroup is not None:
                 # we've seen before; just use it
-                self.superGroup = superGroup
+                self._superGroup = superGroup
 
             else:
                 # else load it using this group's template lexer
                 superGroup = self.loadGroup(
-                    superGroupName, lexer=self.templateLexerClass)
+                    superGroupName, lexer=self._templateLexerClass)
                 if superGroup is not None:
                     StringTemplateGroup.nameToGroupMap[superGroup] = superGroup
                     self._superGroup = superGroup
@@ -297,7 +313,7 @@ class StringTemplateGroup(object):
         p = self
         while p is not None:
             groupNames.insert(0, p._name)
-            p = p.superGroup
+            p = p._superGroup
 
         return '[' + ' '.join(groupNames) + ']'
 
@@ -357,7 +373,7 @@ class StringTemplateGroup(object):
             st = st.getInstanceOf()
 
             if attributes is not None:
-                st.attributes = attributes
+                st._attributes = attributes
 
             return st
 
@@ -399,10 +415,10 @@ class StringTemplateGroup(object):
         assert enclosingInstance is None or isinstance(enclosingInstance, StringTemplate)
 
         if name.startswith('super.'):
-            if self.superGroup:
+            if self._superGroup:
                 dot = name.find('.')
                 name = name[dot + 1:]
-                return self.superGroup.lookupTemplate(name, enclosingInstance)
+                return self._superGroup.lookupTemplate(name, enclosingInstance)
             raise ValueError(self._name + ' has no super group; ' +
                              'invalid template: ' + name)
         self.checkRefreshInterval()
@@ -412,13 +428,13 @@ class StringTemplateGroup(object):
             if not self._templatesDefinedInGroupFile:
                 # only check the disk for individual template
                 st = self.loadTemplateFromBeneathRootDir(self.getFileNameFromTemplateName(name))
-            if (not st) and self.superGroup:
+            if (not st) and self._superGroup:
                 # try to resolve in super group
-                st = self.superGroup.getInstanceOf(name)
+                st = self._superGroup.getInstanceOf(name)
                 # make sure that when we inherit a template, that its
                 # group is reset; its nativeGroup will remain where it was
                 if st is not None:
-                    st.group = self
+                    st._group = self
 
             if st:  # found in superGroup
                 # insert into this group; refresh will allow super
@@ -498,11 +514,10 @@ class StringTemplateGroup(object):
             if os.path.exists(candidate):
                 return candidate, None
         return None, None
-        
-    # Load a template whose name is derived from the template filename.
-    #  If there is a rootDir, try to load the file from there.
-    #
+
     def loadTemplateFromBeneathRootDir(self, fileName):
+        """ Load a template whose name is derived from the template filename.
+        If there is a rootDir, try to load the file from there. """
         template = None
         name = self.getTemplateNameFromFileName(fileName)
         # if no rootDir, try to load as a resource in CLASSPATH
@@ -533,35 +548,30 @@ class StringTemplateGroup(object):
         template = self.loadTemplate(name, self._root_dir + '/' + fileName)
         return template
 
-    # (def that people can override behavior; not a general
-    #  purpose method)
-    #
     def getFileNameFromTemplateName(self, templateName):
+        """ def that people can override behavior; not a general purpose method"""
         return templateName + DEFAULT_EXTENSION
 
-    # Convert a filename relativePath/name.st to relativePath/name.
-    #  (def that people can override behavior; not a general
-    #  purpose method)
-    #
     def getTemplateNameFromFileName(self, fileName):
+        """ Convert a filename relativePath/name.st to relativePath/name.
+        def that people can override behavior; not a general purpose method"""
         name = fileName
         suffix = name.rfind(DEFAULT_EXTENSION)
         if suffix >= 0:
             name = name[:suffix]
         return name
 
-    # Define an exemplar template; precompiled and stored
-    #  with no attributes.  Remove any previous definition.
-    #
     def defineTemplate(self, name, template):
+        """ Define an exemplar template; precompiled and stored with no attributes.
+        Remove any previous definition."""
         if name is not None and '.' in name:
             raise ValueError("cannot have '.' in template names")
 
         st = self.createStringTemplate()
-        st.name = name
-        st.group = self
-        st.nativeGroup = self
-        st.template = template
+        st._name = name
+        st._group = self
+        st._nativeGroup = self
+        st._template = template
         st.errorListener = self._listener
 
         self._templates[name] = st
@@ -569,20 +579,19 @@ class StringTemplateGroup(object):
 
     def defineRegionTemplate(self, enclosingTemplate, regionName, template, a_type):
         """Track all references to regions <@foo>...<@end> or <@foo()>."""
-
         if isinstance(enclosingTemplate, StringTemplate):
             enclosingTemplateName = self.getMangledRegionName(
-                enclosingTemplate.getOutermostName(),
+                enclosingTemplate.outermostName,
                 regionName
             )
-            enclosingTemplate.getOutermostEnclosingInstance().addRegionName(regionName)
+            enclosingTemplate.outermostEnclosingInstance.addRegionName(regionName)
 
         else:
             enclosingTemplateName = self.getMangledRegionName(enclosingTemplate, regionName)
 
         regionST = self.defineTemplate(enclosingTemplateName, template)
         regionST.isRegion = True
-        regionST.regionDefType = a_type
+        regionST._regionDefType = a_type
         return regionST
 
     def defineImplicitRegionTemplate(self, enclosingTemplate, name):
@@ -636,16 +645,14 @@ class StringTemplateGroup(object):
 
         return False
 
-    # # Get the ST for 'name' in this group only
-    #
     def getTemplateDefinition(self, name):
+        """ Get the ST for 'name' in this group only """
         if name in self._templates:
             return self._templates[name]
 
-    # # Is there *any* definition for template 'name' in this template
-    #  or above it in the group hierarchy?
-    #
     def isDefined(self, name):
+        """ Is there *any* definition for template 'name' in this template
+        or above it in the group hierarchy? """
         try:
             return self.lookupTemplate(name) is not None
         except ValueError:
@@ -722,30 +729,30 @@ class StringTemplateGroup(object):
     #
     def getAttributeRenderer(self, attributeClassType):
         if not self._attributeRenderers:
-            if not self.superGroup:
+            if not self._superGroup:
                 return None  # no renderers and no parent?  Stop.
             # no renderers; consult super group
-            return self.superGroup.getAttributeRenderer(attributeClassType)
+            return self._superGroup.getAttributeRenderer(attributeClassType)
 
         if attributeClassType in self._attributeRenderers:
             return self._attributeRenderers[attributeClassType]
 
-        elif self.superGroup is not None:
+        elif self._superGroup is not None:
             # no renderer registered for this class, check super group
-            return self.superGroup.getAttributeRenderer(attributeClassType)
+            return self._superGroup.getAttributeRenderer(attributeClassType)
 
         return None
 
     def getMap(self, name):
         if not self._maps:
-            if not self.superGroup:
+            if not self._superGroup:
                 return None
-            return self.superGroup.getMap(name)
+            return self._superGroup.getMap(name)
         m = None
         if name in self._maps:
             m = self._maps[name]
-        if (not m) and self.superGroup:
-            m = self.superGroup.getMap(name)
+        if (not m) and self._superGroup:
+            m = self._superGroup.getMap(name)
         return m
 
     def defineMap(self, name, mapping):
@@ -785,15 +792,19 @@ class StringTemplateGroup(object):
             sys.stderr.write('StringTemplate: ' + msg + ': ' + e + '\n')
             traceback.print_exc()
 
-    def getTemplateNames(self):
+    @property
+    def templateNames(self):
         return list(self._templates.keys())
+
+    @property
+    def debugTemplateOutput(self):
+        return self._debugTemplateOutput
 
     def emitDebugStartStopStrings(self, emit):
         """
         Indicate whether ST should emit <template_name>...</template_name>
         strings for debugging around output for templates from this group.
         """
-
         self._debugTemplateOutput = emit
 
     def doNotEmitDebugStringsForTemplate(self, templateName):
