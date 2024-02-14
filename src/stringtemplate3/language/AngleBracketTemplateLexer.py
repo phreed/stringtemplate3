@@ -98,6 +98,7 @@ class Lexer(antlr.CharScanner):
         self._this = None
         # ## __init__ header action <<<
 
+    @property
     def nextToken(self):
         while True:
             try:  # try again ...
@@ -157,7 +158,7 @@ class Lexer(antlr.CharScanner):
         _cnt5 = 0
         while True:
             loopStartIndex = self._text.length()
-            col = self.column()
+            col = self.column
             if (self.LA(1) == u'\\') and (self.LA(2) == u'<'):
                 pass
                 _saveIndex = self._text.length()
@@ -258,7 +259,7 @@ class Lexer(antlr.CharScanner):
         _begin = self._text.length()
         _ttype = ACTION
         _saveIndex = 0
-        startCol = self.column()
+        startCol = self.column
         if ((self.LA(1) == u'<') and (self.LA(2) == u'\\') and (_tokenSet_2.member(self.LA(3)))
                 and (_tokenSet_3.member(self.LA(4))) and True and True and True):
             pass
@@ -644,7 +645,7 @@ class Lexer(antlr.CharScanner):
         _begin = self._text.length()
         _ttype = COMMENT
         _saveIndex = 0
-        startCol = self.column()
+        startCol = self.column
         pass
         self.match("<!")
         while True:

@@ -339,11 +339,11 @@ class StringTemplate(object):
 
         if template is not None:
             assert isinstance(template, str)
-            self._template = template
+            self.template = template
 
         if attributes is not None:
             assert isinstance(attributes, dict)
-            self._attributes = attributes
+            self.attributes = attributes
 
     @property
     def passThroughAttributes(self):

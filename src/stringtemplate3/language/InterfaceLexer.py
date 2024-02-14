@@ -77,7 +77,7 @@ class Lexer(antlr.CharScanner):
     @property
     def nextToken(self):
         while True:
-            try: # ## try again ..
+            try:  # ## try again ..
                 while True:
                     _token = None
                     _ttype = INVALID_TYPE

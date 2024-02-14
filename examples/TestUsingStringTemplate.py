@@ -62,11 +62,11 @@ def test_HelloWorld(caplog):
 
     logger.level = logging.DEBUG
     caplog.set_level(logging.DEBUG)
-    hello = St3T(template="Hello, $name$", name="hola")
+    hello = St3T(template="Hello, $name$!", name="hola")
     hello["name"] = "Earth"
 
     hello.printDebugString()
-    assert str(hello) == "Hello, Worlds"
+    assert str(hello) == "Hello, Earth!"
 # end::hello_world[]
 
 
@@ -167,12 +167,12 @@ def simple_group():
 def test_demo_auto_indent(simple_group):
     with io.StringIO(simple_group) as stg:
         group = St3G(name="demo_auto_indent", file=stg,  lexer="angle-bracket")
-        logger.info(f"group templates: {group.getTemplateNames()}")
+        logger.info(f"group templates: {group.templateNames}")
         vardef = group.getInstanceOf("vardef")
         vardef["type"] = "int"
         vardef["name"] = "foo"
 
-    assert str(vardef) == "int foo;"
+        assert str(vardef) == "int foo;"
 # end::demo_auto_indent[]
 
 
@@ -181,7 +181,7 @@ def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
     with open(stg_path, mode="r") as stg:
         group = St3G(name="demo_auto_indent", file=stg,  lexer="default")
-        logger.info("group templates: {}", group.getTemplateNames())
+        logger.info("group templates: {}", group.templateNames)
         function = group.getInstanceOf("function")
         function["name"] = "foo"
         body = group.getInstanceOf("slist")

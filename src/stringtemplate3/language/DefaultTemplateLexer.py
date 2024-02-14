@@ -111,17 +111,17 @@ class Lexer(antlr.CharScanner):
                                 pass
                             elif la1 and la1 in u'\n\r':
                                 pass
-                                self.mNEWLINETrue
+                                self.mNEWLINE(True)
                                 theRetToken = self._returnToken
                             elif la1 and la1 in u'$':
                                 pass
-                                self.mACTIONTrue
+                                self.mACTION(True)
                                 theRetToken = self._returnToken
                             else:
                                 if ((_tokenSet_0.member(self.LA(1))) 
                                         and (self.LA(1) != '\r' and self.LA(1) != '\n')):
                                     pass
-                                    self.mLITERALTrue
+                                    self.mLITERAL(True)
                                     theRetToken = self._returnToken
                                 else:
                                     self.default(self.LA(1))
@@ -179,7 +179,7 @@ class Lexer(antlr.CharScanner):
             elif ((self.LA(1) == u'\t' or self.LA(1) == u' ')
                   and True and True and True and True and True and True):
                 pass
-                self.mINDENTTrue
+                self.mINDENT(True)
                 ind = self._returnToken
                 if col == 1 and self.LA(1) == '$':
                     # store indent in ASTExpr not in a literal
@@ -264,7 +264,7 @@ class Lexer(antlr.CharScanner):
         _begin = self._text.length()
         _ttype = ACTION
         _saveIndex = 0
-        startCol = self.column()
+        startCol = self.column
         if ((self.LA(1) == u'$') and (self.LA(2) == u'\\') 
                 and (_tokenSet_2.member(self.LA(3))) and (_tokenSet_3.member(self.LA(4))) 
                 and True and True and True):
@@ -665,19 +665,19 @@ class Lexer(antlr.CharScanner):
             self.match("\\u")
             self._text.setLength(_saveIndex)
             _saveIndex = self._text.length()
-            self.mHEXTrue
+            self.mHEX(True)
             self._text.setLength(_saveIndex)
             a = self._returnToken
             _saveIndex = self._text.length()
-            self.mHEXTrue
+            self.mHEX(True)
             self._text.setLength(_saveIndex)
             b = self._returnToken
             _saveIndex = self._text.length()
-            self.mHEXTrue
+            self.mHEX(True)
             self._text.setLength(_saveIndex)
             c = self._returnToken
             _saveIndex = self._text.length()
-            self.mHEXTrue
+            self.mHEX(True)
             self._text.setLength(_saveIndex)
             d = self._returnToken
             uc = chr(int(a.text + b.text + c.text + d.text, 16))
@@ -693,7 +693,7 @@ class Lexer(antlr.CharScanner):
         _begin = self._text.length()
         _ttype = COMMENT
         _saveIndex = 0
-        startCol = self.column()
+        startCol = self.column
         pass
         self.match("$!")
         while True:

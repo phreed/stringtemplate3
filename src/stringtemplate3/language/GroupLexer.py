@@ -58,6 +58,7 @@ class Lexer(antlr.CharScanner):
         self._caseSensitive = True
         self._literals = literals
 
+    @property
     def nextToken(self):
         while True:
             try:

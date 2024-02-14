@@ -694,7 +694,7 @@ class CommonToken(Token):
 
     def toString(self):
         # not optimal
-        type_ = self.type
+        type_ = self._type
         if type_ == 3:
             tval = 'NULL_TREE_LOOKAHEAD'
         elif type_ == 1:
@@ -706,10 +706,10 @@ class CommonToken(Token):
         else:
             tval = type_
         d = {
-            'text': self.text,
+            'text': self._text,
             'type': tval,
-            'line': self.line,
-            'colm': self.column
+            'line': self._line,
+            'colm': self._col
         }
 
         fmt = '["%(text)s",<%(type)s>,line=%(line)s,col=%(colm)s]'
@@ -986,6 +986,7 @@ class LexerSharedInputState(object):
 
 class TokenStream(object):
     """ TokenStream """
+    @property
     def nextToken(self):
         return None
 
@@ -1003,7 +1004,7 @@ class TokenStreamIterator(object):
 
     def __next__(self):
         assert self._inst
-        item = self._inst.nextToken()
+        item = self._inst.nextToken
         if not item:
             raise StopIteration()
         if isinstance(item, Token) or (hasattr(item, "isEOF") and item.isEOF):
@@ -1033,10 +1034,11 @@ class TokenStreamSelector(TokenStream):
             raise ValueError("TokenStream " + sname + " not found")
         return stream
 
+    @property
     def nextToken(self):
         while 1:
             try:
-                return self._input.nextToken()
+                return self._input.nextToken
             except TokenStreamRetryException as rx:
                 # just retry "forever"
                 pass
@@ -1083,10 +1085,11 @@ class TokenStreamBasicFilter(TokenStream):
         raise TypeError("TokenStreamBasicFilter.discard requires" +
                         "integer or BitSet argument")
 
+    @property
     def nextToken(self):
-        tok = self._input.nextToken()
+        tok = self._input.nextToken
         while tok and self._discardMask.member(tok.type):
-            tok = self._input.nextToken()
+            tok = self._input.nextToken
         return tok
 
 
@@ -1101,7 +1104,7 @@ class TokenStreamHiddenTokenFilter(TokenStreamBasicFilter):
         self._firstHidden = None
 
     def consume(self):
-        self._nextMonitoredToken = self._input.nextToken()
+        self._nextMonitoredToken = self._input.nextToken
 
     def consumeFirst(self):
         self.consume()
@@ -1150,6 +1153,7 @@ class TokenStreamHiddenTokenFilter(TokenStreamBasicFilter):
     def LA(self, i):
         return self._nextMonitoredToken
 
+    @property
     def nextToken(self):
         if not self.LA(1):
             self.consumeFirst()
@@ -1444,9 +1448,9 @@ class CharScanner(TokenStream):
             # dynamically load a class
             assert self._tokenClass
             tok = self._tokenClass()
-            tok._type = a_type
-            tok._column = self._inputState.tokenStartColumn
-            tok._line = self._inputState.tokenStartLine
+            tok.type = a_type
+            tok.column = self._inputState.tokenStartColumn
+            tok.line = self._inputState.tokenStartLine
             return tok
         except:
             self.panic("unable to create new token")
@@ -1830,7 +1834,7 @@ class TokenBuffer(object):
     def fill(self, amount):
         self.syncConsume()
         while self._queue.length() < (amount + self._markerOffset):
-            self._queue.append(self._input.nextToken())
+            self._queue.append(self._input.nextToken)
 
     @property
     def input(self):
@@ -1838,7 +1842,11 @@ class TokenBuffer(object):
 
     def LA(self, k):
         self.fill(k)
-        return self._queue.elementAt(self._markerOffset + k - 1).type
+        element = self._queue.elementAt(self._markerOffset + k - 1)
+        if not hasattr(element, "type"):
+            print("element does not have a type %s", type(element))
+            return None
+        return element.type
 
     def LT(self, k):
         self.fill(k)
@@ -1902,6 +1910,10 @@ class ParserSharedInputState(object):
     @property
     def guessing(self):
         return self._guessing
+
+    @guessing.setter
+    def guessing(self, value):
+        self._guessing = value
 
     @property
     def filename(self):

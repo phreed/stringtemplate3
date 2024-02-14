@@ -297,7 +297,7 @@ class StringTemplateGroup(object):
                     StringTemplateGroup.nameToGroupMap[superGroup] = superGroup
                     self._superGroup = superGroup
 
-                elif self.groupLoader is None:
+                elif self._groupLoader is None:
                     self._listener.error("no group loader registered", None)
 
         else:
@@ -349,7 +349,7 @@ class StringTemplateGroup(object):
                 self.nameToInterfaceMap[interfaceName] = interface
                 self._interfaces.append(interface)
 
-            elif self.groupLoader is None:
+            elif self._groupLoader is None:
                 self._listener.error("no group loader registered", None)
 
     def createStringTemplate(self):
@@ -568,13 +568,13 @@ class StringTemplateGroup(object):
             raise ValueError("cannot have '.' in template names")
 
         st = self.createStringTemplate()
-        st._name = name
-        st._group = self
-        st._nativeGroup = self
-        st._template = template
+        st.name = name
+        st.group = self
+        st.nativeGroup = self
+        st.template = template
         st.errorListener = self._listener
 
-        self._templates[name] = st
+        self.templates[name] = st
         return st
 
     def defineRegionTemplate(self, enclosingTemplate, regionName, template, a_type):
@@ -591,7 +591,7 @@ class StringTemplateGroup(object):
 
         regionST = self.defineTemplate(enclosingTemplateName, template)
         regionST.isRegion = True
-        regionST._regionDefType = a_type
+        regionST.regionDefType = a_type
         return regionST
 
     def defineImplicitRegionTemplate(self, enclosingTemplate, name):
