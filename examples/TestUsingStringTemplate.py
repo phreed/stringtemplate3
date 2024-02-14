@@ -1,28 +1,20 @@
-import logging
-import io
 import datetime
-import os
-
+import io
+import logging
 import pathlib
 import sys
-
-import pytest
-import temppathlib
 from textwrap import dedent
 
+import pytest
+
 import stringtemplate3
-from stringtemplate3.writers import (AutoIndentWriter,
-                                     AttributeRenderer)
-from stringtemplate3.grouploaders import PathGroupLoader
 from stringtemplate3.groups import StringTemplateGroup as St3G
-from stringtemplate3.interfaces import StringTemplateGroupInterface as St3Gi
 from stringtemplate3.language import (AngleBracketTemplateLexer,
                                       DefaultTemplateLexer,
                                       IllegalStateException)
 from stringtemplate3.templates import StringTemplate as St3T
-
-import TestStringHelper as tsh
-from TestStringHelper import ErrorBuffer
+from stringtemplate3.writers import (AutoIndentWriter,
+                                     AttributeRenderer)
 
 """
  [The "BSD licence"]
@@ -66,11 +58,15 @@ def local_dir_path():
 
 
 # tag::hello_world[]
-def test_HelloWorld():
-    hello = St3T(template="Hello, $name$")
-    hello["name"] = "World"
+def test_HelloWorld(caplog):
 
-    assert str(hello) == "Hello, World"
+    logger.level = logging.DEBUG
+    caplog.set_level(logging.DEBUG)
+    hello = St3T(template="Hello, $name$", name="hola")
+    hello["name"] = "Earth"
+
+    hello.printDebugString()
+    assert str(hello) == "Hello, Worlds"
 # end::hello_world[]
 
 

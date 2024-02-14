@@ -184,7 +184,7 @@ class StringTemplate(object):
     def defaultGroup(self):
         return StringTemplateGroup(name='defaultGroup', rootDir='.')
 
-    def __init__(self, template=None, group=None, lexer=None, attributes=None):
+    def __init__(self, template=None, group=None, lexer=None, attributes=None, name=None):
         """ Either:
           Create a blank template with no pattern and no attributes
         Or:
@@ -198,7 +198,8 @@ class StringTemplate(object):
         self._referencedAttributes = None
 
         # # What's the name of self template?
-        self._name = ANONYMOUS_ST_NAME
+
+        self._name = ANONYMOUS_ST_NAME if name is None else name
 
         self._templateID = getNextTemplateCounter()
 
@@ -285,7 +286,7 @@ class StringTemplate(object):
                 name=DEFAULT_GROUP_NAME, rootDir='.')
 
         if lexer is not None:
-            self._group._templateLexerClass = lexer
+            self._group.templateLexerClass = lexer
 
         # # If this template is defined within a group file, what line number?
         self._groupFileLine = None
@@ -470,7 +471,7 @@ class StringTemplate(object):
         to.formalArgumentKeys = copy(fr.formalArgumentKeys)
         to.formalArguments = copy(fr.formalArguments)
         to.numberOfDefaultArgumentValues = fr.numberOfDefaultArgumentValues
-        to._name = copy(fr.name)
+        to.name = copy(fr.name)
         to.nativeGroup = fr.nativeGroup
         to.group = fr.group
         to._listener = copy(fr.listener)
@@ -736,10 +737,9 @@ class StringTemplate(object):
     def write(self, out):
         """
         Walk the chunks, asking them to write themselves out according
-        to attribute values of 'self.attributes'.  This is like evaluating or
-        interpreting the StringTemplate as a program using the
-        attributes.  The chunks will be identical (point at same list)
-        for all instances of self template.
+        to attribute values of 'self.attributes'.
+        This is like evaluating or interpreting the StringTemplate as a program using the attributes.
+        The chunks will be identical (point at same list) for all instances of self template.
         """
 
         if self._group.debugTemplateOutput:
@@ -1209,6 +1209,7 @@ class StringTemplate(object):
         buf.write('chunks=')
         if self._chunks:
             buf.write(str(self._chunks))
+        buf.write('\n')
         buf.write('attributes=[')
         if self._attributes:
             n = 0
@@ -1358,9 +1359,10 @@ class StringTemplate(object):
 
     def printDebugString(self, out=sys.stderr):
         out.write('template-' + self._name + ':\n')
-        out.write('chunks=' + str(self._chunks))
+        out.write(f'chunks={self._chunks}')
         if not self._attributes:
             return
+        out.write("\n")
         out.write("attributes=[")
         n = 0
         for name in list(self._attributes.keys()):
