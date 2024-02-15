@@ -28,7 +28,7 @@
 from builtins import str
 from builtins import object
 import sys
-from io import StringIO
+import io
 from copy import copy
 import logging
 
@@ -884,7 +884,7 @@ class StringTemplate(object):
             # The only constraint is that you use an ANTLR lexer,
             # so I can use the special ChunkToken.
             lexerClass = self._group.templateLexerClass
-            chunkStream = lexerClass(StringIO(self._pattern))
+            chunkStream = lexerClass(io.StringIO(self._pattern))
             chunkStream._this = self
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
@@ -899,7 +899,7 @@ class StringTemplate(object):
             self.error('problem parsing template \'' + name + '\' ', e)
 
     def parseAction(self, action):
-        lexer = ActionLexer.Lexer(StringIO(str(action)))
+        lexer = ActionLexer.Lexer(io.StringIO(str(action)))
         parser = ActionParser.Parser(lexer, self)
         parser.setASTNodeClass(StringTemplateAST)
         lexer.setTokenObjectClass(StringTemplateToken)
@@ -1088,7 +1088,7 @@ class StringTemplate(object):
 
     @property
     def enclosingInstanceStackTrace(self):
-        buf = StringIO(u'')
+        buf = io.StringIO(u'')
         seen = {}
         p = self
         while p:
@@ -1212,7 +1212,7 @@ class StringTemplate(object):
         return name in self._regions
 
     def toDebugString(self):
-        buf = StringIO(u'')
+        buf = io.StringIO(u'')
         buf.write('template-' + self.templateDeclaratorString + ': ')
         buf.write('chunks=')
         if self._chunks:
@@ -1236,13 +1236,34 @@ class StringTemplate(object):
         buf.close()
         return retval
 
+    def toString(self, lineWidth=StringTemplateWriter.NO_WRAP):
+        """
+        Returns a string representation of the
+        """
+        out = io.StringIO(u'')
+        wr = self._group.getStringTemplateWriter(out)
+        wr._line_width = lineWidth
+        try:
+            self.write(wr)
+        except IOError as ioe:
+            self.error("Got IOError writing to writer" + str(wr.__class__.__name__))
+
+        # reset so next toString() does not wrap;
+        # normally this is a new writer each time,
+        # but just in case they override the group to reuse the writer.
+        wr._line_width = StringTemplateWriter.NO_WRAP
+
+        return out.getvalue()
+
+    __str__ = toString
+
     def toStructureString(self, indent=0):
         """
         Don't print values, just report the nested structure with attribute names.
         Follow (nest) attributes that are templates only.
         """
 
-        buf = StringIO(u'')
+        buf = io.StringIO(u'')
 
         buf.write('  ' * indent)  # indent
         buf.write(self._name)
@@ -1367,53 +1388,42 @@ class StringTemplate(object):
 
     def printDebugString(self, out=sys.stderr):
         out.write('template-' + self._name + ':\n')
-        out.write(f'chunks={self._chunks}')
+        out.write('chunks=')
+        if self._chunks:
+            totalChunks = len(self._chunks)
+            for ix, chunk in enumerate(self._chunks):
+                chunkN = out.write(str(chunk))
+                if ((not chunkN) and
+                        (ix - 1) >= 0 and
+                        isinstance(self._chunks[ix - 1], NewlineRef) and
+                        (ix + 1) < totalChunks and
+                        isinstance(self._chunks[ix + 1], NewlineRef)):
+                    logger.debug('found pure \\n blank \\n pattern\n')
+        else:
+            out.write('no chunks found\n')
         if not self._attributes:
             return
         out.write("\n")
-        out.write("attributes=[")
-        n = 0
-        for name in list(self._attributes.keys()):
-            if n > 0:
-                out.write(',')
+        out.write("attributes=[\n")
+        for nx, name in enumerate(list(self._attributes.keys())):
+            if nx > 0:
+                out.write(',\n')
             value = self._attributes[name]
             if isinstance(value, StringTemplate):
-                out.write(name + '=')
+                out.write(f'{name}=')
                 value.printDebugString()
             else:
                 if isinstance(value, list):
-                    i = 0
-                    for o in value:
-                        out.write(f'{name}[{i}] is {o.__class__.__name__}=')
+                    for ix, o in enumerate(value):
+                        out.write(f'{name}[{ix}] is {o.__class__.__name__}=')
                         if isinstance(o, StringTemplate):
                             o.printDebugString()
                         else:
                             out.write(o)
-                        i += 1
                 else:
-                    out.write(name + '=' + value + '\n')
-
-            n += 1
+                    out.write(f"{name}={value}")
         out.write("]\n")
 
-    def toString(self, lineWidth=StringTemplateWriter.NO_WRAP):
-        # Write the output to a StringIO
-        out = StringIO(u'')
-        wr = self._group.getStringTemplateWriter(out)
-        wr._line_width = lineWidth
-        try:
-            self.write(wr)
-        except IOError as io:
-            self.error("Got IOError writing to writer" + str(wr.__class__.__name__))
-
-        # reset so next toString() does not wrap; normally this is a new writer
-        # each time, but just in case they override the group to reuse the
-        # writer.
-        wr._line_width = StringTemplateWriter.NO_WRAP
-
-        return out.getvalue()
-
-    __str__ = toString
 
     @name.setter
     def name(self, value):

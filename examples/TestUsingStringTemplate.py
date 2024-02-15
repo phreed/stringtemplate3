@@ -59,13 +59,9 @@ def local_dir_path():
 
 # tag::hello_world[]
 def test_HelloWorld(caplog):
-
-    logger.level = logging.DEBUG
-    caplog.set_level(logging.DEBUG)
     hello = St3T(template="Hello, $name$!", name="hola")
     hello["name"] = "Earth"
 
-    hello.printDebugString()
     assert str(hello) == "Hello, Earth!"
 # end::hello_world[]
 
@@ -154,7 +150,7 @@ def simple_group():
          
         vardef(type,name) ::= "<type> <name>;"
          
-        method(type,name,args) ::= <<
+        madness(type,name,args) ::= <<
         <type> <name>(<args; separator=",">) {
           <statements; separator="\n">
         }
@@ -165,13 +161,15 @@ def simple_group():
 
 # tag::demo_auto_indent[]
 def test_demo_auto_indent(simple_group):
-    with io.StringIO(simple_group) as stg:
-        group = St3G(name="demo_auto_indent", file=stg,  lexer="angle-bracket")
-        logger.info(f"group templates: {group.templateNames}")
+    with io.StringIO(simple_group) as stg_file:
+        group = St3G(name="demo_auto_indent", file=stg_file, lexer="angle-bracket")
+        # logger.info(f"group templates: {group.templateNames}")
+        group.printDebugString()
         vardef = group.getInstanceOf("vardef")
         vardef["type"] = "int"
         vardef["name"] = "foo"
 
+        vardef.printDebugString()
         assert str(vardef) == "int foo;"
 # end::demo_auto_indent[]
 
@@ -179,8 +177,8 @@ def test_demo_auto_indent(simple_group):
 # tag::demo_auto_indent_of_file[]
 def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
-    with open(stg_path, mode="r") as stg:
-        group = St3G(name="demo_auto_indent", file=stg,  lexer="default")
+    with open(stg_path, mode="r") as stg_file:
+        group = St3G(name="demo_auto_indent", file=stg_file,  lexer="default")
         # print("group templates: {}", group.templateNamesAsStrings)
         function = group.getInstanceOf("function")
         function["name"] = "foo"

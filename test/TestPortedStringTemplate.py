@@ -142,14 +142,15 @@ def test_GroupFileFormat():
     templates = dedent("""\
             group test;
             t() ::= "literal template"
-            bold(item) ::= "<b>$item$</b>"
+            bold(item) ::= " <b>$item$</b> "
             duh() ::= <<"xx">>
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer)
 
     assert str(group) == dedent("""\
         group test;
-        bold(item) ::= <<<b>$item$</b>>>
+        bold(item) ::= << <b>$item$</b> >>
         duh() ::= <<"xx">>
         t() ::= <<literal template>>
         """)

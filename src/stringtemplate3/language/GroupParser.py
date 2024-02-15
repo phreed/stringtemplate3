@@ -252,12 +252,12 @@ class Parser(antlr.LLkParser):
                     pass
                     t = self.LT(1)
                     self.match(STRING)
-                    st._template = t.text
+                    st.template = t.text
                 elif la1 and la1 in [BIGSTRING]:
                     pass
                     bt = self.LT(1)
                     self.match(BIGSTRING)
-                    st._template = bt.text
+                    st.template = bt.text
                 else:
                     raise antlr.NoViableAltException(self.LT(1), self.filename)
 
