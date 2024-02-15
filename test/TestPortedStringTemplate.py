@@ -3234,13 +3234,7 @@ def test_IndentBeyondLineWidth():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
 
-    assert a.toString(7) == dedent("""
-            a
-            b
-            c
-            d
-            e
-        """)
+    assert a.toString(5) == '   a\n   b\n   c\n   d\n   e'
 
 
 def test_IndentedExpr():
@@ -3253,11 +3247,7 @@ def test_IndentedExpr():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
 
-    assert a.toString(7) == dedent("""
-            ab
-            cd
-            e
-     """)
+    assert a.toString(6) == '    ab\n    cd\n    e'
 
 
 def test_NestedIndentedExpr():
