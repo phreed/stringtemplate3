@@ -150,7 +150,7 @@ def test_GroupFileFormat():
 
     assert str(group) == dedent("""\
         group test;
-        bold(item) ::= << <b>$item$</b> >>
+        bold(item) ::= <<<b>$item$</b>>>
         duh() ::= <<"xx">>
         t() ::= <<literal template>>
         """)

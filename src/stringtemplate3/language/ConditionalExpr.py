@@ -99,12 +99,13 @@ class ConditionalExpr(ASTExpr):
         return n
 
     def writeSubTemplate(self, this, out, subtemplate):
-        # To evaluate the IF chunk, make a new instance whose enclosingInstance
-        # points at 'this' so get attribute works. Otherwise, enclosingInstance
-        # points at the template used to make the precompiled code.  We need a
-        # new template instance every time we exec this chunk to get the new
-        # "enclosing instance" pointer.
-
+        """
+        To evaluate the IF chunk,
+        make a new instance whose enclosingInstance points at 'this' so get attribute works.
+        Otherwise, enclosingInstance points at the template used to make the precompiled code.
+        We need a new template instance every time we exec this chunk
+        to get the new "enclosing instance" pointer.
+        """
         s = subtemplate.getInstanceOf()
         s.enclosingInstance = this
         # make sure we evaluate in context of enclosing template's

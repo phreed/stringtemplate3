@@ -228,6 +228,9 @@ class StringTemplateGroup(object):
 
     @templateLexerClass.setter
     def templateLexerClass(self, lexer):
+        """
+        Whenever templateLexerClass is set, this method should be used.
+        """
         if isinstance(lexer, str):
             try:
                 self._templateLexerClass = {
@@ -276,6 +279,9 @@ class StringTemplateGroup(object):
 
     @superGroup.setter
     def superGroup(self, superGroup):
+        """
+        Whenever superGroup is set, this method should be used.
+        """
         if superGroup is None or isinstance(superGroup, StringTemplateGroup):
             self._superGroup = superGroup
 
@@ -365,7 +371,6 @@ class StringTemplateGroup(object):
         A support routine that gets an instance of name knowing which
         ST encloses it for error messages.
         """
-
         assert isinstance(name, str)
         assert enclosingInstance is None or isinstance(enclosingInstance, StringTemplate)
         assert attributes is None or isinstance(attributes, dict)

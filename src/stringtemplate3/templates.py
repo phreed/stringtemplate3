@@ -494,7 +494,6 @@ class StringTemplate(object):
         So the new template refers to the previously compiled chunks of self
         template but does not have any attribute values.
         """
-
         if self._nativeGroup is not None:
             # create a template using the native group for this template
             # but its "group" is set to this.group by dup after creation so
@@ -537,14 +536,14 @@ class StringTemplate(object):
     @property
     def outermostName(self):
         if self.enclosingInstance is not None:
-            return self.enclosingInstance.getOutermostName()
+            return self.enclosingInstance.outermostName
         return self._name
 
     @property
     def groupFileLine(self):
         """Return the outermost template's group file line number"""
         if self.enclosingInstance is not None:
-            return self.enclosingInstance.getGroupFileLine()
+            return self.enclosingInstance.groupFileLine
 
         return self._groupFileLine
 
