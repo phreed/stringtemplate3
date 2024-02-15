@@ -676,7 +676,7 @@ def test_SuperTemplateRef():
     """ you can refer to a template defined in a super group via super.t() """
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup._superGroup = group
+    subGroup.superGroup = group
     group.defineTemplate("page", "$font()$:text")
     group.defineTemplate("font", "Helvetica")
     subGroup.defineTemplate("font", "$super.font()$ and Times")
@@ -687,7 +687,7 @@ def test_SuperTemplateRef():
 def test_ApplySuperTemplateRef():
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup._superGroup = group
+    subGroup.superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
     subGroup.defineTemplate("page", "$name:super.bold()$")
@@ -704,7 +704,7 @@ def test_TemplatePolymorphism():
     """
     group = St3G("super")
     subGroup = St3G("sub")
-    subGroup._superGroup = group
+    subGroup.superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     group.defineTemplate("page", "$name:bold()$")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
@@ -883,7 +883,7 @@ def test_ComplicatedInheritance():
         labels() ::= "SL"
     """
     sub = St3G(file=io.StringIO(subTemplates))
-    sub._superGroup = base
+    sub.superGroup = base
     st = sub.getInstanceOf("decls")
     assert str(st) == "DSL"
 

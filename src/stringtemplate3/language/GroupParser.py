@@ -104,7 +104,7 @@ class Parser(antlr.LLkParser):
                 self.match(COLON)
                 s = self.LT(1)
                 self.match(ID)
-                g._superGroup = s.text
+                g.superGroup = s.text
             elif la1 and la1 in [LITERAL_implements, SEMI]:
                 pass
             else:

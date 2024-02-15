@@ -648,7 +648,7 @@ def test_SimpleInheritance():
     subgroup = St3G("sub")
     bold = supergroup.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
-    subgroup._superGroup = supergroup
+    subgroup.superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -663,7 +663,7 @@ def test_OverrideInheritance():
     subgroup = St3G("sub")
     supergroup.defineTemplate("bold", "<b>$it$</b>")
     subgroup.defineTemplate("bold", "<strong>$it$</strong>")
-    subgroup._superGroup = supergroup
+    subgroup.superGroup = supergroup
     errors = ErrorBuffer()
     subgroup.errorListener = errors
     supergroup.errorListener = errors
@@ -678,8 +678,8 @@ def test_MultiLevelInheritance():
     level1 = St3G("level1")
     level2 = St3G("level2")
     rootgroup.defineTemplate("bold", "<b>$it$</b>")
-    level1._superGroup = rootgroup
-    level2._superGroup = level1
+    level1.superGroup = rootgroup
+    level2.superGroup = level1
     errors = ErrorBuffer()
     rootgroup.errorListener = errors
     level1.errorListener = errors
@@ -1402,18 +1402,19 @@ def test_ApplyAnonymousTemplateToMapAndSet1():
 
 
 def test_LazyEvalOfSuperInApplySuperTemplateRef():
-    """ this is the same as testApplySuperTemplateRef() test 
-    except notice that here the supergroup defines page 
+    """
+    This is the same as testApplySuperTemplateRef() test
+    except notice that here the supergroup defines page.
     As long as you create the instance via the subgroup, "super." 
-    will evaluate lazily (i.e., not statically 
-    during template compilation) to the templates 
-     getGroup().superGroup value.  If I create instance
-     of page in group not subGroup, however, I will get
-     an error as superGroup is None for group "group". 
+    will evaluate lazily
+    (i.e., not statically during template compilation)
+    to the templates getGroup().superGroup value.
+    If I create instance of page in group not subGroup,
+    however, I will get an error as superGroup is None for group "group".
     """
     group = St3G("base")
     subGroup = St3G("sub")
-    subGroup._superGroup = group
+    subGroup.superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
     group.defineTemplate("page", "$name:super.bold()$")
@@ -3556,7 +3557,7 @@ def test_SuperReferenceInIfClause():
         c() ::= "sub.c"
         """)
     subGroup = St3G(file=io.StringIO(subGroupString), lexer=AngleBracketTemplateLexer.Lexer)
-    subGroup._superGroup = superGroup
+    subGroup.superGroup = superGroup
     a = subGroup.getInstanceOf("a")
     a["x"] = "foo"
     assert str(a) == "super.a"

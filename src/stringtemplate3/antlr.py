@@ -979,6 +979,10 @@ class LexerSharedInputState(object):
     def guessing(self):
         return self._guessing
 
+    @guessing.setter
+    def guessing(self, guessing):
+        self._guessing = guessing
+
     @property
     def filename(self):
         return self._filename
