@@ -759,7 +759,7 @@ class StringTemplate(object):
             i = 0
             while i < len(self._chunks):
                 a = self._chunks[i]
-                chunkN = a.write(self, out)
+                chunkN = 0 if a is None else a.write(self, out)
 
                 # expr-on-first-line-with-no-output NEWLINE => NEWLINE
                 if (chunkN == 0 and

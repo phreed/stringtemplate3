@@ -11,6 +11,14 @@ class ElseIfClauseData(object):
         self._expr = expr
         self._st = st
 
+    @property
+    def expr(self):
+        return self._expr
+
+    @property
+    def st(self):
+        return self._st
+
 
 class ConditionalExpr(ASTExpr):
     """A conditional reference to an embedded subtemplate."""
@@ -78,7 +86,7 @@ class ConditionalExpr(ASTExpr):
                   len(self._elseIfSubtemplates) > 0):
                 for elseIfClause in self._elseIfSubtemplates:
                     try:
-                        includeSubtemplate = evaluator.ifCondition(elseIfClause.expr.exprTree)
+                        includeSubtemplate = evaluator.ifCondition(elseIfClause.expr.AST)
                     except KeyError as ke:
                         includeSubtemplate = False
                     if includeSubtemplate:

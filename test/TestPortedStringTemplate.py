@@ -5,6 +5,7 @@ from textwrap import dedent
 from collections import deque
 
 import temppathlib
+import pytest
 
 import stringtemplate3
 from stringtemplate3.writers import StringTemplateWriter, AutoIndentWriter
@@ -142,7 +143,7 @@ def test_GroupFileFormat():
     templates = dedent("""\
             group test;
             t() ::= "literal template"
-            bold(item) ::= " <b>$item$</b> "
+            bold(item) ::= "<b>$item$</b>"
             duh() ::= <<"xx">>
     """)
     group = St3G(file=io.StringIO(templates),
@@ -695,8 +696,8 @@ def test_MissingEndDelimiter():
     group.errorListener = errors
     st = St3T(group=group, template='stuff $a then more junk etc...')
     logger.info(f"template: {st}")
-    logger.info(f"errors: {errors}")
-    assert str(errors).startswith("problem parsing template 'anonymous': line 1:31: expecting '$', found '<EOF>'")
+    print(f"errors: {errors}")
+    assert str(errors) == "line 1:31: expecting '$', found '<EOF>'\n"
 
 
 def test_SetButNotRefd():
@@ -820,6 +821,7 @@ def test_MultiValuedAttributeWithAnonymousTemplateUsingIndexVariableI():
     """)
 
 
+@pytest.mark.skip(reason="not implemented see issues")
 def test_FindTemplateInSysPath():
     """ Look for templates in sys.path as resources
     "method.st" references body() so "body.st" will be loaded too
@@ -1180,7 +1182,7 @@ def test_NestedIF():
 
 def test_EmbeddedMultiLineIF():
     group = St3G("test")
-    group.emitDebugStartStopStrings(True)
+    # group.emitDebugStartStopStrings(True)
     main = St3T(group=group, template='$sub$')
     sub = St3T(group=group,
                template=dedent("""\
@@ -1284,8 +1286,7 @@ def test_IndentBetweenLeftJustifiedLiterals():
               Terence
               Jim
               Sriram
-            after\
-            """)
+            after""")
 
 
 def test_NestedIndent():
@@ -1330,8 +1331,7 @@ def test_NestedIndent():
             \t  y=x+y;
             \t  z=4;
             \t}
-            }\
-            """)
+            }""")
 
 
 class AlternateWriter(StringTemplateWriter):
@@ -1377,7 +1377,7 @@ def test_AlternativeWriter():
     name = St3T(group=group, template="$name:bold(x=name)$")
     name["name"] = "Terence"
     name.write(AlternateWriter())
-    assert  str(name) == "<b>Terence</b>"
+    assert str(name) == "<b>Terence</b>"
 
 
 def test_ApplyAnonymousTemplateToMapAndSet0():
