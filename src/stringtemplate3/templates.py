@@ -889,14 +889,14 @@ class StringTemplate(object):
             chunkStream.setTokenObjectClass(ChunkToken)
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
-        except Exception as e:
+        except Exception as ex:
             name = "<unknown>"
             outerName = self.outermostName
             if self._name:
                 name = self._name
             if outerName and not name == outerName:
                 name = name + ' nested in ' + outerName
-            self.error('problem parsing template \'' + name + '\' ', e)
+            self.error('problem parsing template \'' + name + '\' ', ex)
 
     def parseAction(self, action):
         lexer = ActionLexer.Lexer(io.StringIO(str(action)))

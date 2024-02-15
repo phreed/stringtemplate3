@@ -184,7 +184,7 @@ class StringTemplateGroup(object):
             self._lastCheckedDisk = time.time()
             StringTemplateGroup.nameToGroupMap[self._name] = self
 
-            self._templateLexerClass = lexer
+            self.templateLexerClass = lexer
 
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
             self._superGroup = superGroup
@@ -195,9 +195,9 @@ class StringTemplateGroup(object):
             self._templatesDefinedInGroupFile = True
 
             if lexer is not None:
-                self._templateLexerClass = lexer
+                self.templateLexerClass = lexer
             else:
-                self._templateLexerClass = AngleBracketTemplateLexer.Lexer
+                self.templateLexerClass = AngleBracketTemplateLexer.Lexer
 
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
             self._superGroup = superGroup
@@ -218,10 +218,9 @@ class StringTemplateGroup(object):
     @property
     def templateLexerClass(self):
         """
-        What lexer class to use to break up templates.  If not lexer set
-        for this group, use static default.
+        What lexer class to use to break up templates.
+        If not lexer set for this group, use static default.
         """
-
         if self._templateLexerClass is not None:
             return self._templateLexerClass
 
