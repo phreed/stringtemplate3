@@ -429,8 +429,7 @@ class StringTemplateGroup(object):
                 dot = name.find('.')
                 name = name[dot + 1:]
                 return self._superGroup.lookupTemplate(name, enclosingInstance)
-            raise ValueError(self._name + ' has no super group; ' +
-                             'invalid template: ' + name)
+            raise ValueError(f'{self._name} has no super group; invalid template: {name}')
         self.checkRefreshInterval()
         st = self._templates.get(name, None)
         if not st:

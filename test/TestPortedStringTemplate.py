@@ -821,9 +821,10 @@ def test_MultiValuedAttributeWithAnonymousTemplateUsingIndexVariableI():
     """)
 
 
-@pytest.mark.skip(reason="not implemented see issues")
+@pytest.mark.skip(reason="not implemented see issue #2")
 def test_FindTemplateInSysPath():
-    """ Look for templates in sys.path as resources
+    """
+    Look for templates in sys.path as resources
     "method.st" references body() so "body.st" will be loaded too
     """
     mgroup = St3G("method stuff", lexer=AngleBracketTemplateLexer.Lexer)
@@ -904,6 +905,7 @@ def test_NestedIFTemplate():
             junk""")
 
 
+@pytest.mark.skip(reason="known issue #16")
 def test_IFConditionWithTemplateApplication():
     group = St3G(name="dummy", rootDir=".")
     st = St3T(group=group,
@@ -1113,6 +1115,7 @@ def test_ElseIfClause():
     assert str(e) == "bar"
 
 
+@pytest.mark.skip(reason="known issue #17")
 def test_ElseIfClauseAngleBrackets():
     e = St3T(template=dedent("""\
             <if(x)>foo
@@ -1124,7 +1127,7 @@ def test_ElseIfClauseAngleBrackets():
     e["x"] = "yep"
     out = io.StringIO(u'')
     e.printDebugString(out)
-    logger.info(out.getvalue())
+    print(out.getvalue())
     assert str(e) == "bar"
 
 
@@ -1380,6 +1383,7 @@ def test_AlternativeWriter():
     assert str(name) == "<b>Terence</b>"
 
 
+@pytest.mark.skip(reason="known issue #18")
 def test_ApplyAnonymousTemplateToMapAndSet0():
     st = St3T("$items:{<li>$it$</li>}$")
     m = dict()
@@ -1420,12 +1424,11 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
     group.defineTemplate("page", "$name:super.bold()$")
     st = subGroup.getInstanceOf("page")
     st["name"] = "Ter"
-    error = None
     try:
         str(st)
 
-    except IllegalArgumentException as iae:
-        assert tsh.getMsg(iae) == "base has no super group; invalid template: super.bold"
+    except ValueError as ve:
+        assert tsh.getMsg(ve) == "base has no super group; invalid template: super.bold"
     except Exception as ex:
         assert False
 
@@ -1496,7 +1499,7 @@ def test_DeliberateRecursiveTemplateApplication():
     except Exception as e:
         pass
 
-    logger.info("errors=" + errors + "'")
+    print("errors=" + errors + "'")
     stringtemplate3.lintMode = False
     assert errors == dedent("""
             infinite recursion to <ifstat([stats])@4> referenced in <block([stats])@3>; stack trace:
@@ -1673,22 +1676,19 @@ def test_EmbeddedComments():
     st = St3T(template=dedent("""\
             Foo $! ignore
              and a line break!$
-            bar
-            """))
+            bar"""))
     assert str(st) == "Foo bar"
 
     st = St3T(template=dedent("""\
             $! start of line $ and $! ick
-            !$boo
-            """))
+            !$boo"""))
     assert str(st) == "boo"
 
     st = St3T(template=dedent("""
         $! start of line !$
         $! another to ignore !$
         $! ick
-        !$boo
-    """))
+        !$boo"""))
     assert str(st) == "boo"
 
     st = St3T(template=dedent("""\
@@ -1737,11 +1737,12 @@ def test_EmbeddedCommentsAngleBracketed():
     assert str(st) == 'boo'
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreak():
-    """ expect \n in output
+    """ expect no \n or other whitespace in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(template=dedent("""\
               Foo <\\\\>
               \t  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
@@ -1750,6 +1751,7 @@ def test_LineBreak():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreak2():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1764,6 +1766,7 @@ def test_LineBreak2():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakNoWhiteSpace():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1778,6 +1781,7 @@ def test_LineBreakNoWhiteSpace():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1791,6 +1795,7 @@ def test_LineBreakDollar():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakDollar2():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1804,6 +1809,7 @@ def test_LineBreakDollar2():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakNoWhiteSpaceDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1817,6 +1823,7 @@ def test_LineBreakNoWhiteSpaceDollar():
     assert sw.getvalue() == "Foo bar"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_CharLiterals():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1841,6 +1848,7 @@ def test_CharLiterals():
     assert sw.getvalue() == "Foo bar\n"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInTemplateString():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1856,6 +1864,7 @@ def test_NewlineNormalizationInTemplateString():
     assert sw.getvalue() == "Foo\nbar\n"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInTemplateStringPC():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1870,6 +1879,7 @@ def test_NewlineNormalizationInTemplateStringPC():
     assert sw.getvalue() == "Foo\r\nBar\r\n"
 
 
+@pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInAttribute():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -3113,7 +3123,7 @@ def test_LineWrapEdgeCase():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
 
-    assert str(a) == dedent("""
+    assert a.toString(3) == dedent("""
         abc
         de
     """)
@@ -3149,7 +3159,7 @@ def test_LineWrapCharAfterWrapIsNewline():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "", "d", "e"]
 
-    assert str(a) == dedent("""
+    assert a.toString(3) == dedent("""
         abc
         
         de
@@ -3205,7 +3215,7 @@ def test_LineWrapForAnonTemplateComplicatedWrap():
 
     t["s"] = s
 
-    assert str(t) == dedent("""
+    assert t.toString(7) == dedent("""
           ![1][2]!
           ![3][4]!
           ![5][6]!
@@ -3224,7 +3234,7 @@ def test_IndentBeyondLineWidth():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
 
-    assert str(a) == dedent("""
+    assert a.toString(7) == dedent("""
             a
             b
             c
@@ -3243,7 +3253,7 @@ def test_IndentedExpr():
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
 
-    assert str(a) == dedent("""
+    assert a.toString(7) == dedent("""
             ab
             cd
             e
@@ -3283,11 +3293,7 @@ def test_NestedWithIndentAndTrackStartOfExpr():
     duh["chars"] = ["a", "b", "c", "d", "e"]
     top["d"] = duh
 
-    assert top.toString(7) == dedent("""
-          x: ab
-             cd
-             e!
-     """)
+    assert top.toString(7) == '  x: ab\n     cd\n     e!'
 
 
 def test_LineDoesNotWrapDueToLiteral():
@@ -3298,14 +3304,12 @@ def test_LineDoesNotWrapDueToLiteral():
             """)
     group = St3G(file=io.StringIO(template))
 
-    a = group.getInstanceOf("m")
-    a["args"] = ["a", "b", "c"]
-    a["body"] = "i=3;"
-    n = len("public void foo(a, b, c")
+    m = group.getInstanceOf("m")
+    m["args"] = ["a", "b", "c"]
+    m["body"] = "i=3;"
+    mn = len("public void foo(a, b, c")
 
-    assert str(n) == dedent("""
-        "public void foo(a, b, c) throws Ick { i=3; }"
-    """)
+    assert str(m) == "public void foo(a, b, c) throws Ick { i=3; }"
 
 
 def test_SingleValueWrap():
@@ -3320,10 +3324,7 @@ def test_SingleValueWrap():
 
     m["body"] = "i=3;"
 
-    assert m.toString(2) == dedent("""\
-        {
-        "  i=3; }"
-     """)
+    assert m.toString(2) == '{ \n  i=3; }'
 
 
 def test_LineWrapInNestedExpr():

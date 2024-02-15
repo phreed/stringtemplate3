@@ -164,12 +164,12 @@ def test_demo_auto_indent(simple_group):
     with io.StringIO(simple_group) as stg_file:
         group = St3G(name="demo_auto_indent", file=stg_file, lexer="angle-bracket")
         # logger.info(f"group templates: {group.templateNames}")
-        group.printDebugString()
+        # group.printDebugString()
         vardef = group.getInstanceOf("vardef")
         vardef["type"] = "int"
         vardef["name"] = "foo"
 
-        vardef.printDebugString()
+        # vardef.printDebugString()
         assert str(vardef) == "int foo;"
 # end::demo_auto_indent[]
 

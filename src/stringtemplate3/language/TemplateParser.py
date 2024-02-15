@@ -116,20 +116,21 @@ class Parser(antlr.LLkParser):
                 self.match(ACTION)
                 indent = a.indentation
                 c = this.parseAction(a.text)
-                c.indentation = indent
-                this.addChunk(c)
+                if c:
+                    c.indentation = indent
+                    this.addChunk(c)
             elif la1 and la1 in [IF]:
                 pass
                 i = self.LT(1)
                 self.match(IF)
                 c = this.parseAction(i.text)
-                # create and precompile the subtemplate
-                subtemplate = stringtemplate3.StringTemplate(group=this.group)
-                subtemplate.enclosingInstance = this
-                subtemplate._name = i.text + "_subtemplate"
-                this.addChunk(c)
-                self.template(subtemplate)
                 if c:
+                    # create and precompile the subtemplate
+                    subtemplate = stringtemplate3.StringTemplate(group=this.group)
+                    subtemplate.enclosingInstance = this
+                    subtemplate._name = i.text + "_subtemplate"
+                    this.addChunk(c)
+                    self.template(subtemplate)
                     c.subtemplate = subtemplate
                 while True:
                     if self.LA(1) == ELSEIF:
@@ -142,7 +143,7 @@ class Parser(antlr.LLkParser):
                         elseIfSubtemplate.enclosingInstance = this
                         elseIfSubtemplate.name = ei.text + "_subtemplate"
                         self.template(elseIfSubtemplate)
-                        if c is not None:
+                        if c and ec:
                             c.addElseIfSubtemplate(ec, elseIfSubtemplate)
                     else:
                         break
@@ -202,8 +203,9 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rr.indentation
                     c = this.parseAction(mangledRef + "()")
-                    c.indentation = indent
-                    this.addChunk(c)
+                    if c:
+                        c.indentation = indent
+                        this.addChunk(c)
             elif la1 and la1 in [REGION_DEF]:
                 pass
                 rd = self.LT(1)
@@ -222,8 +224,9 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rd.indentation
                     c = this.parseAction(regionST.name + "()")
-                    c.indentation = indent
-                    this.addChunk(c)
+                    if c:
+                        c.indentation = indent
+                        this.addChunk(c)
 
                 else:
                     this.error("embedded region definition screwed up")
