@@ -148,17 +148,17 @@ class AutoIndentWriter(StringTemplateWriter):
         #  This is the position we are *about* to write not the position
         #  last written to.
         self._charPosition = 0
-        self._line_width = self.NO_WRAP
+        self._lineWidth = self.NO_WRAP
 
         self._charPositionOfStartOfExpr = 0
 
     @property
     def lineWidth(self):
-        return self._line_width
+        return self._lineWidth
 
     @lineWidth.setter
     def lineWidth(self, lineWidth):
-        self._line_width = lineWidth
+        self._lineWidth = lineWidth
 
     def pushIndentation(self, indent):
         """
@@ -225,9 +225,9 @@ class AutoIndentWriter(StringTemplateWriter):
 
         # if wrap and not already at start of line (last char was \n)
         # and we have hit or exceeded the threshold
-        if (self._line_width != self.NO_WRAP and
+        if (self._lineWidth != self.NO_WRAP and
                 not self._atStartOfLine and
-                self._charPosition >= self._line_width):
+                self._charPosition >= self._lineWidth):
             # ok to wrap
             # Walk wrap string and look for A\nB.
             # Spit out A then spit indent or anchor,

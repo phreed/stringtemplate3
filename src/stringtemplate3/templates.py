@@ -1249,7 +1249,7 @@ class StringTemplate(object):
         """
         out = io.StringIO(u'')
         wr = self._group.getStringTemplateWriter(out)
-        wr.line_width = lineWidth
+        wr.lineWidth = lineWidth
         try:
             self.write(wr)
         except IOError as ioe:
@@ -1258,7 +1258,7 @@ class StringTemplate(object):
         # reset so next toString() does not wrap;
         # normally this is a new writer each time,
         # but just in case they override the group to reuse the writer.
-        wr.line_width = StringTemplateWriter.NO_WRAP
+        wr.lineWidth = StringTemplateWriter.NO_WRAP
 
         return out.getvalue()
 
