@@ -2173,7 +2173,7 @@ def test_NonNullButEmptyIteratorTestsFalse():
     group = St3G("test",
                  lineSeparator="\n")
     t = St3T(group=group,
-             template=dedent(se
+             template=dedent("""
                     $if(users)$
                     Users: $users:{$it.name$ }$
                     $endif$
