@@ -85,3 +85,7 @@ class FormalArgument(object):
         return self._name
 
     __repr__ = __str__
+
+    @property
+    def defaultValueST(self):
+        return self._defaultValueST

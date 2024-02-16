@@ -275,9 +275,10 @@ class StringTemplate(object):
         #  t ::= "super.t()3"
         self._nativeGroup = None
 
-        # # This template was created as part of what group?  Even if this
-        #  template was created from a prototype in a supergroup, its group
-        #  will be the subgroup.  That's the way polymorphism works.
+        # This template was created as part of what group?
+        # Even if this template was created from a prototype in a supergroup,
+        # its group will be the subgroup.
+        # That's the way polymorphism works.
         if group is not None:
             assert isinstance(group, StringTemplateGroup)
             self._group = group

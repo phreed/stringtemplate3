@@ -416,28 +416,18 @@ class ASTExpr(Expr):
         else:
             # use getPropertyName() lookup
             methodSuffix = propertyName[0].upper() + propertyName[1:]
-            methodName = 'get' + methodSuffix
             m = None
-            if hasattr(o, methodName):
-                m = getattr(o, methodName)
+            if hasattr(o, f'get{methodSuffix}'):
+                m = getattr(o, f'get{methodSuffix}')
+            elif hasattr(o, f'is{methodSuffix}'):
+                m = getattr(o, f'is{methodSuffix}')
+            elif hasattr(o, propertyName):
+                return getattr(o, propertyName)
             else:
-                methodName = 'is' + methodSuffix
-                try:
-                    m = getattr(o, methodName)
-                except AttributeError as ae:
-                    # try for a visible field
-                    try:
-                        try:
-                            return getattr(o, propertyName)
-                        except AttributeError as ae2:
-                            this.error('Can\'t get property ' + propertyName +
-                                       ' using method get/is' + methodSuffix +
-                                       ' or direct field access from ' +
-                                       o.__class__.__name__ + ' instance', ae2)
-                    except AttributeError as ae:
-                        this.error('Class ' + o.__class__.__name__ +
-                                   f' has no such attribute: {propertyName} in template context ' +
-                                   this.enclosingInstanceStackString, ae)
+                this.error('Can\'t get property ' + propertyName +
+                           ' using method get/is' + methodSuffix +
+                           ' or direct field access from ' +
+                           o.__class__.__name__ + ' instance')
 
             if m is not None:
                 try:
