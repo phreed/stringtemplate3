@@ -417,9 +417,9 @@ class ASTExpr(Expr):
             # use getPropertyName() lookup
             methodSuffix = propertyName[0].upper() + propertyName[1:]
             m = None
-            if hasattr(o, f'get{methodSuffix}'):
+            if callable(getattr(o, f'get{methodSuffix}', None)):
                 m = getattr(o, f'get{methodSuffix}')
-            elif hasattr(o, f'is{methodSuffix}'):
+            elif callable(getattr(o, f'is{methodSuffix}', None)):
                 m = getattr(o, f'is{methodSuffix}')
             elif hasattr(o, propertyName):
                 return getattr(o, propertyName)

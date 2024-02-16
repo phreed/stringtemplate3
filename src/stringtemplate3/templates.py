@@ -344,11 +344,19 @@ class StringTemplate(object):
 
         if attributes is not None:
             assert isinstance(attributes, dict)
-            self.attributes = attributes
+            self._attributes = attributes
+
+    @property
+    def templateID(self):
+        return self._templateID
 
     @property
     def passThroughAttributes(self):
         return self._passThroughAttributes
+
+    @property
+    def referencedAttributes(self):
+        return self._referencedAttributes
 
     @property
     def attributes(self):
@@ -483,7 +491,7 @@ class StringTemplate(object):
         to.name = copy(fr.name)
         to.nativeGroup = fr.nativeGroup
         to.group = fr.group
-        to._listener = copy(fr.listener)
+        to.listener = copy(fr.listener)
         to.regions = fr.regions
         to.isRegion = fr.isRegion
         to.regionDefType = fr.regionDefType
@@ -1098,18 +1106,18 @@ class StringTemplate(object):
                 break
             seen[hash(p)] = p
             buf.write(p.templateDeclaratorString)
-            if p._attributes:
+            if p.attributes:
                 buf.write(", attributes=[")
                 i = 0
-                for attrName in list(p._attributes.keys()):
+                for attrName in list(p.attributes.keys()):
                     if i > 0:
                         buf.write(", ")
                     i += 1
                     buf.write(attrName)
-                    o = p._attributes[attrName]
+                    o = p.attributes[attrName]
                     if isinstance(o, StringTemplate):
-                        buf.write('=<' + o._name + '()@')
-                        buf.write(str(o._templateID) + '>')
+                        buf.write('=<' + o.name + '()@')
+                        buf.write(str(o.templateID) + '>')
                     elif isinstance(o, list):
                         buf.write("=List[..")
                         n = 0
@@ -1118,15 +1126,15 @@ class StringTemplate(object):
                                 if n > 0:
                                     buf.write(", ")
                                 n += 1
-                                buf.write('<' + st._name + '()@')
-                                buf.write(str(st._templateID) + '>')
+                                buf.write('<' + st.name + '()@')
+                                buf.write(str(st.templateID) + '>')
 
                         buf.write("..]")
 
                 buf.write(']')
-            if p._referencedAttributes:
+            if p.referencedAttributes:
                 buf.write(', references=')
-                buf.write(p._referencedAttributes)
+                buf.write(p.referencedAttributes)
             buf.write('>\n')
             p = p.enclosingInstance
         # if self.enclosingInstance:
@@ -1136,8 +1144,7 @@ class StringTemplate(object):
 
     @property
     def templateDeclaratorString(self):
-        return '<' + self._name + '(' + str(self._formalArgumentKeys) + \
-            ')' + '@' + str(self._templateID) + '>'
+        return f'<{self._name}({self._formalArgumentKeys})@{self._templateID}>'
 
     def getTemplateHeaderString(self, showAttributes):
         if showAttributes and self._attributes is not None:
@@ -1194,7 +1201,7 @@ class StringTemplate(object):
         names = []
         p = self
         while p:
-            names.append(p._name)
+            names.append(p.name)
             p = p.enclosingInstance
         names.reverse()
         s = '['
@@ -1242,7 +1249,7 @@ class StringTemplate(object):
         """
         out = io.StringIO(u'')
         wr = self._group.getStringTemplateWriter(out)
-        wr._line_width = lineWidth
+        wr.line_width = lineWidth
         try:
             self.write(wr)
         except IOError as ioe:
@@ -1251,7 +1258,7 @@ class StringTemplate(object):
         # reset so next toString() does not wrap;
         # normally this is a new writer each time,
         # but just in case they override the group to reuse the writer.
-        wr._line_width = StringTemplateWriter.NO_WRAP
+        wr.line_width = StringTemplateWriter.NO_WRAP
 
         return out.getvalue()
 
@@ -1423,11 +1430,6 @@ class StringTemplate(object):
                 else:
                     out.write(f"{name}={value}")
         out.write("]\n")
-
-
-    @name.setter
-    def name(self, value):
-        self._name = value
 
 
 # initialize here, because of cyclic imports
