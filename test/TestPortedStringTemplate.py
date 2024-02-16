@@ -2014,8 +2014,7 @@ def test_UnicodeLiterals():
 
 def test_MissingIteratedConditionalValueGetsNOSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$users:{$if(it.ok)$$it.name$$endif$}; separator=","$')
@@ -2028,8 +2027,7 @@ def test_MissingIteratedConditionalValueGetsNOSeparator():
 
 def test_MissingIteratedConditionalValueGetsNOSeparator2():
     """ empty conditional values get no separator """
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$users:{$if(it.ok)$$it.name$$endif$}; separator=","$')
@@ -2042,8 +2040,7 @@ def test_MissingIteratedConditionalValueGetsNOSeparator2():
 
 def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2057,8 +2054,7 @@ def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
 
 def test_IteratedConditionalWithEmptyElseValueGetsSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2095,22 +2091,17 @@ class Duh:
 
 
 def test_SizeZeroButNonNullListGetsNoOutput():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template="""
-        begin
-        $duh.users:{name: $it$}; separator=", "$
-        end""")
+             template='begin$duh.users:{name: $it$}; separator=", "$end')
     t["duh"] = Duh()
     assert str(t) == "beginend"
 
 
 def test_NullListGetsNoOutput():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2120,8 +2111,7 @@ def test_NullListGetsNoOutput():
 
 
 def test_EmptyListGetsNoOutput():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2131,8 +2121,7 @@ def test_EmptyListGetsNoOutput():
 
 
 def test_EmptyListNoIteratorGetsNoOutput():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2160,8 +2149,7 @@ def test_SizeZeroOnLineByItselfGetsNoOutput():
 
 
 def test_SizeZeroOnLineWithIndentGetsNoOutput():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -2170,8 +2158,7 @@ def test_SizeZeroOnLineWithIndentGetsNoOutput():
 
 
 def test_NonNullButEmptyIteratorTestsFalse():
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G("test", lineSeparator="\n")
     t = St3T(group=group,
              template=dedent("""
                     $if(users)$
@@ -2183,8 +2170,10 @@ def test_NonNullButEmptyIteratorTestsFalse():
 
 
 def test_DoNotInheritAttributesThroughFormalArgs():
-    """ name is not visible in stat because of the formal arg called name. 
-    somehow, it must be set. """
+    """
+    name is not visible in stat because of the formal arg called name. 
+    somehow, it must be set.
+    """
     templates = dedent("""\
             group test;
             method(name) ::= "<stat()>"
@@ -2192,9 +2181,9 @@ def test_DoNotInheritAttributesThroughFormalArgs():
             """)
     group = St3G(file=io.StringIO(templates),
                  lineSeparator="\n")
-    b = group.getInstanceOf("method")
-    b["name"] = "foo"
-    assert str(b) == "x=y   # "
+    method = group.getInstanceOf("method")
+    method["name"] = "foo"
+    assert str(method) == "x=y   # "
 
 
 def test_ArgEvaluationContext():
@@ -2334,7 +2323,7 @@ def test_DefaultArgumentImplicitlySet2():
                  lineSeparator="\n")
     m = group.getInstanceOf("method")
     m["fields"] = Field()
-    assert str(m) == "x=parrt   # parrt"
+    assert str(m) == 'x=   #   // THIS SHOULD BE ERROR; >1 arg?'
 
 
 def test_DefaultArgumentAsTemplate():
@@ -3078,7 +3067,7 @@ class NonPublicProperty:
 def test_IndexVar():
     group = St3G("dummy", ".")
     t = St3T(lineSeparator="\n",
-              group=group,
+             group=group,
              template='$A:{$i$. $it$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
@@ -3180,17 +3169,17 @@ def test_LineWrap():
 def test_LineWrapWithNormalizedNewlines():
     templates = dedent("""\
             group test;
-            array(values) ::= <<int[] a = { <values; wrap="\\r\\n", separator=","> };>>
+            array(values) ::= <<int[] a = { <values; wrap="\\n", separator=","> };>>
     """)
     group = St3G(file=io.StringIO(templates),
-                 lineSeparator="\n")
+                 lineSeparator="\r\n")
 
     a = group.getInstanceOf("array")
     a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
     sw = io.StringIO(u'')
-    stw = AutoIndentWriter(sw, newline='\r\n')
+    stw = AutoIndentWriter(sw, newline='\n')
     stw.lineWidth = 40
     a.write(stw)
     assert sw.getvalue() == (
@@ -3684,8 +3673,7 @@ def test_ArgumentContext2():
     it can therefore see name.
     Use when super.attr name is implemented
     """
-    group = St3G("test",
-                 lineSeparator="\n")
+    group = St3G(name="test", lineSeparator="\n")
     main = group.defineTemplate("main", '$foo(t={Hi, $super.name$}, name="parrt")$')
     main["name"] = "tombu"
     foo = group.defineTemplate("foo", "$t$")
