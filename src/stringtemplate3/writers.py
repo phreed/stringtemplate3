@@ -24,7 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
+import os
 from builtins import object
 from collections import abc
 
@@ -81,6 +81,17 @@ class StringTemplateWriter(object):
 
     def popAnchorPoint(self):
         raise NotImplementedError
+        
+    @property
+    def lineWidth(self):
+        """ 
+        Used when wrapping, a soft limit on the line width.
+        """
+        raise NotImplementedError
+        
+    @lineWidth.setter
+    def lineWidth(self, width):
+        raise NotImplementedError
 
     def write(self, a_str, wrap=None):
         """
@@ -88,14 +99,13 @@ class StringTemplateWriter(object):
         With auto indentation and wrapping, more chars than length(str)
         can be emitted. No wrapping is done unless wrap is not None
         """
-
         raise NotImplementedError
 
     def writeWrapSeparator(self, wrap):
         """
         Because we might need to wrap at a non-atomic string boundary
-        (such as when we wrap in between template applications
-        <data:{v|[<v>]}; wrap>) we need to expose the wrap string
+        (such as when we wrap in between template applications '<data:{v|[<v>]}; wrap>')
+        we need to expose the wrap string
         writing just like for the separator.
         """
 
@@ -126,10 +136,12 @@ class AutoIndentWriter(StringTemplateWriter):
     
     This is a filter on a Writer.
 
-    It may be screwed up for '\r' '\n' on PC's.
+    '\n' is the proper way to say newline for options and templates.
+    Templates can mix them but use '\n' for sure on options like wrap="\n".
+    ST will generate the right thing.
+    Override the default (locale) newline by passing in a string to the constructor.
     """
-
-    def __init__(self, out, newline=None):
+    def __init__(self, out, newline=os.linesep):
         super().__init__()
 
         # # stack of indents
@@ -141,12 +153,8 @@ class AutoIndentWriter(StringTemplateWriter):
         self._out = out
         self._atStartOfLine = True
 
-        self._newline_normalization = newline
+        self._newline = newline
 
-        # # Track char position in the line (later we can think about tabs).
-        #  Indexed from 0.  We want to keep charPosition <= lineWidth.
-        #  This is the position we are *about* to write not the position
-        #  last written to.
         self._charPosition = 0
         self._lineWidth = self.NO_WRAP
 
@@ -154,6 +162,12 @@ class AutoIndentWriter(StringTemplateWriter):
 
     @property
     def lineWidth(self):
+        """
+        Track char position in the line (later we can think about tabs).
+        Indexed from 0.
+        We want to keep charPosition <= lineWidth.
+        This is the position we are *about* to write not the position last written to.
+        """
         return self._lineWidth
 
     @lineWidth.setter
@@ -162,17 +176,27 @@ class AutoIndentWriter(StringTemplateWriter):
 
     def pushIndentation(self, indent):
         """
-        Push even blank (null) indents as they are like scopes; must
-        be able to pop them back off stack.
+        Push even blank (null) indents as they are like scopes;
+        must be able to pop them back off stack.
         """
-
         self._indents.append(indent)
 
     def popIndentation(self):
         return self._indents.pop(-1)
 
-    def getIndentationWidth(self):
+    @property
+    def indentationWidth(self):
+        """
+        Get the width of the total indentation.
+        """
         return sum(len(ind) for ind in self._indents if ind is not None and isinstance(ind, abc.Sized))
+
+    @property
+    def lastAnchor(self):
+        """
+        Return the last anchor in the stack.
+        """
+        return self._anchors[-1]
 
     def pushAnchorPoint(self):
         self._anchors.append(self._charPosition)
@@ -189,33 +213,35 @@ class AutoIndentWriter(StringTemplateWriter):
         If at or beyond desired line width then emit a \n and any indentation
         before spitting out this str.
         """
-
         assert isinstance(text, str), repr(text)
 
         n = 0
         if wrap is not None:
             n += self.writeWrapSeparator(wrap)
 
-        for c in text:
-            buffer = c
-            if c == '\n':
+        # Ignore the \n after a \r
+        skipLF = False
+        for ch in text:
+            if ch in '\n\r':
+                if ch == '\n' and skipLF:
+                    skipLF = False
+                    continue
+                if ch == '\r':
+                    skipLF = True
+
                 self._atStartOfLine = True
                 self._charPosition = -1  # set so the write below sets to 0
-                if self._newline_normalization is not None:
-                    buffer = self._newline_normalization
-
-            elif self._newline_normalization is not None and c == '\r':
+                n += len(self._newline)
+                self._out.write(self._newline)
+                self._charPosition += n  # wrote n more char
                 continue
-            else:
-                if self._atStartOfLine:
-                    n += self.indent()
-                    self._atStartOfLine = False
+
+            if self._atStartOfLine:
+                n += self.indent()
+                self._atStartOfLine = False
 
             n += 1
-            try:
-                self._out.write(buffer)
-            except TypeError as te:
-                pass
+            self._out.write(ch)
             self._charPosition += 1
 
         return n
@@ -232,16 +258,16 @@ class AutoIndentWriter(StringTemplateWriter):
             # Walk wrap string and look for A\nB.
             # Spit out A then spit indent or anchor,
             # whichever is larger, then spit out B
-            for c in wrap:
-                if c == '\n':
+            for ch in wrap:
+                if ch == '\n':
                     n += 1
-                    self._out.write(c)
+                    self._out.write(ch)
                     # atStartOfLine = true;
                     self._charPosition = 0
 
-                    indentWidth = self.getIndentationWidth()
+                    indentWidth = self.indentationWidth
                     try:
-                        lastAnchor = self._anchors[-1]
+                        lastAnchor = self.lastAnchor
                     except IndexError:  # no anchors saved
                         lastAnchor = 0
 
@@ -257,7 +283,7 @@ class AutoIndentWriter(StringTemplateWriter):
 
                 else:  # write A or B part
                     n += 1
-                    self._out.write(c)
+                    self._out.write(ch)
                     self._charPosition += 1
 
         return n

@@ -24,7 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
+import os
 from builtins import str
 from builtins import object
 import sys
@@ -184,7 +184,7 @@ class StringTemplate(object):
     def defaultGroup(self):
         return StringTemplateGroup(name='defaultGroup', rootDir='.')
 
-    def __init__(self, template=None, group=None, lexer=None, attributes=None, name=None):
+    def __init__(self, template=None, group=None, lexer=None, attributes=None, name=None, lineSeparator=os.linesep):
         """ Either:
           Create a blank template with no pattern and no attributes
         Or:
@@ -195,6 +195,7 @@ class StringTemplate(object):
         Or:
           Create a template
         """
+        self._lineSeparator = lineSeparator
         self._referencedAttributes = None
         self._name = ANONYMOUS_ST_NAME if name is None else name
         self._templateID = getNextTemplateCounter()
@@ -213,7 +214,7 @@ class StringTemplate(object):
             self._group = group
         else:
             self._group = StringTemplateGroup(
-                name=DEFAULT_GROUP_NAME, rootDir='.')
+                name=DEFAULT_GROUP_NAME, rootDir='.', lineSeparator=self._lineSeparator)
 
         if lexer is not None:
             self._group.templateLexerClass = lexer

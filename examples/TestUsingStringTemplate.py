@@ -130,12 +130,12 @@ def test_boolean_logic_both():
         #define TEST_HAS_64_BIT
         <endif>
         """)
-    decl_on = St3T(template=decl_template, lexer="angle-bracket")
+    decl_on = St3T(template=decl_template, lexer="angle-bracket", lineSeparator="\n")
     decl_on["USE_64"] = True
 
     assert str(decl_on) == "use_64: True\n#define TEST_HAS_64_BIT"
 
-    decl_off = St3T(template=decl_template, lexer="angle-bracket")
+    decl_off = St3T(template=decl_template, lexer="angle-bracket", lineSeparator="\n")
     decl_off["USE_64"] = False
 
     assert str(decl_off) == "use_64: False\n"
@@ -162,7 +162,7 @@ def simple_group():
 # tag::demo_auto_indent[]
 def test_demo_auto_indent(simple_group):
     with io.StringIO(simple_group) as stg_file:
-        group = St3G(name="demo_auto_indent", file=stg_file, lexer="angle-bracket")
+        group = St3G(name="demo_auto_indent", file=stg_file, lexer="angle-bracket", lineSeparator="\n")
         # logger.info(f"group templates: {group.templateNames}")
         # group.printDebugString()
         vardef = group.getInstanceOf("vardef")
@@ -178,7 +178,7 @@ def test_demo_auto_indent(simple_group):
 def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
     with open(stg_path, mode="r") as stg_file:
-        group = St3G(name="demo_auto_indent", file=stg_file,  lexer="default")
+        group = St3G(name="demo_auto_indent", file=stg_file,  lexer="default", lineSeparator="\n")
         # print("group templates: {}", group.templateNamesAsStrings)
         function = group.getInstanceOf("function")
         function["name"] = "foo"
@@ -207,19 +207,19 @@ def test_different_delimiters():
         <argument>
         $argument$
         """)
-    w_bracket = St3T(template=a_template, lexer="angle-bracket")
+    w_bracket = St3T(template=a_template, lexer="angle-bracket", lineSeparator="\n")
     w_bracket["argument"] = "resolved"
     assert str(w_bracket) == "resolved\n$argument$\n"
 
-    w_dollar = St3T(template=a_template, lexer="default")
+    w_dollar = St3T(template=a_template, lexer="default", lineSeparator="\n")
     w_dollar["argument"] = "resolved"
     assert str(w_dollar) == "<argument>\nresolved\n"
 
-    w_bracket = St3T(template=a_template, lexer=AngleBracketTemplateLexer.Lexer)
+    w_bracket = St3T(template=a_template, lexer=AngleBracketTemplateLexer.Lexer, lineSeparator="\n")
     w_bracket["argument"] = "resolved"
     assert str(w_bracket) == "resolved\n$argument$\n"
 
-    w_dollar = St3T(template=a_template, lexer=DefaultTemplateLexer.Lexer)
+    w_dollar = St3T(template=a_template, lexer=DefaultTemplateLexer.Lexer, lineSeparator="\n")
     w_dollar["argument"] = "resolved"
     assert str(w_dollar) == "<argument>\nresolved\n"
 # end::different_delimiters[]
@@ -244,7 +244,7 @@ class NoIndentWriter(AutoIndentWriter):
 def test_demo_no_indent_writer():
     """ write to 'out' with no indentation """
     out = io.StringIO(u'')
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     group.defineTemplate("bold", "<b>$x$</b>")
     nameST = St3T("$name:bold(x=name)$", group=group)
     nameST["name"] = "Terence"
@@ -261,7 +261,7 @@ def test_hide_infinite_recursion():
             group test;
             block(stats) ::= "{$stats$}"
     """)
-    group = St3G(file=io.StringIO(templates), lexer='default')
+    group = St3G(file=io.StringIO(templates), lexer='default', lineSeparator="\n")
     b = group.getInstanceOf("block")
     b["stats"] = group.getInstanceOf("block")
     assert str(b) == "{{}}"
@@ -281,7 +281,7 @@ def test_trap_infinite_recursion():
             ifstat(stats) ::= "IF true then $stats$"
     """)
     stringtemplate3.lintMode = True
-    group = St3G(file=io.StringIO(templates), lexer="default")
+    group = St3G(file=io.StringIO(templates), lexer="default", lineSeparator="\n")
     block = group.getInstanceOf("block")
     ifstat = group.getInstanceOf("ifstat")
     block["stats"] = ifstat
@@ -339,7 +339,7 @@ class Decl(object):
 
 # tag::indirect_template_ref_demo[]
 def test_indirect_template_ref(indirect_template_ref):
-    group = St3G(file=io.StringIO(indirect_template_ref), lexer="angle-bracket")
+    group = St3G(file=io.StringIO(indirect_template_ref), lexer="angle-bracket", lineSeparator="\n")
     f = group.getInstanceOf("file")
     f.setAttribute("variables.{decl,format}", Decl("i", "int"), "intdecl")
     f.setAttribute("variables.{decl,format}", Decl("a", "int-array"), "intarray")
@@ -543,7 +543,7 @@ def test_RendererForGroup(sample_day, sample_calendar):
             group test;
             dateThing(created) ::= \"date: <created>\"
             """
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates), lineSeparator="\n")
     st = group.getInstanceOf("dateThing")
     st.setAttribute("created", sample_day)
     group.registerRenderer(sample_calendar, DateRenderer1())
@@ -555,7 +555,7 @@ def test_OverriddenRenderer(sample_day, sample_calendar):
             group test;
             dateThing(created) ::= \"date: <created>\"
             """
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates), lineSeparator="\n")
     st = group.getInstanceOf("dateThing")
     st.setAttribute("created", sample_day)
     group.registerRenderer(sample_calendar, DateRenderer1())

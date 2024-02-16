@@ -1,5 +1,6 @@
 
 import io
+import os
 import re
 import logging
 from textwrap import dedent
@@ -55,6 +56,9 @@ https://docs.python.org/3/howto/logging.html
 https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
 """
 
+# the os specific line separator
+nl = os.linesep
+
 
 def test_MissingInterfaceTemplate():
     """ this also tests the group loader """
@@ -77,7 +81,7 @@ def test_MissingInterfaceTemplate():
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
         with open(stg_file, "r") as reader:
-            group = St3G(file=reader, errors=errors)
+            group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
     assert str(errors) == "group testG does not satisfy interface testI: missing templates ['bold']"
@@ -104,7 +108,7 @@ def test_MissingOptionalInterfaceTemplate():
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
         with open(stg_file, "r") as reader:
-            group = St3G(file=reader, errors=errors)
+            group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
     assert str(errors) == ""  # should be NO errors
@@ -132,7 +136,7 @@ def test_MismatchedInterfaceTemplate():
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
         with open(stg_file, "r") as reader:
-            group = St3G(file=reader, errors=errors)
+            group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
     assert str(errors) == \
@@ -148,7 +152,8 @@ def test_GroupFileFormat():
             duh() ::= <<"xx">>
     """)
     group = St3G(file=io.StringIO(templates),
-                 lexer=DefaultTemplateLexer.Lexer)
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
 
     assert str(group) == dedent("""\
         group test;
@@ -168,17 +173,19 @@ def test_GroupFileFormat():
 def test_EscapedTemplateDelimiters():
     templates = dedent("""\
             group test;
-            t() ::= <<$"literal":{a|$a$\\}}$ template\n>>
+            t() ::= <<$"literal":{a|$a$\\}}$ template\\n>>
             bold(item) ::= <<<b>$item$</b\\>>>
             duh() ::= <<"xx">>
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
 
     assert str(group) == dedent("""\
         group test;
         bold(item) ::= <<<b>$item$</b>>>
         duh() ::= <<"xx">>
-        t() ::= <<$"literal":{a|$a$\\}}$ template>>
+        t() ::= <<$"literal":{a|$a$\\}}$ template\\n>>
         """)
 
     b = group.getInstanceOf("bold")
@@ -186,7 +193,7 @@ def test_EscapedTemplateDelimiters():
     assert str(b) == "<b>dork</b>"
 
     a = group.getInstanceOf("t")
-    assert str(a) == "literal} template"
+    assert str(a) == "literal} template\\n"
 
 
 def test_TemplateParameterDecls():
@@ -198,7 +205,9 @@ def test_TemplateParameterDecls():
             t3(a,b,c,d) ::= <<$a$ $d$>>
             t4(a,b,c,d) ::= <<$a$ $b$ $c$ $d$>>
             """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
 
     """ check setting unknown arg in empty formal list """
     a = group.getInstanceOf("t")
@@ -226,7 +235,8 @@ def test_TemplateRedef():
             a() ::= "z"
     """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     logger.debug(f"group: {group}")
     assert str(errors) == "redefinition of template: a"
 
@@ -237,7 +247,9 @@ def test_UndefinedArgumentAssignment():
             page(x) ::= <<$body(font=x)$>>
             body() ::= "<font face=$font$>my body</font>"
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.getInstanceOf("page")
     t["x"] = "Times"
     error = ""
@@ -256,7 +268,9 @@ def test_UndefinedArgumentAssignmentInApply():
             page(name,x) ::= <<$name:bold(font=x)$>>
             bold() ::= "<font face=$font$><b>$it$</b></font>"
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.getInstanceOf("page")
     t["x"] = "Times"
     t["name"] = "Ter"
@@ -279,7 +293,8 @@ def test_UndefinedAttributeReference():
             bold() ::= "$name$"
     """)
     group = St3G(file=io.StringIO(templates),
-                 lexer=DefaultTemplateLexer.Lexer)
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.getInstanceOf("page")
     error = ""
     try:
@@ -297,7 +312,9 @@ def test_UndefinedDefaultAttributeReference():
             page() ::= <<$bold()$>>
             bold() ::= "$it$"
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.getInstanceOf("page")
     error = ""
     try:
@@ -310,7 +327,8 @@ def test_UndefinedDefaultAttributeReference():
 
 
 def test_AngleBracketsNoGroup():
-    st = St3T(template='Tokens : <rules; separator="|"> ;',
+    st = St3T(lineSeparator="\n",
+              template='Tokens : <rules; separator="|"> ;',
               lexer=AngleBracketTemplateLexer.Lexer)
     st["rules"] = "A"
     st["rules"] = "B"
@@ -323,7 +341,8 @@ def test_RegionRef():
             a() ::= "X$@r()$Y"
     """)
     group = St3G(file=io.StringIO(templates),
-                 lexer=DefaultTemplateLexer.Lexer)
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XY"
@@ -334,7 +353,9 @@ def test_EmbeddedRegionRef():
             group test;
             a() ::= "X$@r$blort$@end$Y"
     """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XblortY"
@@ -345,7 +366,8 @@ def test_RegionRefAngleBrackets():
             group test;
             a() ::= "X<@r()>Y"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XY"
@@ -357,7 +379,8 @@ def test_EmbeddedRegionRefAngleBrackets():
             group test;
             a() ::= "X<@r>blort<@end>Y"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XblortY"
@@ -371,7 +394,8 @@ def test_EmbeddedRegionRefWithNewlinesAngleBrackets():
             <@end>
             Y"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XblortY"
@@ -383,7 +407,8 @@ def test_RegionRefWithDefAngleBrackets():
             a() ::= "X<@r()>Y"
             @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     result = str(st)
     assert result == "XfooY"
@@ -395,7 +420,8 @@ def test_RegionRefWithDefInConditional():
             a(v) ::= "X<if(v)>A<@r()>B<endif>Y"
             @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     st["v"] = True
     result = str(st)
@@ -409,7 +435,8 @@ def test_RegionRefWithImplicitDefInConditional():
             @a.r() ::= "foo"
     """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     st["v"] = True
     result = str(st)
@@ -424,7 +451,8 @@ def test_RegionOverride():
             a() ::= "X<@r()>Y"
             @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates1))
+    group = St3G(file=io.StringIO(templates1),
+                 lineSeparator="\n")
 
     templates2 = dedent("""\
             group sub;
@@ -432,7 +460,8 @@ def test_RegionOverride():
     """)
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    superGroup=group)
+                    superGroup=group,
+                    lineSeparator="\n")
 
     st = subGroup.getInstanceOf("a")
     assert str(st) == "XfooY"
@@ -444,7 +473,8 @@ def test_RegionOverrideRefSuperRegion():
             a() ::= "X<@r()>Y"
             @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates1))
+    group = St3G(file=io.StringIO(templates1),
+                 lineSeparator="\n")
 
     templates2 = dedent("""
             group sub;
@@ -452,7 +482,8 @@ def test_RegionOverrideRefSuperRegion():
     """)
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    superGroup=group)
+                    superGroup=group,
+                    lineSeparator="\n")
 
     st = subGroup.getInstanceOf("a")
     result = str(st)
@@ -478,7 +509,8 @@ def test_RegionOverrideRefSuperRegion3Levels():
             a() ::= "X<@r()>Y"
             @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates1))
+    group = St3G(file=io.StringIO(templates1),
+                 lineSeparator="\n")
 
     templates2 = dedent("""
             group sub;
@@ -486,7 +518,8 @@ def test_RegionOverrideRefSuperRegion3Levels():
     """)
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    superGroup=group)
+                    superGroup=group,
+                    lineSeparator="\n")
 
     templates3 = dedent("""
             group subsub;
@@ -494,7 +527,8 @@ def test_RegionOverrideRefSuperRegion3Levels():
     """)
     subSubGroup = St3G(file=io.StringIO(templates3),
                        lexer=AngleBracketTemplateLexer.Lexer,
-                       superGroup=subGroup)
+                       superGroup=subGroup,
+                       lineSeparator="\n")
 
     st = subSubGroup.getInstanceOf("a")
     result = str(st)
@@ -506,7 +540,8 @@ def test_RegionOverrideRefSuperImplicitRegion():
             group super;
             a() ::= "X<@r>foo<@end>Y"
     """)
-    group = St3G(file=io.StringIO(templates1))
+    group = St3G(file=io.StringIO(templates1),
+                 lineSeparator="\n")
 
     templates2 = dedent("""
             group sub;
@@ -514,7 +549,8 @@ def test_RegionOverrideRefSuperImplicitRegion():
     """)
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    superGroup=group)
+                    superGroup=group,
+                    lineSeparator="\n")
 
     st = subGroup.getInstanceOf("a")
     result = str(st)
@@ -529,7 +565,8 @@ def test_EmbeddedRegionRedefError():
             @a.r() ::= "foo"
             """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     str(st)
     result = str(errors)
@@ -545,7 +582,8 @@ def test_ImplicitRegionRedefError():
             @a.r() ::= "bar"
      """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     str(st)
     result = str(errors)
@@ -558,7 +596,8 @@ def test_ImplicitOverriddenRegionRedefError():
         a() ::= "X<@r()>Y"
         @a.r() ::= "foo"
     """)
-    group = St3G(file=io.StringIO(templates1))
+    group = St3G(file=io.StringIO(templates1),
+                 lineSeparator="\n")
 
     templates2 = dedent("""\
         group sub;
@@ -568,7 +607,8 @@ def test_ImplicitOverriddenRegionRedefError():
     errors = ErrorBuffer()
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    errors=errors, superGroup=group)
+                    errors=errors, superGroup=group,
+                    lineSeparator="\n")
 
     st = subGroup.getInstanceOf("a")
     logger.debug(f"st: {st}")
@@ -584,7 +624,8 @@ def test_UnknownRegionDefError():
             @a.q() ::= "foo"
     """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     str(st)
     result = str(errors)
@@ -606,7 +647,8 @@ def test_SuperRegionRefError():
     errors = ErrorBuffer()
     subGroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    errors=errors, superGroup=group)
+                    errors=errors, superGroup=group,
+                    lineSeparator="\n")
 
     st = subGroup.getInstanceOf("a")
     logger.debug(f"st: {st}")
@@ -623,7 +665,8 @@ def test_MissingEndRegionError():
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
-                 errors=errors)
+                 errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     str(st)
     result = str(errors)
@@ -637,7 +680,8 @@ def test_MissingEndRegionErrorAngleBrackets():
             a() ::= "X<@r>foo"
     """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), errors=errors)
+    group = St3G(file=io.StringIO(templates), errors=errors,
+                 lineSeparator="\n")
     st = group.getInstanceOf("a")
     str(st)
     result = str(errors)
@@ -646,8 +690,8 @@ def test_MissingEndRegionErrorAngleBrackets():
 
 def test_SimpleInheritance():
     """ make a bold template in the super group that you can inherit from sub """
-    supergroup = St3G("super")
-    subgroup = St3G("sub")
+    supergroup = St3G("super", lineSeparator="\n")
+    subgroup = St3G("sub", lineSeparator="\n")
     bold = supergroup.defineTemplate("bold", "<b>$it$</b>")
     logger.debug(f"bold: {bold}")
     subgroup.superGroup = supergroup
@@ -661,8 +705,8 @@ def test_SimpleInheritance():
 
 def test_OverrideInheritance():
     """ make a bold template in the super group and one in subgroup """
-    supergroup = St3G("super")
-    subgroup = St3G("sub")
+    supergroup = St3G("super",  lineSeparator="\n")
+    subgroup = St3G("sub",  lineSeparator="\n")
     supergroup.defineTemplate("bold", "<b>$it$</b>")
     subgroup.defineTemplate("bold", "<strong>$it$</strong>")
     subgroup.superGroup = supergroup
@@ -676,9 +720,9 @@ def test_OverrideInheritance():
 
 def test_MultiLevelInheritance():
     """ must loop up two levels to find bold() """
-    rootgroup = St3G("root")
-    level1 = St3G("level1")
-    level2 = St3G("level2")
+    rootgroup = St3G("root", lineSeparator="\n")
+    level1 = St3G("level1", lineSeparator="\n")
+    level2 = St3G("level2", lineSeparator="\n")
     rootgroup.defineTemplate("bold", "<b>$it$</b>")
     level1.superGroup = rootgroup
     level2.superGroup = level1
@@ -692,20 +736,20 @@ def test_MultiLevelInheritance():
 
 
 def test_MissingEndDelimiter():
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     st = St3T(group=group, template='stuff $a then more junk etc...')
     logger.info(f"template: {st}")
     print(f"errors: {errors}")
-    assert str(errors) == "line 1:31: expecting '$', found '<EOF>'\n"
+    assert str(errors) == f"line 1:31: expecting '$', found '<EOF>'\n"
 
 
 def test_SetButNotRefd():
     """  oops...should be 'c' """
     stringtemplate3.lintMode = True
     errors = ErrorBuffer()
-    group = St3G("test", errors=errors)
+    group = St3G("test", errors=errors, lineSeparator="\n")
     t = St3T(group=group,
              template='$a$ then $b$ and $c$ refs.')
     t["a"] = "Terence"
@@ -717,7 +761,7 @@ def test_SetButNotRefd():
 
 
 def test_NullTemplateApplication():
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$names:bold(x=it)$')
@@ -737,7 +781,7 @@ def test_NullTemplateApplication():
 
 def test_NullTemplateToMultiValuedApplication():
     """  bold not found...empty string """
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$names:bold(x=it)$')
@@ -780,7 +824,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
             "$it.firstName$ $it.lastName$ (<tt>$it.email$</tt>)"
             """)
 
-        group = St3G("dummy", str(tmp_dir.path))
+        group = St3G("dummy", str(tmp_dir.path), lineSeparator="\n")
 
         a = group.getInstanceOf("page")
         a["member"] = Connector()
@@ -796,7 +840,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
 
 
 def test_MultiValuedAttributeWithAnonymousTemplateUsingIndexVariableI():
-    tgroup = St3G("dummy", ".")
+    tgroup = St3G(name="dummy", rootDir=".", lineSeparator="\n")
     t = St3T(group=tgroup, 
              template=dedent("""\
                 List:
@@ -828,7 +872,9 @@ def test_FindTemplateInSysPath():
     Look for templates in sys.path as resources
     "method.st" references body() so "body.st" will be loaded too
     """
-    mgroup = St3G("method stuff", lexer=AngleBracketTemplateLexer.Lexer)
+    mgroup = St3G(name="method stuff",
+                  lexer=AngleBracketTemplateLexer.Lexer,
+                  lineSeparator="\n")
     m = mgroup.getInstanceOf("org/antlr/stringtemplate/test/method")
     m["visibility"] = "public"
     m["name"] = "foobar"
@@ -849,7 +895,7 @@ def test_FindTemplateInSysPath():
 
 def test_ApplyAnonymousTemplateToAggregateAttribute():
     """ also testing wacky spaces in aggregate spec """
-    st = St3T("$items:{$it.lastName$, $it.firstName$\n}$")
+    st = St3T("$items:{$it.lastName$, $it.firstName$$\\n$}$", lineSeparator="\n")
     st["items.{firstName, lastName}"] = ("Ter", "Parr")
     st["items.{firstName, lastName}"] = ("Tom", "Burns")
     
@@ -861,9 +907,12 @@ def test_ApplyAnonymousTemplateToAggregateAttribute():
 
 def test_MultiValuedAttributeWithSeparator():
     # """ if column can be multi-valued, specify a separator """
-    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("dummy", ".",
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     query = St3T(group=group,
-                 template='SELECT <distinct> <column; separator=", "> FROM <table>;')
+                 template='SELECT <distinct> <column; separator=", "> FROM <table>;',
+                 lineSeparator="\n")
     query["column"] = "name"
     query["column"] = "email"
     query["table"] = "User"
@@ -876,7 +925,8 @@ def test_MultiValuedAttributeWithSeparator():
 
 def test_IFTemplate():
     group = St3G("dummy", rootDir=".",
-                 lexer=AngleBracketTemplateLexer.Lexer)
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = St3T(group=group,
              template="SELECT <column> FROM PERSON <if(cond)>WHERE ID=<id><endif>;")
     t["column"] = "name"
@@ -887,7 +937,8 @@ def test_IFTemplate():
 
 def test_NestedIFTemplate():
     group = St3G(name="dummy", rootDir=".",
-                 lexer=AngleBracketTemplateLexer.Lexer)
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = St3T(group=group,
              template=dedent("""\
             ack<if(a)>
@@ -908,7 +959,8 @@ def test_NestedIFTemplate():
 
 @pytest.mark.skip(reason="known issue #16")
 def test_IFConditionWithTemplateApplication():
-    group = St3G(name="dummy", rootDir=".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     st = St3T(group=group,
               template='$if(names:{$it$})$Fail!$endif$ $if(!names:{$it$})$Works!$endif$',
               lexer="default")
@@ -957,7 +1009,8 @@ class Connector2:
 
 
 def test_ObjectPropertyReference():
-    group = St3G("dummy", ".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     t = St3T(group=group,
              template=dedent("""\
                     <b>Name: $p.firstName$ $p.lastName$</b><br>
@@ -978,7 +1031,8 @@ def test_ApplyRepeatedAnonymousTemplateWithForeignTemplateRefToMultiValuedAttrib
     """ specify a template to apply to an attribute 
     Use a template group, so we can specify the start/stop chars
     """
-    group = St3G("dummy", ".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     group.defineTemplate(name="link",
                          template='<a href="$url$"><b>$title$</b></a>')
     duh_txt = dedent("""\
@@ -1020,7 +1074,9 @@ class Tree:
 
 
 def test_Recursion():
-    group = St3G("dummy", rootDir=".", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G(name="dummy", rootDir=".",
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     group.defineTemplate("tree",
                          template=dedent("""\
                             <if(it.firstChild)>
@@ -1042,7 +1098,8 @@ def test_Recursion():
 
 
 def test_NestedAnonymousTemplates():
-    group = St3G("dummy", ".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     t = St3T(group=group,
              template=dedent("""\
                         $A:{
@@ -1057,7 +1114,8 @@ def test_NestedAnonymousTemplates():
 
 
 def test_AnonymousTemplateAccessToEnclosingAttributes():
-    group = St3G("dummy", ".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     t = St3T(group=group,
              template=dedent("""\
                     $A:{
@@ -1073,7 +1131,8 @@ def test_AnonymousTemplateAccessToEnclosingAttributes():
 
 
 def test_NestedAnonymousTemplatesAgain():
-    group = St3G("dummy", ".")
+    group = St3G(name="dummy", rootDir=".",
+                 lineSeparator="\n")
     logger.debug(f"group: {group}")
     t = St3T(group=group,
              template=dedent("""\
@@ -1185,7 +1244,8 @@ def test_NestedIF():
 
 
 def test_EmbeddedMultiLineIF():
-    group = St3G("test")
+    group = St3G(name="test",
+                 lineSeparator="\n")
     # group.emitDebugStartStopStrings(True)
     main = St3T(group=group, template='$sub$')
     sub = St3T(group=group,
@@ -1223,7 +1283,8 @@ def test_SimpleIndentOfAttributeList():
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
-                 errors=errors)
+                 errors=errors,
+                 lineSeparator="\n")
     t = group.getInstanceOf("list")
     t["names"] = "Terence"
     t["names"] = "Jim"
@@ -1242,7 +1303,8 @@ def test_IndentOfMultilineAttributes():
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
-                 errors=errors)
+                 errors=errors,
+                 lineSeparator="\n")
     t = group.getInstanceOf("list")
     t["names"] = "Terence\nis\na\nmaniac"
     t["names"] = "Jim"
@@ -1262,7 +1324,8 @@ def test_IndentOfMultipleBlankLines():
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
-                 errors=errors)
+                 errors=errors,
+                 lineSeparator="\n")
     t = group.getInstanceOf("list")
     t["names"] = "Terence\n\nis a maniac"
     
@@ -1279,7 +1342,10 @@ def test_IndentBetweenLeftJustifiedLiterals():
             >>
             """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer, errors=errors)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 errors=errors,
+                 lineSeparator="\n")
     t = group.getInstanceOf("list")
     t["names"] = "Terence"
     t["names"] = "Jim"
@@ -1309,7 +1375,10 @@ def test_NestedIndent():
             assign(lhs,expr) ::= <<$lhs$=$expr$;>>
             """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer, errors=errors)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 errors=errors,
+                 lineSeparator="\n")
     t = group.getInstanceOf("method")
     t["name"] = "foo"
     s1 = group.getInstanceOf("assign")
@@ -1376,7 +1445,8 @@ class AlternateWriter(StringTemplateWriter):
 
 def test_AlternativeWriter():
     """ Provide an alternative to the default writer """
-    group = St3G("test")
+    group = St3G(name="test",
+                 lineSeparator="\n")
     group.defineTemplate(name="bold", template="<b>$x$</b>")
     name = St3T(group=group, template="$name:bold(x=name)$")
     name["name"] = "Terence"
@@ -1419,8 +1489,10 @@ def test_LazyEvalOfSuperInApplySuperTemplateRef():
     If I create instance of page in group not subGroup,
     however, I will get an error as superGroup is None for group "group".
     """
-    group = St3G("base")
-    subGroup = St3G("sub")
+    group = St3G(name="base",
+                 lineSeparator="\n")
+    subGroup = St3G(name="sub",
+                    lineSeparator="\n")
     subGroup.superGroup = group
     group.defineTemplate("bold", "<b>$it$</b>")
     subGroup.defineTemplate("bold", "<strong>$it$</strong>")
@@ -1444,7 +1516,10 @@ def test_ListOfEmbeddedTemplateSeesEnclosingAttributes():
             font() ::= <<$if(cond)$this$else$that$endif$>>
             """)
     errors = ErrorBuffer()
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer, errors=errors)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 errors=errors,
+                 lineSeparator="\n")
     outputST = group.getInstanceOf("output")
     bodyST1 = group.getInstanceOf("my_body")
     bodyST2 = group.getInstanceOf("my_body")
@@ -1463,7 +1538,8 @@ def test_InheritArgumentFromRecursiveTemplateApplication():
             "block(stats) ::= "<stats>""
             ifstat(stats) ::= "IF true then <stats>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("block")
     b["stats"] = group.getInstanceOf("ifstat")
     b["stats"] = group.getInstanceOf("ifstat")
@@ -1487,7 +1563,8 @@ def test_DeliberateRecursiveTemplateApplication():
             """)
     stringtemplate3.lintMode = True
     stringtemplate3.resetTemplateCounter()
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("block")
     ifstat = group.getInstanceOf("ifstat")
     b["stats"] = ifstat  # block has if stat
@@ -1520,7 +1597,8 @@ def test_ImmediateTemplateAsAttributeLoop():
             group test;
             block(stats) ::= "{<stats>}"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("block")
     b["stats"] = group.getInstanceOf("block")
 
@@ -1533,7 +1611,7 @@ def test_TemplateGetPropertyGetsAttribute():
     templates = dedent("""\
             group test;
             Cfile(funcs) ::= <<
-            #include <stdio.h>
+            #include \\<stdio.h\\>
             <funcs:{public void <it.name>(<it.args>);}; separator="\\n">
             <funcs; separator="\\n">
             >>
@@ -1541,7 +1619,8 @@ def test_TemplateGetPropertyGetsAttribute():
             public void <name>(<args>) {<body>}
             >>
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("Cfile")
     f1 = group.getInstanceOf("func")
     f2 = group.getInstanceOf("func")
@@ -1584,7 +1663,8 @@ def test_ComplicatedIndirectTemplateApplication():
             intdecl(decl) ::= "int <decl.name> = 0;"
             intarray(decl) ::= "int[] <decl.name> = null;"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("file")
     f.setAttribute("variables.{decl,format}", Decl("i", "int"), "intdecl")
     f.setAttribute("variables.{decl,format}", Decl("a", "int-array"), "intarray")
@@ -1594,7 +1674,8 @@ def test_ComplicatedIndirectTemplateApplication():
     int i = 0;
     int[] a = null;""")
 
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("file")
     f["variables.{decl,format}"] = (Decl("i", "int"), "intdecl")
     f["variables.{decl,format}"] = (Decl("a", "int-array"), "intarray")
@@ -1616,7 +1697,8 @@ def test_IndirectTemplateApplication():
             first() ::= "the first"
             second() ::= "the second"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("test")
     f["name"] = "first"
     assert str(f) == "the first"
@@ -1632,7 +1714,8 @@ def test_IndirectTemplateWithArgsApplication():
             first(a) ::= "the first: <a>"
             second(a) ::= "the second <a>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("test")
     f["name"] = "first"
     assert str(f) == "the first: foo"
@@ -1648,7 +1731,8 @@ def test_NullIndirectTemplateApplication():
             >>
             ind() ::= "[<it>]"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("test")
     f["names"] = "me"
     f["names"] = "you"
@@ -1665,7 +1749,8 @@ def test_NullIndirectTemplate():
             first() ::= "the first"
             second() ::= "the second"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("test")
     # f["name"] = "first"
     assert str(f) == ""
@@ -1675,29 +1760,33 @@ def test_EmbeddedComments():
     st = St3T("Foo $! ignore !$bar")
     assert str(st) == "Foo bar"
 
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo $! ignore
              and a line break!$bar"""))
     assert str(st) == "Foo bar"
 
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             $! start of line $ and $! ick
             !$boo"""))
     assert str(st) == "boo"
 
-    st = St3T(template=dedent("""
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
         $! start of line !$
         $! another to ignore !$
         $! ick
         !$boo"""))
     assert str(st) == "boo"
 
-    st = St3T(template=dedent("""\
-        $! back !$$! to back !$ // can't detect; leaves \\n
-        $! ick
-        !$boo
-    """))
-    assert str(st) == 'boo\n'
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
+                $! back !$$! to back !$ // can't detect; leaves $\\n$
+                $! ick
+                !$boo
+            """))
+    assert str(st) == ' // can\'t detect; leaves \nboo\n'
 
 
 def test_EmbeddedCommentsAngleBracketed():
@@ -1712,14 +1801,16 @@ def test_EmbeddedCommentsAngleBracketed():
               )
     assert str(st) == "Foo bar"
 
-    st = St3T(template=dedent("""
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             <! start of line $ and <! ick
             !>boo"""),
               lexer=AngleBracketTemplateLexer.Lexer
               )
     assert str(st) == "boo"
 
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
         "<! start of line !>"
         "<! another to ignore !>"
         <! ick
@@ -1728,7 +1819,8 @@ def test_EmbeddedCommentsAngleBracketed():
               )
     assert str(st) == "boo"
 
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
         <! back !><! to back !> // can't detect; leaves \\n
         <! ick
         !>boo"""),
@@ -1742,12 +1834,13 @@ def test_LineBreak():
     """ expect no \n or other whitespace in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
               Foo <\\\\>
               \t  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw))
+    st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1757,7 +1850,8 @@ def test_LineBreak2():
     TODO: use custom auto indent writer
     force \n as newline
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo <\\\\>       
               \t  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
@@ -1772,7 +1866,8 @@ def test_LineBreakNoWhiteSpace():
     TODO: use custom auto indent writer
     force \n as newline
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo <\\\\>
             bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
@@ -1786,7 +1881,8 @@ def test_LineBreakDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo $\\\\$
               \t  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
@@ -1800,7 +1896,8 @@ def test_LineBreakDollar2():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo $\\\\$          
               \t  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
@@ -1814,7 +1911,8 @@ def test_LineBreakNoWhiteSpaceDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""
+    st = St3T(lineSeparator="\n",
+              template=dedent("""
             Foo $\\\\$
             bar"""),
               lexer=DefaultTemplateLexer.Lexer)
@@ -1829,22 +1927,24 @@ def test_CharLiterals():
     TODO: use custom auto indent writer
     force \n as newline
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo <\\r\\n> <\\n> <\\t> bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw))
+    st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo \r\n \n \t bar"
 
     st = St3T(template=dedent("""\
             Foo $\\n$$\\t$ bar"""))
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw))
+    st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo \n\t bar"
 
-    st = St3T(template="Foo$\\ $bar$\\n$")
+    st = St3T(lineSeparator="\n",
+              template="Foo$\\ $bar$\\n$")
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw))
+    st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar\n"
 
 
@@ -1853,14 +1953,15 @@ def test_NewlineNormalizationInTemplateString():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo\r
             Bar
             """),
               lexer=AngleBracketTemplateLexer.Lexer
               )
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, "\n"))
+    st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo\nbar\n"
 
 
@@ -1869,13 +1970,14 @@ def test_NewlineNormalizationInTemplateStringPC():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo\r
             Bar
             """),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, "\r\n"))
+    st.write(AutoIndentWriter(sw, newline="\r\n"))
     assert sw.getvalue() == "Foo\r\nBar\r\n"
 
 
@@ -1884,7 +1986,8 @@ def test_NewlineNormalizationInAttribute():
     """ expect \n in output
     TODO: use custom auto indent writer
     """
-    st = St3T(template=dedent("""\
+    st = St3T(lineSeparator="\n",
+              template=dedent("""\
             Foo\r
             <name>"""),
               lexer=AngleBracketTemplateLexer.Lexer)
@@ -1895,20 +1998,24 @@ def test_NewlineNormalizationInAttribute():
 
 
 def test_UnicodeLiterals():
-    st = St3T(template='Foo <\\uFEA5\\n\\u00C2> bar',
+    st = St3T(lineSeparator="\n",
+              template='Foo <\\uFEA5\\n\\u00C2> bar',
               lexer=AngleBracketTemplateLexer.Lexer)
     assert str(st) == "Foo \ufea5\n\u00C2 bar"
 
-    st = St3T(template='Foo $\\uFEA5\\n\\u00C2$ bar\n')
+    st = St3T(lineSeparator="\n",
+              template='Foo $\\uFEA5\\n\\u00C2$ bar\n')
     assert str(st) == "Foo \ufea5\n\u00C2 bar\n"
 
-    st = St3T("Foo$\\ $bar$\\n$")
+    st = St3T(lineSeparator="\n",
+              template="Foo$\\ $bar$\\n$")
     assert str(st) == "Foo bar\n"
 
 
 def test_MissingIteratedConditionalValueGetsNOSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$users:{$if(it.ok)$$it.name$$endif$}; separator=","$')
@@ -1921,7 +2028,8 @@ def test_MissingIteratedConditionalValueGetsNOSeparator():
 
 def test_MissingIteratedConditionalValueGetsNOSeparator2():
     """ empty conditional values get no separator """
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group, template='$users:{$if(it.ok)$$it.name$$endif$}; separator=","$')
@@ -1934,7 +2042,8 @@ def test_MissingIteratedConditionalValueGetsNOSeparator2():
 
 def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -1948,7 +2057,8 @@ def test_MissingIteratedDoubleConditionalValueGetsNOSeparator():
 
 def test_IteratedConditionalWithEmptyElseValueGetsSeparator():
     """ empty conditional values get no separator """
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -1965,7 +2075,8 @@ def test_WhiteSpaceAtEndOfTemplate():
     users.list references row.st which has a single blank line at the end.
     i.e., there are 2 '\n' in a row at the end
     ST should eat all whitespace at end """
-    group = St3G("group")
+    group = St3G("group",
+                 lineSeparator="\n")
     pageST = group.getInstanceOf("org/antlr/stringtemplate/test/page")
     listST = group.getInstanceOf("org/antlr/stringtemplate/test/users_list")
     listST["users"] = Connector()
@@ -1984,7 +2095,8 @@ class Duh:
 
 
 def test_SizeZeroButNonNullListGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
@@ -1997,88 +2109,71 @@ def test_SizeZeroButNonNullListGetsNoOutput():
 
 
 def test_NullListGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template="""
-        begin
-        $users:{name: $it$}; separator=", "$
-        end""")
+             template='begin$users:{name: $it$}; separator=", "$end')
     # t["users"] = Duh()
     assert str(t) == "beginend"
 
 
 def test_EmptyListGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template="""
-        begin
-        $users:{name: $it$}; separator=", "$
-        end""")
+             template='begin$users:{name: $it$}; separator=", "$end')
     t["users"] = list()
     assert str(t) == "beginend"
 
 
 def test_EmptyListNoIteratorGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template="""
-        begin
-        $users; separator=", "$
-        end""")
+             template='begin$users; separator=", "$end')
     t["users"] = list()
     assert str(t) == "beginend"
 
 
 def test_EmptyExprAsFirstLineGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     group.defineTemplate("bold", "<b>$it$</b>")
-    t = St3T(group=group,
-             template="""
-        $users$
-        end""")
+    t = St3T(group=group, template='$users$end')
     assert str(t) == "end"
 
 
 def test_SizeZeroOnLineByItselfGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template=dedent("""\
-        begin
-        $name$
-        $users:{name: $it$}$
-        $users:{name: $it$}; separator=", "$
-        end"""))
+             template=dedent('begin$name$$users:{name: $it$}$$users:{name: $it$}; separator=", "$end'))
     assert str(t) == "beginend"
 
 
 def test_SizeZeroOnLineWithIndentGetsNoOutput():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     errors = ErrorBuffer()
     group.errorListener = errors
     t = St3T(group=group,
-             template=dedent("""\
-             begin               
-             $name$
-             $users:{name: $it$}$
-             $users:{name: $it$$\\n$}$
-             end"""))
+             template=dedent('begin$name$$users:{name: $it$}$$users:{name: $it$$\\n$}$end'))
     assert str(t) == "beginend"
 
 
 def test_NonNullButEmptyIteratorTestsFalse():
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     t = St3T(group=group,
-             template=dedent("""
+             template=dedent(se
                     $if(users)$
                     Users: $users:{$it.name$ }$
                     $endif$
@@ -2095,7 +2190,8 @@ def test_DoNotInheritAttributesThroughFormalArgs():
             method(name) ::= "<stat()>"
             stat(name) ::= "x=y   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=y   # "
@@ -2112,7 +2208,8 @@ def test_ArgEvaluationContext():
             method(name) ::= "<stat(name=name)>"
             stat(name) ::= "x=y   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=y   # foo"
@@ -2124,7 +2221,8 @@ def test_PassThroughAttributes():
             method(name) ::= "<stat(...)>"
             stat(name) ::= "x=y   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=y   # foo"
@@ -2138,7 +2236,8 @@ def test_PassThroughAttributes2():
             >>
             stat(name,value) ::= "x=<value>   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=34   # foo"
@@ -2152,7 +2251,8 @@ def test_DefaultArgument():
             >>
             stat(name,value="99") ::= "x=<value>   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=99   # foo"
@@ -2163,7 +2263,8 @@ def test_DefaultArgument2():
             group test;
             stat(name,value="99") ::= "x=<value>   # <name>"
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("stat")
     b["name"] = "foo"
     assert str(b) == "x=99   # foo"
@@ -2186,7 +2287,8 @@ def test_DefaultArgumentManuallySet():
             >>
             stat(f,value={<f.name>}) ::= "x=<value>   # <f.name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     m = group.getInstanceOf("method")
     m["fields"] = Field()
     assert str(m) == "x=parrt   # parrt"
@@ -2213,7 +2315,8 @@ def test_DefaultArgumentImplicitlySet():
             >>
             stat(f,value={<f.name>}) ::= "x=<value>   # <f.name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     m = group.getInstanceOf("method")
     m["fields"] = Field()
     assert str(m) == "x=parrt   # parrt"
@@ -2227,7 +2330,8 @@ def test_DefaultArgumentImplicitlySet2():
             >>
             stat(f,value={<f.name>}) ::= "x=<value>   # <f.name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     m = group.getInstanceOf("method")
     m["fields"] = Field()
     assert str(m) == "x=parrt   # parrt"
@@ -2241,7 +2345,8 @@ def test_DefaultArgumentAsTemplate():
             >>
             stat(name,value={<name>}) ::= "x=<value>   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "2"
@@ -2256,7 +2361,8 @@ def test_DefaultArgumentAsTemplate2():
             >>
             stat(name,value={ [<name>] }) ::= "x=<value>   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "2"
@@ -2271,7 +2377,8 @@ def test_DoNotUseDefaultArgument():
             >>
             stat(name,value="99") ::= "x=<value>   # <name>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     assert str(b) == "x=34   # foo"
@@ -2292,7 +2399,8 @@ def test_DefaultArgumentInParensToEvalEarly():
             A(x) ::= "<B()>"
             B(y={<(x)>}) ::= "<y> <x> <x> <y>"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("A")
     b["x"] = Counter()
     assert str(b) == "0 1 2 0"
@@ -2306,7 +2414,8 @@ def test_ArgumentsAsTemplates():
             >>
             stat(value) ::= "x=<value>;"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "34"
@@ -2322,7 +2431,8 @@ def test_TemplateArgumentEvaluatedInSurroundingContext():
             >>
             stat(value) ::= "x=<value>;"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     f = group.getInstanceOf("file")
     f["size"] = "34"
     m = group.getInstanceOf("method")
@@ -2339,7 +2449,9 @@ def test_ArgumentsAsTemplatesDefaultDelimiters():
             >>
             stat(value) ::= "x=$value$;"
             """)
-    group = St3G(file=io.StringIO(templates), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(templates),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     b = group.getInstanceOf("method")
     b["name"] = "foo"
     b["size"] = "34"
@@ -2351,7 +2463,8 @@ def test_DefaultArgsWhenNotInvoked():
             group test;
             b(name="foo") ::= ".<name>."
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     b = group.getInstanceOf("b")
     assert str(b) == ".foo."
 
@@ -2362,7 +2475,8 @@ def test_Map():
             typeInit ::= ["int":"0", "float":"0.0"]
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "int"
     st["name"] = "x"
@@ -2375,7 +2489,8 @@ def test_MapValuesAreTemplates():
             typeInit ::= ["int":"0<w>", "float":"0.0<w>"]
             var(type,w,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["w"] = "L"
     st["type"] = "int"
@@ -2392,10 +2507,11 @@ def test_MapKeyLookupViaTemplate():
             typeInit ::= ["int":"0<w>", "float":"0.0<w>"]
             var(type,w,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["w"] = "L"
-    st["type"] = St3T("int")
+    st["type"] = St3T(lineSeparator="\n", template="int")
     st["name"] = "x"
     assert str(st) == "int x = 0L;"
 
@@ -2406,7 +2522,8 @@ def test_MapMissingDefaultValueIsEmpty():
             typeInit ::= ["int":"0", "float":"0.0"]
             var(type,w,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["w"] = "L"
     st["type"] = "double"  # double not in typeInit map
@@ -2420,7 +2537,8 @@ def test_MapHiddenByFormalArg():
             typeInit ::= ["int":"0", "float":"0.0"]
             var(typeInit,type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "int"
     st["name"] = "x"
@@ -2433,7 +2551,8 @@ def test_MapEmptyValueAndAngleBracketStrings():
             typeInit ::= ["int":"0", "float":, "double":<<0.0L>>]
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "float"
     st["name"] = "x"
@@ -2446,7 +2565,8 @@ def test_MapDefaultValue():
             typeInit ::= ["int":"0", default:"None"]
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "UserRecord"
     st["name"] = "x"
@@ -2459,7 +2579,8 @@ def test_MapEmptyDefaultValue():
             typeInit ::= ["int":"0", default:]
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "UserRecord"
     st["name"] = "x"
@@ -2472,7 +2593,8 @@ def test_MapDefaultValueIsKey():
             typeInit ::= ["int":"0", default:key]
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "UserRecord"
     st["name"] = "x"
@@ -2490,7 +2612,8 @@ def test_MapDefaultStringAsKey():
             typeInit ::= ["default":"foo"] 
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["type"] = "default"
     st["name"] = "x"
@@ -2507,7 +2630,8 @@ def test_MapDefaultIsDefaultString():
             map ::= [default: "default"] 
             t1() ::= "<map.(1)>" 
             """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
     st = group.getInstanceOf("t1")
     assert str(st) == "default"
 
@@ -2519,7 +2643,8 @@ def test_MapViaEnclosingTemplates():
             intermediate(type,name) ::= "<var(...)>"
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     st = group.getInstanceOf("intermediate")
     st["type"] = "int"
     st["name"] = "x"
@@ -2533,7 +2658,8 @@ def test_MapViaEnclosingTemplates2():
             intermediate(stuff) ::= "<stuff>"
             var(type,name) ::= "<type> <name> = <typeInit.(type)>;"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     intermediate = group.getInstanceOf("intermediate")
     var = group.getInstanceOf("var")
     var["type"] = "int"
@@ -2547,7 +2673,8 @@ def test_EmptyGroupTemplate():
             group test;
             foo() ::= ""
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     a = group.getInstanceOf("foo")
     assert str(a) == ""
 
@@ -2558,7 +2685,8 @@ def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingAngleBracketLexer():
             top() ::= <<<x(a="", b={})\\>>>
             x(a,b) ::= "a=<a>, b=<b>"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     a = group.getInstanceOf("top")
     assert str(a) == "a=, b="
 
@@ -2569,13 +2697,15 @@ def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingDollarLexer():
             top() ::= <<$x(a="", b={})$>>
             x(a,b) ::= "a=$a$, b=$b$"
             """)
-    group = St3G(file=io.StringIO(template), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     a = group.getInstanceOf("top")
     assert str(a) == "a=, b="
 
 
 def test_TruncOp():
-    e = St3T('$trunc(names); separator=", "$')
+    e = St3T(lineSeparator="\n", template='$trunc(names); separator=", "$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2589,7 +2719,8 @@ def test_ReUseOfRestResult():
         a(names) ::= "<b(rest(names))>"
         b(x) ::= "<x>, <x>"
         """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     e = group.getInstanceOf("a")
     names = ["Ter", "Tom"]
     e["names"] = names
@@ -2602,7 +2733,8 @@ def test_ReUseOfCat():
         a(mine,yours) ::= "<b([mine,yours])>"
         b(x) ::= "<x>, <x>"
         """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     e = group.getInstanceOf("a")
     mine = ["Ter", "Tom"]
     e["mine"] = mine
@@ -2623,7 +2755,9 @@ def test_RepeatedRestOpAsArg():
             root(names) ::= "$other(rest(names))$"
             other(x) ::= "$x$, $x$"
             """)
-    group = St3G(file=io.StringIO(template), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("root")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2635,7 +2769,8 @@ def test_MultipleRefsToListAttribute():
             group test;
             f(x) ::= "<x> <x>"
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     e = group.getInstanceOf("f")
     e["x"] = "Ter"
     e["x"] = "Tom"
@@ -2648,7 +2783,8 @@ def test_ApplyTemplateWithSingleFormalArgs():
             test(names) ::= <<<names:bold(item=it); separator=", "> >>
             bold(item) ::= <<*<item>*>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2661,7 +2797,9 @@ def test_ApplyTemplateWithNoFormalArgs():
             test(names) ::= <<<names:bold(); separator=", "> >>
             bold() ::= <<*<it>*>>
             """)
-    group = St3G(file=io.StringIO(template), lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2669,7 +2807,7 @@ def test_ApplyTemplateWithNoFormalArgs():
 
 
 def test_AnonTemplateWithArgHasNoITArg():
-    e = St3T('$names:{n| $n$:$it$}; separator=", "$')
+    e = St3T(lineSeparator="\n", template='$names:{n| $n$:$it$}; separator=", "$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2684,7 +2822,7 @@ def test_AnonTemplateWithArgHasNoITArg():
 
 def test_FirstWithListOfMaps2():
     """ this FAILS! """
-    e = St3T("$first(maps):{ m | $m.Ter$ }$")
+    e = St3T(lineSeparator="\n", template="$first(maps):{ m | $m.Ter$ }$")
     m1 = {"Ter": "x5707"}
     m2 = {"Tom": "x5332"}
 
@@ -2700,7 +2838,7 @@ def test_FirstWithListOfMaps2():
 
 @pytest.mark.skip(reason="MismatchedTokenException")
 def test_CatWithTemplateApplicationAsElement():
-    e = St3T('$[names:{$it$!},phones]; separator=", "$')
+    e = St3T(lineSeparator="\n", template='$[names:{$it$!},phones]; separator=", "$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2711,7 +2849,8 @@ def test_CatWithTemplateApplicationAsElement():
 
 @pytest.mark.skip(reason="MismatchedTokenException")
 def test_CatWithNullTemplateApplicationAsElement():
-    e = St3T(template='$[names:{$it$!},"foo"]:{x}; separator=", "$')
+    e = St3T(lineSeparator="\n",
+              template='$[names:{$it$!},"foo"]:{x}; separator=", "$')
     e = e.getInstanceOf()
     e["phones"] = "1"
     e["phones"] = "2"
@@ -2720,7 +2859,8 @@ def test_CatWithNullTemplateApplicationAsElement():
 
 @pytest.mark.skip(reason='MismatchedTokenException')
 def test_CatWithNestedTemplateApplicationAsElement():
-    e = St3T(template='$[names, ["foo","bar"]:{$it$!},phones]; separator=", "$')
+    e = St3T(lineSeparator="\n",
+              template='$[names, ["foo","bar"]:{$it$!},phones]; separator=", "$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2735,7 +2875,9 @@ def test_ListAsTemplateArgument():
                 test(names,phones) ::= "<foo([names,phones])>"
                 foo(items) ::= "<items:{a | *<a>*}>"
                 """)
-    group = St3G(file=io.StringIO(template), lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2750,7 +2892,9 @@ def test_SingleExprTemplateArgument():
             test(name) ::= "<bold(name)>"
             bold(item) ::= "*<item>*"
             """)
-    group = St3G(file=io.StringIO(template), lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["name"] = "Ter"
     assert str(e) == "*Ter*"
@@ -2765,7 +2909,9 @@ def test_SingleExprTemplateArgumentInApply():
             test(names,x) ::= "<names:bold(x)>"
             bold(item) ::= "*<item>*"
             """)
-    group = St3G(file=io.StringIO(template), lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template),
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2781,7 +2927,8 @@ def test_SoleFormalTemplateArgumentInMultiApply():
             italics(y) ::= "_<y>_"
             """)
     group = St3G(file=io.StringIO(template),
-                 lexer=AngleBracketTemplateLexer.Lexer)
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2796,7 +2943,9 @@ def test_SingleExprTemplateArgumentError():
             """)
     errors = ErrorBuffer()
     group = St3G(file=io.StringIO(template),
-                 lexer=AngleBracketTemplateLexer.Lexer, errors=errors)
+                 lexer=AngleBracketTemplateLexer.Lexer,
+                 errors=errors,
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["name"] = "Ter"
     result = str(e)
@@ -2813,7 +2962,8 @@ def test_InvokeIndirectTemplateWithSingleFormalArgs():
             bold(x) ::= <<*<x>*>>
             italics(y) ::= <<_<y>_>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     e = group.getInstanceOf("test")
     e["templateName"] = "italics"
     e["arg"] = "Ter"
@@ -2821,7 +2971,7 @@ def test_InvokeIndirectTemplateWithSingleFormalArgs():
 
 
 def test_ParallelAttributeIteration():
-    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
+    e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2833,7 +2983,7 @@ def test_ParallelAttributeIteration():
 
 
 def test_ParallelAttributeIterationWithNullValue():
-    e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
+    e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2851,7 +3001,7 @@ def test_ParallelAttributeIterationWithNullValue():
 
 
 def test_ParallelAttributeIterationHasI():
-    e = St3T("$names,phones,salaries:{n,p,s | $i0$. $n$@$p$: $s$\n}$")
+    e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $i0$. $n$@$p$: $s$\n}$")
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["names"] = "Tom"
@@ -2864,7 +3014,7 @@ def test_ParallelAttributeIterationHasI():
 
 def test_ParallelAttributeIterationWithMismatchArgListSizes():
     errors = ErrorBuffer()
-    e = St3T("""$names,phones,salaries:{n,p | $n$@$p$}; separator=", "$""")
+    e = St3T(lineSeparator="\n", template="""$names,phones,salaries:{n,p | $n$@$p$}; separator=", "$""")
     e.errorListener = errors
     e = e.getInstanceOf()
     e["names"] = "Ter"
@@ -2887,7 +3037,8 @@ def test_ParallelAttributeIterationWithDifferentSizesTemplateRefInsideToo():
             value(x="n/a") ::= "$x$"
             """)
     group = St3G(file=io.StringIO(template),
-                 lexer=DefaultTemplateLexer.Lexer)
+                 lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     p = group.getInstanceOf("page")
     p["names"] = "Ter"
     p["names"] = "Tom"
@@ -2905,14 +3056,16 @@ def test_OverrideThroughConditional():
         "body(ick) ::= "<if(ick)>ick<f()><else><f()><endif>""
         f() ::= "foo"
         """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     templates2 = dedent("""
             group sub;
             f() ::= "bar"
         """)
     subgroup = St3G(file=io.StringIO(templates2),
                     lexer=AngleBracketTemplateLexer.Lexer,
-                    superGroup=group)
+                    superGroup=group,
+                    lineSeparator="\n")
 
     b = subgroup.getInstanceOf("body")
     assert str(b) == "bar"
@@ -2924,7 +3077,9 @@ class NonPublicProperty:
 
 def test_IndexVar():
     group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A:{$i$. $it$}; separator="\\n"$')
+    t = St3T(lineSeparator="\n",
+              group=group,
+             template='$A:{$i$. $it$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
 
@@ -2934,8 +3089,10 @@ def test_IndexVar():
 
 
 def test_Index0Var():
-    group = St3G("dummy", ".")
-    t = St3T(group=group, template='$A:{$i0$. $it$}; separator="\\n"$')
+    group = St3G("dummy", ".",
+                 lineSeparator="\n")
+    t = St3T(group=group, template='$A:{$i0$. $it$}; separator="\\n"$',
+             lineSeparator="\n")
     t["A"] = "parrt"
     t["A"] = "tombu"
 
@@ -2945,7 +3102,8 @@ def test_Index0Var():
 
 
 def test_IndexVarWithMultipleExprs():
-    group = St3G("dummy", ".")
+    group = St3G("dummy", ".",
+                 lineSeparator="\n")
     t = St3T(group=group, template='$A,B:{a,b|$i$. $a$@$b$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
@@ -2958,7 +3116,8 @@ def test_IndexVarWithMultipleExprs():
 
 
 def test_Index0VarWithMultipleExprs():
-    group = St3G("dummy", ".")
+    group = St3G("dummy", ".",
+                 lineSeparator="\n")
     t = St3T(group=group, template='$A,B:{a,b|$i0$. $a$@$b$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"
@@ -2971,7 +3130,8 @@ def test_Index0VarWithMultipleExprs():
 
 
 def test_NoDotsInAttributeNames():
-    group = St3G("dummy", ".")
+    group = St3G("dummy", ".",
+                 lineSeparator="\n")
     t = St3T(group=group, template='$user.Name$')
     error = None
     try:
@@ -2991,7 +3151,8 @@ def test_NoDotsInTemplateNames():
             """)
     group = St3G(file=io.StringIO(templates),
                  lexer=DefaultTemplateLexer.Lexer,
-                 errors=errors)
+                 errors=errors,
+                 lineSeparator="\n")
     logger.debug(f'group: {group!s}')
     assert str(errors) == "template group parse error: line 2:1: unexpected token:"
 
@@ -3001,7 +3162,8 @@ def test_LineWrap():
             group test;
             array(values) ::= <<int[] a = { <values; wrap="\\n", separator=","> };>>
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("array")
     a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
@@ -3020,14 +3182,15 @@ def test_LineWrapWithNormalizedNewlines():
             group test;
             array(values) ::= <<int[] a = { <values; wrap="\\r\\n", separator=","> };>>
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("array")
     a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
     sw = io.StringIO(u'')
-    stw = AutoIndentWriter(sw, newline='\n')
+    stw = AutoIndentWriter(sw, newline='\r\n')
     stw.lineWidth = 40
     a.write(stw)
     assert sw.getvalue() == (
@@ -3042,7 +3205,8 @@ def test_LineWrapAnchored():
             group test;
             array(values) ::= <<int[] a = { <values; anchor, wrap="\\n", separator=","> };>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("array")
     a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
@@ -3062,7 +3226,8 @@ def test_SubtemplatesAnchorToo():
             group test;
             array(values) ::= <<{ <values; anchor="true", separator=",\n"> }>>
     """)
-    group = St3G(file=io.StringIO(templates))
+    group = St3G(file=io.StringIO(templates),
+                 lineSeparator="\n")
 
     x = St3T(group=group, template='<\\n>  { <stuff; anchor="true", separator=",\n"> }<\\n>')
     x["stuff"] = "1"
@@ -3084,7 +3249,8 @@ def test_FortranLineWrap():
             group test;
             func(args) ::= <<       FUNCTION line( <args; wrap="\\n      c", separator=","> )>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("func")
     a["args"] = ["a", "b", "c", "d", "e", "f"]
@@ -3098,7 +3264,8 @@ def test_LineWrapWithDiffAnchor():
             group test;
             array(values) ::= <<int[] a = { <{1,9,2,<values; wrap, separator=",">}; anchor> };>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("array")
     a["values"] = [3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 2, 1, 6, 32, 5, 6, 77,
@@ -3119,7 +3286,8 @@ def test_LineWrapEdgeCase():
             group test;
             duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
@@ -3133,7 +3301,8 @@ def test_LineWrapLastCharIsNewline():
             group test;
             duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "", "d", "e"]
@@ -3149,7 +3318,8 @@ def test_LineWrapCharAfterWrapIsNewline():
             group test;
             duh(chars) ::= <<<chars; wrap="\\n"\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "", "d", "e"]
@@ -3164,7 +3334,8 @@ def test_LineWrapForAnonTemplate():
             group test;
             duh(data) ::= <<!<data:{v|[<v>]}; wrap>!>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     a = group.getInstanceOf("duh")
     a["data"] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -3177,7 +3348,8 @@ def test_LineWrapForAnonTemplateAnchored():
             group test;
             duh(data) ::= <<!<data:{v|[<v>]}; anchor, wrap>!>>
     """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     a = group.getInstanceOf("duh")
     a["data"] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -3191,7 +3363,8 @@ def test_LineWrapForAnonTemplateComplicatedWrap():
             "top(s) ::= <<  <s>.>>"
             str(data) ::= <<!<data:{v|[<v>]}; wrap="!+\\n!">!>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     t = group.getInstanceOf("top")
 
@@ -3215,7 +3388,8 @@ def test_IndentBeyondLineWidth():
             group test;
             duh(chars) ::= <<   <chars; wrap="\\n"\\>>>
     """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
@@ -3228,7 +3402,8 @@ def test_IndentedExpr():
             group test;
             duh(chars) ::= <<    <chars; wrap="\\n"\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     a = group.getInstanceOf("duh")
     a["chars"] = ["a", "b", "c", "d", "e"]
@@ -3242,7 +3417,8 @@ def test_NestedIndentedExpr():
             top(d) ::= <<  <d>!>>
             duh(chars) ::= <<  <chars; wrap="\\n"\\>>>
     """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     top = group.getInstanceOf("top")
     duh = group.getInstanceOf("duh")
@@ -3258,7 +3434,8 @@ def test_NestedWithIndentAndTrackStartOfExpr():
             top(d) ::= <<  <d>!>>
             duh(chars) ::= <<x: <chars; anchor, wrap="\\n"\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     top = group.getInstanceOf("top")
     duh = group.getInstanceOf("duh")
@@ -3274,7 +3451,8 @@ def test_LineDoesNotWrapDueToLiteral():
             group test;
             m(args,body) ::= <<public void foo(<args; wrap="\\n",separator=", ">) throws Ick { <body> }>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     m = group.getInstanceOf("m")
     m["args"] = ["a", "b", "c"]
@@ -3291,7 +3469,8 @@ def test_SingleValueWrap():
             m(args,body) ::= <<{ <body; anchor, wrap="\\n"> }>>
             """)
 
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     m = group.getInstanceOf("m")
 
     m["body"] = "i=3;"
@@ -3305,7 +3484,8 @@ def test_LineWrapInNestedExpr():
             top(arrays) ::= <<Arrays: <arrays>done>>
             array(values) ::= <<int[] a = { <values; anchor, wrap="\\n", separator=","> };<\\n\\>>>
             """)
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
 
     top = group.getInstanceOf("top")
     a = group.getInstanceOf("array")
@@ -3334,7 +3514,8 @@ def test_LineWrapInNestedExpr():
 
 
 def test_EscapeEscapeNestedAngle():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", "<v:{a|\\\\<a>}>")
 
     t["v"] = "Joe"
@@ -3344,7 +3525,8 @@ def test_EscapeEscapeNestedAngle():
 
 
 def test_ListOfIntArrays():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
 
     t = group.defineTemplate("t", "<data:array()>")
 
@@ -3358,7 +3540,8 @@ def test_ListOfIntArrays():
 
 def test_NullOptionSingleNullValue():
     """ Test None option """
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t",
                              template='<data; null="0">')
     logger.info(t)
@@ -3366,7 +3549,8 @@ def test_NullOptionSingleNullValue():
 
 
 def test_NullOptionHasEmptyNullValue():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t",
                              template='<data; null="", separator=", ">')
     data = [None, 1]
@@ -3375,7 +3559,8 @@ def test_NullOptionHasEmptyNullValue():
 
 
 def test_NullOptionSingleNullValueInList():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", template='<data; null="0">')
     data = [None]
     t["data"] = data
@@ -3384,7 +3569,8 @@ def test_NullOptionSingleNullValueInList():
 
 
 def test_NullValueInList():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", template='<data; null="-1", separator=", ">')
 
     data = [None, 1, None, 3, 4, None]
@@ -3394,7 +3580,8 @@ def test_NullValueInList():
 
 
 def test_NullValueInListNoNullOption():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", template='<data; separator=", ">')
     data = [None, 1, None, 3, 4, None]
     t["data"] = data
@@ -3403,7 +3590,8 @@ def test_NullValueInListNoNullOption():
 
 
 def test_NullValueInListWithTemplateApply():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t",
                              template='<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
@@ -3413,7 +3601,8 @@ def test_NullValueInListWithTemplateApply():
 
 
 def test_NullValueInListWithTemplateApplyNullFirstValue():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", template='<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None, 0, None, 2]
@@ -3422,7 +3611,8 @@ def test_NullValueInListWithTemplateApplyNullFirstValue():
 
 
 def test_NullSingleValueInListWithTemplateApply():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", '<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     data = [None]
@@ -3431,7 +3621,8 @@ def test_NullSingleValueInListWithTemplateApply():
 
 
 def test_NullSingleValueWithTemplateApply():
-    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("test", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = group.defineTemplate("t", '<data:array(); null="-1", separator=", ">')
     group.defineTemplate("array", "<it>")
     assert str(t) == "-1"
@@ -3444,7 +3635,8 @@ def test_ReUseOfStripResult():
         b(x) ::= "<x>, <x>"
         """)
 
-    group = St3G(file=io.StringIO(template))
+    group = St3G(file=io.StringIO(template),
+                 lineSeparator="\n")
     a = group.getInstanceOf("a")
     names = ["Ter", None, "Tom"]
     a["names"] = names
@@ -3452,7 +3644,8 @@ def test_ReUseOfStripResult():
 
 
 def test_MapKeys():
-    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = St3T(group=group, template='<aMap.keys:{k|<k>:<aMap.(k)>}; separator=", ">')
     amap = {"int": "0", "float": "0.0"}
     t["aMap"] = amap
@@ -3460,7 +3653,8 @@ def test_MapKeys():
 
 
 def test_MapValues():
-    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = St3T(group=group, template='<aMap.values; separator=", "> <aMap.("i"+"nt")>')
     amap = {"int": "0", "float": "0.0"}
     t["aMap"] = amap
@@ -3469,7 +3663,8 @@ def test_MapValues():
 
 def test_MapKeysWithIntegerType():
     """ must get back an Integer from keys not a toString()'d version """
-    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer)
+    group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer,
+                 lineSeparator="\n")
     t = St3T(group=group, template='<aMap.keys:{k|<k>:<aMap.(k)>}; separator=", ">')
     amap = dict()
     amap[1] = ["ick", "foo"]
@@ -3489,7 +3684,8 @@ def test_ArgumentContext2():
     it can therefore see name.
     Use when super.attr name is implemented
     """
-    group = St3G("test")
+    group = St3G("test",
+                 lineSeparator="\n")
     main = group.defineTemplate("main", '$foo(t={Hi, $super.name$}, name="parrt")$')
     main["name"] = "tombu"
     foo = group.defineTemplate("foo", "$t$")
@@ -3509,7 +3705,8 @@ def test_RepeatedIteratedAttrFromArg():
             root(names) ::= "$other(names)$"
             other(x) ::= "$x$, $x$"
             """)
-    group = St3G(file=io.StringIO(template), lexer=DefaultTemplateLexer.Lexer)
+    group = St3G(file=io.StringIO(template), lexer=DefaultTemplateLexer.Lexer,
+                 lineSeparator="\n")
     e = group.getInstanceOf("root")
     names = iter(["Ter", "Tom"])
     e["names"] = names
@@ -3523,14 +3720,18 @@ def test_SuperReferenceInIfClause():
         b(x) ::= "<c()>super.b"
         c() ::= "super.c"
         """
-    superGroup = St3G(file=io.StringIO(superGroupString), lexer=AngleBracketTemplateLexer.Lexer)
+    superGroup = St3G(file=io.StringIO(superGroupString),
+                      lexer=AngleBracketTemplateLexer.Lexer,
+                      lineSeparator="\n")
     subGroupString = dedent("""
         group sub;
         a(x) ::= "<if(x)><super.a()><endif>"
         b(x) ::= "<if(x)><else><super.b()><endif>"
         c() ::= "sub.c"
         """)
-    subGroup = St3G(file=io.StringIO(subGroupString), lexer=AngleBracketTemplateLexer.Lexer)
+    subGroup = St3G(file=io.StringIO(subGroupString),
+                    lexer=AngleBracketTemplateLexer.Lexer,
+                    lineSeparator="\n")
     subGroup.superGroup = superGroup
     a = subGroup.getInstanceOf("a")
     a["x"] = "foo"
@@ -3543,7 +3744,8 @@ def test_SuperReferenceInIfClause():
 
 def test_ListLiteralWithEmptyElements():
     """ Added  feature  for ST - 21 """
-    e = St3T('$["Ter",,"Jesse"]:{n | $i$:$n$}; separator=", ", null=""$')
+    e = St3T(lineSeparator="\n",
+              template='$["Ter",,"Jesse"]:{n | $i$:$n$}; separator=", ", null=""$')
     e = e.getInstanceOf()
     e["names"] = "Ter"
     e["phones"] = "1"

@@ -66,7 +66,7 @@ def test_AaaNoGroupLoader():
         stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
         with open(stg_path, "r") as reader:
-            group = St3G(file=reader, errors=errors, lexer="angle-bracket")
+            group = St3G(file=reader, errors=errors, lexer="angle-bracket", lineSeparator="\n")
             logger.debug(f"group: {group}")
 
     assert str(errors) == "no group loader registered"
@@ -124,11 +124,11 @@ def test_HashMapPropertyFetchEmbeddedStringTemplate():
 
 
 def test_SimpleAutoIndent():
-    a = St3T("""
+    a = St3T(template="""
         $title$: {
             $name; separator=\"\n\"$
         }
-        """)
+        """, lineSeparator="\n")
     a["title"] = "foo"
     a["name"] = "Terence"
     a["name"] = "Frank"
@@ -475,7 +475,7 @@ def test_NonPublicPropertyAccess():
 def test_ArgumentContext():
     """ t is referenced within foo and so will be evaluated in that
     context.  it can therefore see name. """
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
     main = group.defineTemplate("main", "$foo(t={Hi, $name$}, name=\"parrt\")$")
     foo = group.defineTemplate("foo", "$t$")
     logger.debug(f'foo: {foo}')
@@ -483,7 +483,7 @@ def test_ArgumentContext():
 
 
 def test_Backslash():
-    group = St3G("test")
+    group = St3G("test", lineSeparator="\n")
 
     t = group.defineTemplate("t", "\\")
 

@@ -82,8 +82,7 @@ class StringTemplateGroup(object):
     from the disk".
 
     10/2005 I am adding a StringTemplateGroupLoader concept so people can
-    define supergroups within a group and have it load that group
-    automatically.
+    define supergroups within a group and have it load that group automatically.
     """
 
     # Track all groups by name; maps name to StringTemplateGroup
@@ -104,8 +103,10 @@ class StringTemplateGroup(object):
     #  then it is used as an override.
     defaultTemplateLexerClass = DefaultTemplateLexer.Lexer
 
-    def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None):
+    def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None,
+                 superGroup=None, lineSeparator=os.linesep):
         # What is the group name
+        self._lineSeparator = lineSeparator
         self._name = None
         self._templates = {}
         self._maps = {}
@@ -590,13 +591,13 @@ class StringTemplateGroup(object):
 
     def defineImplicitRegionTemplate(self, enclosingTemplate, name):
         """
-        Track all references to regions <@foo()>.  We automatically
-        define as
+        Track all references to regions <@foo()>.
+        We automatically define as
 
-        @enclosingtemplate.foo() ::= ""
+          @enclosingtemplate.foo() ::= ""
 
-        You cannot set these manually in the same group; you have to subgroup
-        to override.
+        You cannot set these manually in the same group;
+        you have to subgroup to override.
         """
         return self.defineRegionTemplate(
             enclosingTemplate,
@@ -721,7 +722,7 @@ class StringTemplateGroup(object):
                 self.error('problems getting StringTemplateWriter', e)
 
         if not stw:
-            stw = AutoIndentWriter(w)
+            stw = AutoIndentWriter(w, self._lineSeparator)
         return stw
 
     def registerRenderer(self, attributeClassType, renderer):
