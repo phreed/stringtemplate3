@@ -90,12 +90,6 @@ class IllegalArgumentException(Exception):
         super().__init__(*args)
 
 
-with open('logging_config.yml', 'rt') as cfg:
-    config = yaml.safe_load(cfg.read())
-
-# logging.config.dictConfig(config)
-logger = logging.getLogger(__name__)
-
 sample_day = calendar.weekday(2005, 7, 5)
 
 
@@ -104,6 +98,6 @@ def write_file(file_path, content):
         with open(file_path, 'wb') as writer:
             writer.write(bytes(content, 'utf8'))
     except IOError as ioe:
-        logger.exception("can't write file", ioe)
+        print("can't write file", ioe)
     return file_path
 

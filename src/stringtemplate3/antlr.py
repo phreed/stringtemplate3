@@ -153,8 +153,7 @@ class NoViableAltForCharException(RecognitionException):
             fileName = args[1]
             line = args[2]
             column = args[3]
-            RecognitionException.__init__(self, "NoViableAlt",
-                                          fileName, line, column)
+            RecognitionException.__init__(self, "NoViableAlt", fileName, line, column)
         else:
             RecognitionException.__init__(self, "NoViableAlt",
                                           '', -1, -1)
@@ -633,7 +632,10 @@ if __name__ == '__main__':
     T = CommonToken(col=15, line=1, text="some text", type=5)
     print(T)
     T = CommonToken()
-    T.setLine(1).setColumn(15).setText("some text").setType(5)
+    T.setLine(1)
+    T.setColumn(15)
+    T.setText("some text")
+    T.setType(5)
     print(T)
     print(T.getLine())
     print(T.getColumn())
@@ -1706,7 +1708,8 @@ class TokenBuffer(object):
 
     def LA(self, k):
         self.fill(k)
-        return self.queue.elementAt(self.markerOffset + k - 1).type
+        element = self.queue.elementAt(self.markerOffset + k - 1)
+        return element.type
 
     def LT(self, k):
         self.fill(k)

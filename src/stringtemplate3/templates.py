@@ -632,7 +632,7 @@ class StringTemplate(object):
         for all instances of self template.
         """
 
-        if self.group._debugTemplateOutput:
+        if self.group.debugTemplateOutput:
             self.group.emitTemplateStartDebugString(self, out)
 
         n = 0
@@ -665,7 +665,7 @@ class StringTemplate(object):
                 n += chunkN
                 i += 1
 
-        if self.group._debugTemplateOutput:
+        if self.group.debugTemplateOutput:
             self.group.emitTemplateStopDebugString(self, out)
 
         if stringtemplate3.lintMode:
@@ -801,7 +801,6 @@ class StringTemplate(object):
             self.error('Can\'t parse chunk: ' + str(action), tse)
 
         return a
-
 
     def addChunk(self, e):
         if not self.chunks:
@@ -1099,7 +1098,17 @@ class StringTemplate(object):
         buf.write('template-' + self.templateDeclaratorString + ': ')
         buf.write('chunks=')
         if self.chunks:
-            buf.write(str(self.chunks))
+            for ix, chunk in enumerate(self.chunks):
+                chunkN = buf.write(chunk)
+                if ((not chunkN) and
+                        (ix - 1) >= 0 and
+                        isinstance(self.chunks[ix - 1], NewlineRef) and
+                        (ix + 1) < len(self.chunks) and
+                        isinstance(self.chunks[ix + 1], NewlineRef)):
+                    logger.debug('found pure \\n blank \\n pattern\n')
+        else:
+            buf.write('no chunks found\n')
+        buf.write('\n')
         buf.write('attributes=[')
         if self.attributes:
             n = 0
@@ -1249,9 +1258,21 @@ class StringTemplate(object):
 
     def printDebugString(self, out=sys.stderr):
         out.write('template-' + self.name + ':\n')
-        out.write('chunks=' + str(self.chunks))
+        out.write('chunks=')
+        if self.chunks:
+            for ix, chunk in enumerate(self.chunks):
+                chunkN = out.write(str(chunk))
+                if ((not chunkN) and
+                        (ix - 1) >= 0 and
+                        isinstance(self.chunks[ix - 1], NewlineRef) and
+                        (ix + 1) < len(self.chunks) and
+                        isinstance(self.chunks[ix + 1], NewlineRef)):
+                    logger.debug('found pure \\n blank \\n pattern\n')
+        else:
+            out.write('no chunks found\n')
         if not self.attributes:
             return
+        out.write("\n")
         out.write("attributes=[")
         n = 0
         for name in list(self.attributes.keys()):

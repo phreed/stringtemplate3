@@ -833,3 +833,7 @@ class StringTemplateGroup(object):
         return retval
 
     __str__ = toString
+
+    @property
+    def debugTemplateOutput(self):
+        return self._debugTemplateOutput

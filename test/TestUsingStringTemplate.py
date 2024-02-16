@@ -66,11 +66,15 @@ def local_dir_path():
 
 
 # tag::hello_world[]
-def test_HelloWorld():
+def test_HelloWorld(caplog):
+    logger.level = logging.DEBUG
+    caplog.set_level(logging.DEBUG)
     hello = St3T(template="Hello, $name$")
-    hello["name"] = "World"
+    hello.printDebugString()
+    hello["name"] = "Earth"
 
-    assert str(hello) == "Hello, World"
+    hello.printDebugString()
+    assert str(hello) == "Hello, Earth"
 # end::hello_world[]
 
 
