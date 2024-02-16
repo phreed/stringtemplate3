@@ -129,23 +129,9 @@ class StringTemplateGroup(object):
         self._templatesDefinedInGroupFile = False
 
         self._userSpecifiedWriter = None
-
         self._debugTemplateOutput = False
-
-        # The set of templates to ignore when dumping start/stop debug strings
         self._noDebugStartStopStrings = None
 
-        # A Map<class,object> that allows people to register a renderer for
-        #  a particular kind of object to be displayed for any template in this
-        #  group.  For example, a date should be formatted differently depending
-        #  on the locale.  You can set Date.class to an object whose
-        #  str() method properly formats a Date attribute
-        #  according to locale.  Or you can have a different renderer object
-        #  for each locale.
-        #
-        #  These render objects are used way down in the evaluation chain
-        #  right before an attribute's str() method would normally be
-        #  called in ASTExpr.write().
         self._attributeRenderers = {}
 
         if errors is not None:
@@ -154,7 +140,7 @@ class StringTemplateGroup(object):
             self._listener = DEFAULT_ERROR_LISTENER
 
         # How long before tossing out all templates in seconds.
-        #  default: no refreshing from disk
+        # default: no refreshing from disk
         self._refreshInterval = sys.maxsize // 1000
         self._lastCheckedDisk = 0
 
@@ -739,13 +725,25 @@ class StringTemplateGroup(object):
         return stw
 
     def registerRenderer(self, attributeClassType, renderer):
-        """Register a renderer for all objects of a particular type for all templates in this group."""
+        """
+        Register a renderer for all objects of a particular type for all templates in this group.
+        """
         self._attributeRenderers[attributeClassType] = renderer
 
     def getAttributeRenderer(self, attributeClassType):
         """
         Return the renderer registered for this attributeClassType for this group.
-        If not found, return superGroup if it has one.
+        If not found, return attribute from superGroup if it has one.
+
+        This function is backed by a Map<class,object> which holds registered a renderers.
+        Registration is by the particular kind of object to be displayed for any template in this group.
+        For example, a date should be formatted differently depending on the locale.
+        You can register 'Date.class' to an object
+        whose str() method properly formats a Date attribute according to locale.
+        Or you can have a different renderer object for each locale.
+
+        These render objects are used way down in the evaluation chain
+        right before an attribute's str() method would normally be called in ASTExpr.write().
         """
         if not self._attributeRenderers:
             if not self._superGroup:
@@ -822,6 +820,17 @@ class StringTemplateGroup(object):
     @property
     def debugTemplateOutput(self):
         return self._debugTemplateOutput
+
+    @property
+    def noDebugStartStopStrings(self):
+        """
+        The set of templates to ignore when dumping start/stop debug strings
+        """
+        return self._noDebugStartStopStrings
+
+    @noDebugStartStopStrings.setter
+    def noDebugStartStopStrings(self, value):
+        self._noDebugStartStopStrings = value
 
     def emitDebugStartStopStrings(self, emit):
         """
