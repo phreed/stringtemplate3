@@ -196,89 +196,18 @@ class StringTemplate(object):
           Create a template
         """
         self._referencedAttributes = None
-
-        # # What's the name of self template?
-
         self._name = ANONYMOUS_ST_NAME if name is None else name
-
         self._templateID = getNextTemplateCounter()
-
-        # # Enclosing instance if I'm embedded within another template.
-        #  IF-subtemplates are considered embedded as well.
         self._enclosingInstance = None
-
-        # # A list of embedded templates
         self._embeddedInstances = None
-
-        # If self template is an embedded template such as when you apply
-        #  a template to an attribute, then the arguments passed to self
-        #  template represent the argument context--a set of values
-        #  computed by walking the argument assignment list.  For example,
-        #  <name:bold(item=name, foo="x")> would result in an
-        #  argument context of:[item=name], [foo="x"] for self
-        #  template.  This template would be the bold() template and
-        #  the enclosingInstance would point at the template that held
-        #  that <name:bold(...)> template call.  When you want to get
-        #  an attribute value, you first check the attributes for the
-        #  'self' template then the arg context then the enclosingInstance
-        #  like resolving variables in pascal-like language with nested
-        #  procedures.
-        #
-        #  With multivalued attributes such as <faqList:briefFAQDisplay()>
-        #  attribute "i" is set to 1..n.
         self._argumentContext = None
-
-        # # If self template is embedded in another template, the arguments
-        #  must be evaluated just before each application when applying
-        #  template to a list of values.  The "it" attribute must change
-        #  with each application so that $names:bold(item=it)$ works.  If
-        #  you evaluate once before starting the application loop then it
-        #  has a single fixed value.  Eval.g saves the AST rather than evaluating
-        #  before invoking applyListOfAlternatingTemplates().  Each iteration
-        #  of a template application to a multivalued attribute, these args
-        #  are re-evaluated with an initial context of:[it=...], [i=...].
         self._argumentsAST = None
-
-        # # When templates are defined in a group file format, the attribute
-        #  list is provided including information about attribute cardinality
-        #  such as present, optional, ...  When self information is available,
-        #  rawSetAttribute should do a quick existence check as should the
-        #  invocation of other templates.  So if you ref bold(item="foo") but
-        #  item is not defined in bold(), then an exception should be thrown.
-        #  When actually rendering the template, the cardinality is checked.
-        #  This is a {str:FormalArgument} dictionary.
         self._formalArgumentKeys = None
         self._formalArguments = UNKNOWN_ARGS
-
-        # # How many formal arguments to this template have default values
-        #  specified?
         self._numberOfDefaultArgumentValues = 0
-
-        # # Normally, formal parameters hide any attributes inherited from the
-        #  enclosing template with the same name.  This is normally what you
-        #  want, but makes it hard to invoke another template passing in all
-        #  the data.  Use notation now: <otherTemplate(...)> to say "pass in
-        #  all data".  Works great. Can also say <otherTemplate(foo="xxx",...)>
         self._passThroughAttributes = False
-
-        # # What group originally defined the prototype for self template?
-        #  This affects the set of templates I can refer to.  super.t() must
-        #  always refer to the super of the original group.
-        #
-        #  group base;
-        #  t ::= "base";
-        #
-        #  group sub;
-        #  t ::= "super.t()2"
-        #
-        #  group subsub;
-        #  t ::= "super.t()3"
         self._nativeGroup = None
 
-        # This template was created as part of what group?
-        # Even if this template was created from a prototype in a supergroup,
-        # its group will be the subgroup.
-        # That's the way polymorphism works.
         if group is not None:
             assert isinstance(group, StringTemplateGroup)
             self._group = group
@@ -289,53 +218,15 @@ class StringTemplate(object):
         if lexer is not None:
             self._group.templateLexerClass = lexer
 
-        # # If this template is defined within a group file, what line number?
         self._groupFileLine = None
 
-        # # Where to report errors
         self._listener = None
-
-        # # The original, immutable pattern/language (not really used again
-        #  after initial "compilation", setup/parsing).
         self._pattern = None
-
-        # # Map an attribute name to its value(s).  These values are set by
-        #  outside code via st[name] = value.  StringTemplate is like self in
-        #  that a template is both the "class def" and "instance".  When you
-        #  create a StringTemplate or setTemplate, the text is broken up into
-        #  chunks (i.e., compiled down into a series of chunks that can be
-        #  evaluated later).
-        #  You can have multiple.
         self._attributes = None
-
-        # # A Map<Class,Object> that allows people to register a renderer for
-        #  a particular kind of object to be displayed in this template.  This
-        #  overrides any renderer set for this template's group.
-        #
-        #  Most of the time this map is not used because the StringTemplateGroup
-        #  has the general renderer map for all templates in that group.
-        #  Sometimes though you want to override the group's renderers.
         self._attributeRenderers = None
-
-        # # A list of alternating string and ASTExpr references.
-        #  This is compiled when the template is loaded/defined and walked to
-        #  write out a template instance.
         self._chunks = None
-
-        # # If someone refs <@r()> in template t, an implicit
-        #
-        # @t.r() ::= ""
-        #
-        # is defined, but you can overwrite this def by defining your
-        # own.  We need to prevent more than one manual def though.  Between
-        # this var and isEmbeddedRegion we can determine these cases.
         self._regionDefType = None
-
-        # # Does this template come from a <@region>...<@end> embedded in
-        # another template?
         self._isRegion = False
-
-        # # Set of implicit and embedded regions for this template */
         self._regions = set()
 
         if template is not None:
@@ -352,6 +243,13 @@ class StringTemplate(object):
 
     @property
     def passThroughAttributes(self):
+        """
+        Normally, formal parameters hide any attributes inherited from the
+        enclosing template with the same name.  This is normally what you
+        want, but makes it hard to invoke another template passing in all
+        the data.  Use notation now: <otherTemplate(...)> to say "pass in
+        all data".  Works great. Can also say <otherTemplate(foo="xxx",...)>
+        """
         return self._passThroughAttributes
 
     @property
@@ -360,18 +258,57 @@ class StringTemplate(object):
 
     @property
     def attributes(self):
+        """
+        Map an attribute name to its value(s).
+        These values are set by outside code via st[name] = value.
+        StringTemplate is like self in that a template is both the "class def" and "instance".
+        When you create a StringTemplate or setTemplate, the text is broken up into chunks.
+        That is, compiled down into a series of chunks that can be evaluated later.
+        You can have multiple.
+        """
         return self._attributes
 
     @property
     def argumentsAST(self):
+        """
+        If self template is embedded in another template, the arguments
+        must be evaluated just before each application when applying
+        template to a list of values.  The "it" attribute must change
+        with each application so that $names:bold(item=it)$ works.  If
+        you evaluate once before starting the application loop then it
+        has a single fixed value.  Eval.g saves the AST rather than evaluating
+        before invoking applyListOfAlternatingTemplates().  Each iteration
+        of a template application to a multivalued attribute, these args
+        are re-evaluated with an initial context of:[it=...], [i=...].
+        """
         return self._argumentsAST
 
     @property
     def argumentContext(self):
+        """
+        If self template is an embedded template such as when you apply
+        a template to an attribute, then the arguments passed to self
+        template represent the argument context--a set of values
+        computed by walking the argument assignment list.
+        For example, <name:bold(item=name, foo="x")> would result in an
+        argument context of:[item=name], [foo="x"] for self template.
+        This template would be the bold() template and
+        the enclosingInstance would point at the template that held
+        that <name:bold(...)> template call.
+        When you want to get an attribute value,
+        you first check the attributes for the 'self' template
+        then the arg context then the enclosingInstance like resolving
+        variables in pascal-like language with nested procedures.
+
+        With multivalued attributes such as <faqList:briefFAQDisplay()> attribute "i" is set to 1..n.
+        """
         return self._argumentContext
 
     @property
     def isRegion(self):
+        """
+        Does this template come from a <@region>...<@end> embedded in another template?
+        """
         return self._isRegion
 
     @isRegion.setter
@@ -380,6 +317,15 @@ class StringTemplate(object):
 
     @property
     def attributeRenderers(self):
+        """
+        A Map<Class,Object> that allows people to register a renderer for
+        a particular kind of object to be displayed in this template.
+        This overrides any renderer set for this template's group.
+
+        Most of the time this map is not used because the StringTemplateGroup
+        has the general renderer map for all templates in that group.
+        Sometimes though you want to override the group's renderers.
+        """
         return self._attributeRenderers
 
     @attributeRenderers.setter
@@ -388,6 +334,11 @@ class StringTemplate(object):
 
     @property
     def pattern(self):
+        """
+        The original, immutable pattern/language.
+        Not really used again after initial "compilation", setup/parsing.
+        Equivalent to the 'template' property?
+        """
         return self._pattern
 
     @pattern.setter
@@ -396,6 +347,11 @@ class StringTemplate(object):
 
     @property
     def chunks(self):
+        """
+        A list of alternating string and ASTExpr references.
+        This is compiled when the template is loaded/defined and walked
+        to write out a template instance.
+        """
         return self._chunks
 
     @chunks.setter
@@ -404,6 +360,16 @@ class StringTemplate(object):
 
     @property
     def formalArgumentKeys(self):
+        """
+        When templates are defined in a group file format, the attribute
+        list is provided including information about attribute cardinality
+        such as present, optional, ...  When self information is available,
+        rawSetAttribute should do a quick existence check as should the
+        invocation of other templates.  So if you ref bold(item="foo") but
+        item is not defined in bold(), then an exception should be thrown.
+        When actually rendering the template, the cardinality is checked.
+        This is a {str:FormalArgument} dictionary.
+        """
         return self._formalArgumentKeys
 
     @formalArgumentKeys.setter
@@ -420,6 +386,9 @@ class StringTemplate(object):
 
     @property
     def numberOfDefaultArgumentValues(self):
+        """
+        How many formal arguments to this template have default values specified?
+        """
         return self._numberOfDefaultArgumentValues
 
     @numberOfDefaultArgumentValues.setter
@@ -428,6 +397,9 @@ class StringTemplate(object):
 
     @property
     def name(self):
+        """
+        What's the name of the template?
+        """
         return self._name
 
     @name.setter
@@ -436,6 +408,20 @@ class StringTemplate(object):
 
     @property
     def nativeGroup(self):
+        """
+        What group originally defined the prototype for self template?
+        This affects the set of templates I can refer to.  super.t() must
+        always refer to the super of the original group.
+
+          group base;
+          t ::= "base";
+
+          group sub;
+          t ::= "super.t()2"
+
+          group subsub;
+          t ::= "super.t()3"
+        """
         return self._nativeGroup
 
     @nativeGroup.setter
@@ -444,6 +430,12 @@ class StringTemplate(object):
 
     @property
     def group(self):
+        """
+        This template was created as part of what group?
+        Even if this template was created from a prototype in a supergroup,
+        its group will be the subgroup.
+        That's the way polymorphism works.
+        """
         return self._group
 
     @group.setter
@@ -460,6 +452,9 @@ class StringTemplate(object):
 
     @property
     def regions(self):
+        """
+        Set of implicit and embedded regions for this template.
+        """
         return self._regions
 
     @regions.setter
@@ -468,6 +463,15 @@ class StringTemplate(object):
 
     @property
     def regionDefType(self):
+        """
+        If someone refs <@r()> in template t, an implicit
+
+          @t.r() ::= ""
+
+        is defined, but you can overwrite this def by defining your own.
+        We need to prevent more than one manual def though.
+        Between this var and isEmbeddedRegion we can determine these cases.
+        """
         return self._regionDefType
 
     @regionDefType.setter
@@ -517,6 +521,10 @@ class StringTemplate(object):
 
     @property
     def enclosingInstance(self):
+        """
+        Enclosing instance if I'm embedded within another template.
+        IF-subtemplates are considered embedded as well.
+        """
         return self._enclosingInstance
 
     @enclosingInstance.setter
@@ -537,6 +545,13 @@ class StringTemplate(object):
 
         return self
 
+    @property
+    def embeddedInstance(self):
+        """
+        A list of embedded templates
+        """
+        return self._embeddedInstances
+
     def addEmbeddedInstance(self, embeddedInstance):
         if not self._embeddedInstances:
             self._embeddedInstances = []
@@ -550,7 +565,10 @@ class StringTemplate(object):
 
     @property
     def groupFileLine(self):
-        """Return the outermost template's group file line number"""
+        """
+        Return the outermost template's group file line number
+        If this template is defined within a group file, what line number?
+        """
         if self.enclosingInstance is not None:
             return self.enclosingInstance.groupFileLine
 
@@ -571,6 +589,9 @@ class StringTemplate(object):
 
     @property
     def errorListener(self):
+        """
+        Where to report errors
+        """
         if not self._listener:
             return self._group.errorListener
         return self._listener

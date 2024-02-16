@@ -107,23 +107,10 @@ class StringTemplateGroup(object):
     def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None):
         # What is the group name
         self._name = None
-
-        # Maps template name to StringTemplate object
         self._templates = {}
-
-        # Maps map names to HashMap objects.  This is the list of maps
-        #  defined by the user like typeInitMap ::= ["int":"0"]
         self._maps = {}
-
-        # How to pull apart a template into chunks?
         self._templateLexerClass = None
-
-        # Under what directory should I look for templates?  If None,
-        #  to look into the CLASSPATH for templates as resources.
         self._root_dir = None
-
-        # Are we derived from another group?  Templates not found in this
-        #  group will be searched for in the superGroup recursively.
         self._superGroup = None
 
         # Keep track of all interfaces implemented by this group.
@@ -141,8 +128,6 @@ class StringTemplateGroup(object):
         #  If not in the super group, report no such template.
         self._templatesDefinedInGroupFile = False
 
-        # Normally AutoIndentWriter is used to filter output, but user can
-        #  specify a new one.
         self._userSpecifiedWriter = None
 
         self._debugTemplateOutput = False
@@ -161,10 +146,8 @@ class StringTemplateGroup(object):
         #  These render objects are used way down in the evaluation chain
         #  right before an attribute's str() method would normally be
         #  called in ASTExpr.write().
-        self._attributeRenderers = None
+        self._attributeRenderers = {}
 
-        # Where to report errors.  All string templates in this group
-        #  use this error handler by default.
         if errors is not None:
             self._listener = errors
         else:
@@ -220,6 +203,7 @@ class StringTemplateGroup(object):
         """
         What lexer class to use to break up templates.
         If not lexer set for this group, use static default.
+        How to pull apart a template into chunks?
         """
         if self._templateLexerClass is not None:
             return self._templateLexerClass
@@ -259,6 +243,9 @@ class StringTemplateGroup(object):
 
     @property
     def templates(self):
+        """
+        Maps template name to StringTemplate object
+        """
         return self._templates
 
     @templates.setter
@@ -267,6 +254,10 @@ class StringTemplateGroup(object):
 
     @property
     def maps(self):
+        """
+        Maps map names to HashMap objects.
+        This is the list of maps defined by the user like typeInitMap ::= ["int":"0"]
+        """
         return self._maps
 
     @maps.setter
@@ -275,6 +266,10 @@ class StringTemplateGroup(object):
 
     @property
     def superGroup(self):
+        """
+        Are we derived from another group?
+        Templates not found in this group will be searched for in the superGroup recursively.
+        """
         return self._superGroup
 
     @superGroup.setter
@@ -327,6 +322,11 @@ class StringTemplateGroup(object):
 
     @property
     def root_dir(self):
+        """
+        Return the root directory of this group
+        Under what directory should I look for templates?
+        If None, look into the CLASSPATH for templates as resources.
+        """
         return self._root_dir
 
     @root_dir.setter
@@ -338,7 +338,6 @@ class StringTemplateGroup(object):
         Indicate that this group implements this interface.
         Load if necessary, if not in the nameToInterfaceMap.
         """
-
         if isinstance(interface, StringTemplateGroupInterface):
             self._interfaces.append(interface)
 
@@ -702,11 +701,23 @@ class StringTemplateGroup(object):
 
     @property
     def errorListener(self):
+        """
+        Where to report errors.
+        All string templates in this group use this error handler by default.
+        """
         return self._listener
 
     @errorListener.setter
     def errorListener(self, listener):
         self._listener = listener
+
+    @property
+    def userSpecifiedWriter(self):
+        """
+        A StringTemplateWriter implementing class to use for filtering output.
+        Normally AutoIndentWriter is used to filter output, but user can specify a new one.
+        """
+        return self._userSpecifiedWriter
 
     # # Specify a StringTemplateWriter implementing class to use for
     #  filtering output
@@ -729,14 +740,13 @@ class StringTemplateGroup(object):
 
     def registerRenderer(self, attributeClassType, renderer):
         """Register a renderer for all objects of a particular type for all templates in this group."""
-        if not self._attributeRenderers:
-            self._attributeRenderers = {}
         self._attributeRenderers[attributeClassType] = renderer
 
     def getAttributeRenderer(self, attributeClassType):
         """
-        Return the renderer registered for this attributeClassType for this group
-        If not found, return superGroup if it has one."""
+        Return the renderer registered for this attributeClassType for this group.
+        If not found, return superGroup if it has one.
+        """
         if not self._attributeRenderers:
             if not self._superGroup:
                 return None  # no renderers and no parent?  Stop.
