@@ -7,3 +7,5 @@ build/
 dist/
 src/*.egg-info
 /stringtemplate3x.egg-info/
+
+/__pycache__/

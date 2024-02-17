@@ -3,6 +3,8 @@ import io
 import os
 import re
 import logging
+import sys
+from pathlib import Path
 from textwrap import dedent
 from collections import deque
 
@@ -871,13 +873,15 @@ def test_MultiValuedAttributeWithAnonymousTemplateUsingIndexVariableI():
 # @pytest.mark.skip(reason="not implemented see issue #2")
 def test_FindTemplateInSysPath():
     """
-    Look for templates in sys.path as resources
+    Look for templates in 'sys.path' as resources
     "method.st" references body() so "body.st" will be loaded too
     """
     mgroup = St3G(name="method stuff",
                   lexer=AngleBracketTemplateLexer.Lexer,
                   lineSeparator="\n")
-    m = mgroup.getInstanceOf("templates/method")
+
+    sys.path.append(str(Path(__file__).parent / 'templates'))
+    m = mgroup.getInstanceOf("method")
     m["visibility"] = "public"
     m["name"] = "foobar"
     m["returnType"] = "void"
@@ -885,14 +889,13 @@ def test_FindTemplateInSysPath():
     m["statements"] = "x=i;"
     
     logger.info(m)
-    assert str(m) == dedent("""
+    assert str(m) == dedent("""\
             public void foobar() {
             \t// start of a body
             \ti=1;
             \tx=i;
             \t// end of a body
-            "}"
-            """)
+            }""")
 
 
 def test_ApplyAnonymousTemplateToAggregateAttribute():

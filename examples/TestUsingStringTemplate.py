@@ -112,9 +112,9 @@ def test_loading_templates_from_file(local_dir_path):
 
 # tag::loading_template_from_sys_path[]
 def no_test_loading_template_from_sys_path():
-    logger.info('sys.path: %s', sys.path)
+    sys.path.append(str(Path(__file__, 'templates')))
     group = St3G(name="mygroup", lexer="angle-bracket")
-    st = group.getInstanceOf("templates/page")
+    st = group.getInstanceOf("page")
     st["title"] = "Page Title"
     st["body"] = "Page Body"
 

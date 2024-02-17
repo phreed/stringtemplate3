@@ -471,12 +471,12 @@ class StringTemplateGroup(object):
         """
         if self._templatesDefinedInGroupFile:
             return
-        if self._refreshInterval == 0:
-            self._templates = {}
-            self._lastCheckedDisk = time.time()
-        elif (time.time() - self._lastCheckedDisk) >= self._refreshInterval:
-            self._templates = {}
-            self._lastCheckedDisk = time.time()
+        # if self._refreshInterval == 0:
+        #     self._templates = {}
+        #     self._lastCheckedDisk = time.time()
+        # elif (time.time() - self._lastCheckedDisk) >= self._refreshInterval:
+        #     self._templates = {}
+        #     self._lastCheckedDisk = time.time()
 
     def _loadTemplateFromStream(self, name, stream):
         try:
@@ -508,13 +508,6 @@ class StringTemplateGroup(object):
 
         return None
 
-    def find_in_pypath(self, name):
-        for dirname in sys.path:
-            candidate = Path(dirname, name)
-            if candidate.exists():
-                return candidate, None
-        return None, None
-
     def loadTemplateFromBeneathRootDir(self, fileName):
         """
         Load a template whose name is derived from the template filename.
@@ -524,32 +517,26 @@ class StringTemplateGroup(object):
         """
         template = None
         name = self.getTemplateNameFromFileName(fileName)
-        path_name = None
-        if not self._root_dir:
-            try:
-                br, path_name = self.find_in_pypath(name)
-            except ImportError:
-                br = None
-            if br is None:
-                return None
-
-            try:
-                try:
-                    template = self.loadTemplate(name, br)
-                except IOError as ioe:
-                    self.error("Problem reading template file: " + fileName, ioe)
-
-            finally:
-                try:
-                    br.close()
-                except IOError as ioe2:
-                    self.error('Cannot close template file: ' + path_name, ioe2)
-
-            return template
 
         # load via rootDir
-        template = self.loadTemplate(name, Path(self._root_dir, fileName))
-        return template
+        if self._root_dir:
+            template = self.loadTemplate(name, Path(self._root_dir, fileName))
+            if template:
+                return template
+
+        # Template not found yet so try sys.path
+        templatePaths = [Path(apath, fileName) for apath in sys.path if Path(apath, fileName).is_file()]
+        if len(templatePaths) == 0:
+            self.error(f"Could not find template file: {fileName} in root: {self._root_dir}, or sys.path")
+            return None
+        try:
+            template = self.loadTemplate(name, templatePaths[0])
+        except IOError as ioe:
+            self.error("Problem reading template file: " + fileName, ioe)
+        if template:
+            return template
+
+        return None
 
     def getFileNameFromTemplateName(self, templateName):
         """ def that people can override behavior; not a general purpose method"""
