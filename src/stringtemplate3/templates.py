@@ -1143,8 +1143,12 @@ class StringTemplate(object):
 
                 buf.write(']')
             if p.referencedAttributes:
-                buf.write(', references=')
-                buf.write(p.referencedAttributes)
+                buf.write(', references=[')
+                for ix, attrName in enumerate(p.referencedAttributes):
+                    if ix > 0:
+                        buf.write(', ')
+                    buf.write(attrName)
+                buf.write(']')
             buf.write('>\n')
             p = p.enclosingInstance
         # if self.enclosingInstance:

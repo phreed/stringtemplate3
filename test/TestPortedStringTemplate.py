@@ -774,7 +774,7 @@ def test_NullTemplateApplication():
     except ValueError as ve:
         error = tsh.getMsg(ve)
     except Exception as ex:
-        pass
+        error = tsh.getMsg(ex)
 
     assert error == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
 
@@ -794,7 +794,7 @@ def test_NullTemplateToMultiValuedApplication():
     except ValueError as ve:
         error = tsh.getMsg(ve)
     except Exception as ex:
-        pass
+        error = tsh.getMsg(ex)
 
     assert error == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
 
@@ -866,7 +866,7 @@ def test_MultiValuedAttributeWithAnonymousTemplateUsingIndexVariableI():
     """)
 
 
-@pytest.mark.skip(reason="not implemented see issue #2")
+# @pytest.mark.skip(reason="not implemented see issue #2")
 def test_FindTemplateInSysPath():
     """
     Look for templates in sys.path as resources
@@ -875,7 +875,7 @@ def test_FindTemplateInSysPath():
     mgroup = St3G(name="method stuff",
                   lexer=AngleBracketTemplateLexer.Lexer,
                   lineSeparator="\n")
-    m = mgroup.getInstanceOf("org/antlr/stringtemplate/test/method")
+    m = mgroup.getInstanceOf("templates/method")
     m["visibility"] = "public"
     m["name"] = "foobar"
     m["returnType"] = "void"
@@ -957,7 +957,7 @@ def test_NestedIFTemplate():
             junk""")
 
 
-@pytest.mark.skip(reason="known issue #16")
+# @pytest.mark.skip(reason="known issue #16")
 def test_IFConditionWithTemplateApplication():
     group = St3G(name="dummy", rootDir=".",
                  lineSeparator="\n")
@@ -1175,7 +1175,7 @@ def test_ElseIfClause():
     assert str(e) == "bar"
 
 
-@pytest.mark.skip(reason="known issue #17")
+# @pytest.mark.skip(reason="known issue #17")
 def test_ElseIfClauseAngleBrackets():
     e = St3T(template=dedent("""\
             <if(x)>foo
@@ -1530,7 +1530,7 @@ def test_ListOfEmbeddedTemplateSeesEnclosingAttributes():
     assert str(outputST) == "page: thatstuffthatstuffthatstuff"
 
 
-@pytest.mark.skip(reason='MismatchedTokenException')
+# @pytest.mark.skip(reason='MismatchedTokenException')
 def test_InheritArgumentFromRecursiveTemplateApplication():
     """ do not inherit attributes through formal args """
     templates = dedent("""\
@@ -1606,13 +1606,15 @@ def test_ImmediateTemplateAsAttributeLoop():
 
 
 def test_TemplateGetPropertyGetsAttribute():
-    """ This test will cause infinite loop if missing attribute no """
-    """ properly caught in getAttribute """
+    """
+    This test will cause infinite loop if missing attribute no
+    Properly caught in getAttribute
+    """
     templates = dedent("""\
             group test;
             Cfile(funcs) ::= <<
             #include \\<stdio.h\\>
-            <funcs:{public void <it.name>(<it.args>);}; separator="\\n">
+            <funcs:{public int <it.name>(<it.args>);}; separator="\\n">
             <funcs; separator="\\n">
             >>
             func(name,args,body) ::= <<
@@ -1686,7 +1688,7 @@ def test_ComplicatedIndirectTemplateApplication():
     int[] a = null;""")
 
 
-@pytest.mark.skip(reason='MismatchedTokenException')
+# @pytest.mark.skip(reason='MismatchedTokenException')
 def test_IndirectTemplateApplication():
     templates = dedent("""\
             group dork;
@@ -1829,7 +1831,7 @@ def test_EmbeddedCommentsAngleBracketed():
     assert str(st) == " // can't detect; leaves \n\nboo"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreak():
     """ expect no \n or other whitespace in output
     TODO: use custom auto indent writer
@@ -1837,14 +1839,14 @@ def test_LineBreak():
     st = St3T(lineSeparator="\n",
               template=dedent("""\
               Foo <\\\\>
-              \t  bar"""),
+              <\\t>  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
     st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreak2():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1853,14 +1855,14 @@ def test_LineBreak2():
     st = St3T(lineSeparator="\n",
               template=dedent("""\
             Foo <\\\\>       
-              \t  bar"""),
+              <\\t>  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
     st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakNoWhiteSpace():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1876,7 +1878,7 @@ def test_LineBreakNoWhiteSpace():
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1884,14 +1886,14 @@ def test_LineBreakDollar():
     st = St3T(lineSeparator="\n",
               template=dedent("""\
             Foo $\\\\$
-              \t  bar"""),
+              $\\t$  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
     sw = io.StringIO(u'')
     st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakDollar2():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1899,14 +1901,14 @@ def test_LineBreakDollar2():
     st = St3T(lineSeparator="\n",
               template=dedent("""\
             Foo $\\\\$          
-              \t  bar"""),
+              $\\t$  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
     sw = io.StringIO(u'')
     st.write(AutoIndentWriter(sw, newline="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_LineBreakNoWhiteSpaceDollar():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1921,7 +1923,7 @@ def test_LineBreakNoWhiteSpaceDollar():
     assert sw.getvalue() == "Foo bar"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_CharLiterals():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1948,7 +1950,7 @@ def test_CharLiterals():
     assert sw.getvalue() == "Foo bar\n"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInTemplateString():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1965,7 +1967,7 @@ def test_NewlineNormalizationInTemplateString():
     assert sw.getvalue() == "Foo\nbar\n"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInTemplateStringPC():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -1981,7 +1983,7 @@ def test_NewlineNormalizationInTemplateStringPC():
     assert sw.getvalue() == "Foo\r\nBar\r\n"
 
 
-@pytest.mark.skip(reason="not implemented issue #19")
+# @pytest.mark.skip(reason="not implemented issue #19")
 def test_NewlineNormalizationInAttribute():
     """ expect \n in output
     TODO: use custom auto indent writer
@@ -2828,7 +2830,7 @@ def test_FirstWithListOfMaps2():
     assert str(e) == "x5707"
 
 
-@pytest.mark.skip(reason="MismatchedTokenException")
+# @pytest.mark.skip(reason="MismatchedTokenException")
 def test_CatWithTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n", template='$[names:{$it$!},phones]; separator=", "$')
     e = e.getInstanceOf()
@@ -2839,7 +2841,7 @@ def test_CatWithTemplateApplicationAsElement():
     assert str(e) == "Ter!, Tom!, 1, 2"
 
 
-@pytest.mark.skip(reason="MismatchedTokenException")
+# @pytest.mark.skip(reason="MismatchedTokenException")
 def test_CatWithNullTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n",
               template='$[names:{$it$!},"foo"]:{x}; separator=", "$')
@@ -2849,7 +2851,7 @@ def test_CatWithNullTemplateApplicationAsElement():
     assert str(e) == "x"  # only one since template application gives nothing
 
 
-@pytest.mark.skip(reason='MismatchedTokenException')
+# @pytest.mark.skip(reason='MismatchedTokenException')
 def test_CatWithNestedTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n",
               template='$[names, ["foo","bar"]:{$it$!},phones]; separator=", "$')
@@ -3041,7 +3043,7 @@ def test_ParallelAttributeIterationWithDifferentSizesTemplateRefInsideToo():
     assert str(p) == "Ter@1: big, Tom@2: n/a, Sriram@n/a: n/a"
 
 
-@pytest.mark.skip(reason='MismatchedTokenException')
+# @pytest.mark.skip(reason='MismatchedTokenException')
 def test_OverrideThroughConditional():
     template = dedent("""
         group base;
@@ -3249,7 +3251,7 @@ def test_FortranLineWrap():
     assert a.toString(30) == '       FUNCTION line( a,b,c,d,\n      ce,f )'
 
 
-@pytest.mark.skip(reason="known issue #NoViableAltException")
+# @pytest.mark.skip(reason="known issue #NoViableAltException")
 def test_LineWrapWithDiffAnchor():
     template = dedent("""
             group test;
@@ -3318,7 +3320,7 @@ def test_LineWrapCharAfterWrapIsNewline():
     assert a.toString(3) == 'abc\nde'
 
 
-@pytest.mark.skip(reason="known issue #NoViableAltException")
+# @pytest.mark.skip(reason="known issue #NoViableAltException")
 def test_LineWrapForAnonTemplate():
     """ width=9 is the 3 char; don't break til after ']' """
     template = dedent("""
@@ -3333,7 +3335,7 @@ def test_LineWrapForAnonTemplate():
     assert a.toString(9) == '![1][2][3]\n[4][5][6]\n[7][8][9]!'
 
 
-@pytest.mark.skip(reason="known issue #NoViableAltException")
+# @pytest.mark.skip(reason="known issue #NoViableAltException")
 def test_LineWrapForAnonTemplateAnchored():
     template = dedent("""
             group test;
@@ -3347,7 +3349,7 @@ def test_LineWrapForAnonTemplateAnchored():
     assert a.toString(9) == '![1][2][3]\n[4][5][6]\n[7][8][9]!'
 
 
-@pytest.mark.skip(reason='MismatchedTokenException')
+# @pytest.mark.skip(reason='MismatchedTokenException')
 def test_LineWrapForAnonTemplateComplicatedWrap():
     template = dedent("""
             group test;
@@ -3669,7 +3671,7 @@ def test_MapKeysWithIntegerType():
         logger.error("Map traversal did not return expected strings")
 
 
-@pytest.mark.skip(reason="known issue #NoViableAltException")
+# @pytest.mark.skip(reason="known issue #NoViableAltException")
 def test_ArgumentContext2():
     """ t is referenced within foo and so will be evaluated in that context.
     it can therefore see name.
