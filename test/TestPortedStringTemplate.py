@@ -80,7 +80,7 @@ def test_MissingInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -107,7 +107,7 @@ def test_MissingOptionalInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -135,7 +135,7 @@ def test_MismatchedInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -807,7 +807,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
     """
     with temppathlib.TemporaryDirectory() as tmp_dir:
         page_file = tmp_dir.path / "page.st"
-        with open(page_file, "w") as writer:
+        with open(page_file, "w", encoding="utf-8") as writer:
             writer.write(dedent("""
                 <html><head>
                   <title>PeerScope: $title$</title>
@@ -819,7 +819,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
                 """))
 
         terse_file = tmp_dir.path / "terse.st"
-        with open(terse_file, "w") as writer:
+        with open(terse_file, "w", encoding="utf-8") as writer:
             writer.write("""
             "$it.firstName$ $it.lastName$ (<tt>$it.email$</tt>)"
             """)

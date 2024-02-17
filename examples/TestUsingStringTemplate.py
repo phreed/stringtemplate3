@@ -1,7 +1,7 @@
 import datetime
 import io
 import logging
-import pathlib
+from pathlib import Path
 import sys
 from textwrap import dedent
 
@@ -54,7 +54,7 @@ https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.
 
 @pytest.fixture
 def local_dir_path():
-    return pathlib.Path(__file__).parent
+    return Path(__file__).parent
 
 
 # tag::hello_world[]
@@ -100,7 +100,7 @@ def test_templates_with_code_multi_sep():
 
 # tag::loading_templates_from_file[]
 def test_loading_templates_from_file(local_dir_path):
-    group = St3G(name="myGroup", rootDir=str(local_dir_path / "templates"))
+    group = St3G(name="myGroup", rootDir=local_dir_path / "templates")
     query = group.getInstanceOf("sql_stmt")
     query["column"] = "name"
     query["column"] = "email"
@@ -177,7 +177,7 @@ def test_demo_auto_indent(simple_group):
 # tag::demo_auto_indent_of_file[]
 def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
-    with open(stg_path, mode="r") as stg_file:
+    with open(stg_path, mode="r", encoding="utf-8") as stg_file:
         group = St3G(name="demo_auto_indent", file=stg_file,  lexer="default", lineSeparator="\n")
         # print("group templates: {}", group.templateNamesAsStrings)
         function = group.getInstanceOf("function")

@@ -152,7 +152,7 @@ class StringTemplateGroup(object):
             assert isinstance(name, str)
             self._name = name
 
-            assert rootDir is None or isinstance(rootDir, str)
+            assert rootDir is None or isinstance(rootDir, str) or isinstance(rootDir, Path)
             self._root_dir = rootDir
             self._lastCheckedDisk = time.time()
             StringTemplateGroup.nameToGroupMap[self._name] = self
@@ -164,7 +164,8 @@ class StringTemplateGroup(object):
 
         if fileName is not None:
             if file is None:
-                file = decodeFile(open(fileName, 'r'), fileName)
+                file = open(fileName, 'r', encoding="utf-8")
+                # file = decodeFile(open(fileName, 'r', encoding="utf-8"), fileName)
                 
         if file is not None:
             assert hasattr(file, 'read')
@@ -478,32 +479,39 @@ class StringTemplateGroup(object):
             self._lastCheckedDisk = time.time()
 
     def _loadTemplateFromStream(self, name, stream):
-        template = stream.read().strip()
-        if not template:
-            self.error("no text in template '" + name + "'")
-            return None
-        return self.defineTemplate(name, template)
+        try:
+            templateRaw = stream.read()
+            template = templateRaw.strip()
+            if not template:
+                self.error("no text in template '" + name + "'")
+                return None
+            return self.defineTemplate(name, template)
+        except Exception as ex:
+            pass
     
     def loadTemplate(self, name, src):
         """
         If the named file does not exist, return None, causing ST keeps looking in superGroups.
         If the named file exists, subsequence errors should be treated as real errors.
         """
-        templateFilePath = Path(name)
-        if isinstance(src, str):
-            if templateFilePath.is_file():
-                with decodeFile(open(templateFilePath, "r"), str) as stream:
-                    return self._loadTemplateFromStream(name, stream)
-
-        if hasattr(src, "read"):
-            with decodeFile(src, '<template %r from buffer>' % name) as stream:
+        templateFilePath = src if isinstance(src, Path) else Path(src)
+        if isinstance(src, str) or isinstance(src, Path):
+            if not templateFilePath.is_file():
+                return None
+            # with decodeFile(open(templateFilePath, "r", encoding="utf-8"), str) as stream:
+            with open(templateFilePath, "r", encoding="utf-8") as stream:
                 return self._loadTemplateFromStream(name, stream)
 
+        if hasattr(src, "read"):
+            # with decodeFile(src, f'<template {name} from buffer>') as stream:
+            return self._loadTemplateFromStream(name, src)
+
+        return None
 
     def find_in_pypath(self, name):
         for dirname in sys.path:
-            candidate = os.path.join(dirname, name)
-            if os.path.exists(candidate):
+            candidate = Path(dirname, name)
+            if candidate.exists():
                 return candidate, None
         return None, None
 
@@ -540,7 +548,7 @@ class StringTemplateGroup(object):
             return template
 
         # load via rootDir
-        template = self.loadTemplate(name, str(Path(self._root_dir) / fileName))
+        template = self.loadTemplate(name, Path(self._root_dir, fileName))
         return template
 
     def getFileNameFromTemplateName(self, templateName):

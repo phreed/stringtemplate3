@@ -62,7 +62,7 @@ def test_AaaNoGroupLoader():
     with temppathlib.TemporaryDirectory() as tmp_dir:
         stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_path, "r") as reader:
+        with open(stg_path, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors, lexer="angle-bracket", lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -724,7 +724,7 @@ def test_CannotFindInterfaceFile():
 
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -782,7 +782,7 @@ def test_GroupSatisfiesSingleInterface():
             """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -807,7 +807,7 @@ def test_GroupExtendsSuperGroup():
 
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, lexer=DefaultTemplateLexer.Lexer, errors=errors)
 
         st = group.getInstanceOf("main")
@@ -833,7 +833,7 @@ def test_GroupExtendsSuperGroupWithAngleBrackets():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r") as reader:
+        with open(stg_file, "r", encoding="utf-8") as reader:
             group = St3G(file=reader, errors=errors)
         st = group.getInstanceOf("main")
         st["x"] = "foo"

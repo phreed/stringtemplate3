@@ -1313,7 +1313,7 @@ class CharScanner(TokenStream):
         # mode. If there's no 2nd argument we fall back to
         # mode '+rb'.
         if is_string_type(arg1):
-            f = open(arg1, "r")
+            f = open(arg1, "r", encoding="utf-8")
             self.setInput(f)
             self.filename = arg1
             return

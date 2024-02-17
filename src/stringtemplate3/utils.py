@@ -22,7 +22,7 @@ def decodeFile(fp, filename, defaultEncoding='ascii'):
     Autodetect file encoding and return a decoding filehandle.
 
     fp must be a filelike object that supports seeking.
-    This function will look at the first to line to
+    This function will look at the first two lines to
     detect a charset declaration as described in PEP263:
 
     - if the file contains "coding: encoding" or "coding= encoding" on one
@@ -69,7 +69,8 @@ def decodeFile(fp, filename, defaultEncoding='ascii'):
 
         encoding = 'utf-8'
 
-    fp.seek(skip_bytes) # skip BOM and or shebang when reading file
+    # skip BOM and or shebang when reading file
+    fp.seek(skip_bytes)
 
     if encoding is None:
         encoding = defaultEncoding

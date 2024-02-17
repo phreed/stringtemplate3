@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import cgi
 import stringtemplate3
 
@@ -6,8 +6,8 @@ import stringtemplate3
 # Templates will be loaded from the 'templates' directory.
 group = stringtemplate3.StringTemplateGroup(
     name='default',
-    rootDir=os.path.join(os.path.dirname(__file__), 'templates')
-    )
+    rootDir=Path(__file__, 'templates')
+)
 
 
 # Define an attribute renderer that will escape any string in a HTML save

@@ -141,13 +141,16 @@ class PathGroupLoader(StringTemplateGroupLoader):
         return None
 
     def locate(self, name):
-        """Look in each directory for the file called 'name'."""
-
+        """
+        Look in each directory for the file called 'name'.
+        Return the decoded stream.
+        """
         for adir in self._dirs:
-            path = os.path.join(adir, name)
-            if os.path.isfile(path):
-                stream = open(path, 'r')
-                return decodeFile(stream, path, self.fileCharEncoding)
+            path = Path(adir, name)
+            if path.is_file():
+                stream = open(path, 'r', encoding="utf-8")
+                return stream
+                # return decodeFile(stream, path, self.fileCharEncoding)
 
         return None
 
