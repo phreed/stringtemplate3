@@ -491,18 +491,21 @@ def test_RegionOverrideRefSuperRegion():
 
 
 def test_RegionOverrideRefSuperRegion3Levels():
-    """ Bug: This was causing infinite recursion: """
-    """ getInstanceOf(super::a) """
-    """ getInstanceOf(sub::a) """
-    """ getInstanceOf(subsub::a) """
-    """ getInstanceOf(subsub::region__a__r) """
-    """ getInstanceOf(subsub::super.region__a__r) """
-    """ getInstanceOf(subsub::super.region__a__r) """
-    """ getInstanceOf(subsub::super.region__a__r) """
-    """ ... """
-    """ Somehow, the ref to super in subsub is not moving up the chain """
-    """ to the @super.r(); oh, i introduced a bug when i put setGroup """
-    """ into STG.getInstanceOf()! """
+    """
+    Bug: This was causing infinite recursion:
+      getInstanceOf(super::a)
+      getInstanceOf(sub::a)
+      getInstanceOf(subsub::a)
+      getInstanceOf(subsub::region__a__r)
+      getInstanceOf(subsub::super.region__a__r)
+      getInstanceOf(subsub::super.region__a__r)
+      getInstanceOf(subsub::super.region__a__r)
+      ...
+
+    Somehow, the ref to super in subsub is not moving up the chain
+    to the @super.r(); oh, I introduced a bug when I put setGroup
+    into STG.instanceOf!
+    """
 
     templates1 = dedent("""
             group super;
@@ -745,7 +748,7 @@ def test_MissingEndDelimiter():
     assert str(errors) == f"line 1:31: expecting '$', found '<EOF>'\n"
 
 
-def test_SetButNotRefd():
+def test_SetButNotReferenced():
     """  oops...should be 'c' """
     stringtemplate3.lintMode = True
     errors = ErrorBuffer()
@@ -767,16 +770,15 @@ def test_NullTemplateApplication():
     t = St3T(group=group, template='$names:bold(x=it)$')
     t["names"] = "Terence"
 
-    error = None
     try:
         str(t)
+        assert False
 
     except ValueError as ve:
-        error = tsh.getMsg(ve)
-    except Exception as ex:
-        error = tsh.getMsg(ex)
-
-    assert error == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
+        assert tsh.getMsg(ve) == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
+    #
+    # except Exception as ex:
+    #     print(f'message: {tsh.getMsg(ex)}')
 
 
 def test_NullTemplateToMultiValuedApplication():
@@ -788,15 +790,15 @@ def test_NullTemplateToMultiValuedApplication():
     t["names"] = "Terence"
     t["names"] = "Tom"
     logger.info(t)
-    error = None
     try:
         str(t)
-    except ValueError as ve:
-        error = tsh.getMsg(ve)
-    except Exception as ex:
-        error = tsh.getMsg(ex)
+        assert False
 
-    assert error == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
+    except ValueError as ve:
+        assert tsh.getMsg(ve) == "Can't load template bold.st; context is [anonymous]; group hierarchy is [test]"
+
+    # except Exception as ex:
+    #     print(f'message: {tsh.getMsg(ex)}')
 
 
 def test_ApplyingTemplateFromDiskWithPrecompiledIF():
@@ -1159,7 +1161,7 @@ def test_ElseClause():
     e["title"] = "sample"
     assert str(e) == "foo"
 
-    e = e.getInstanceOf()
+    e = e.instanceOf
     assert str(e) == "bar"
 
 
@@ -1235,11 +1237,11 @@ def test_NestedIF():
     e["title"] = "sample"
     assert str(e) == "foo"
 
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["header"] = "more"
     assert str(e) == "bar"
 
-    e = e.getInstanceOf()
+    e = e.instanceOf
     assert str(e) == "blort"
 
 
@@ -1265,7 +1267,7 @@ def test_EmbeddedMultiLineIF():
         stuff""")
 
     main = St3T(group=group, template='$sub$')
-    sub = sub.getInstanceOf()
+    sub = sub.instanceOf
     main["sub"] = sub
     
     assert str(main) == dedent("""\
@@ -2700,7 +2702,7 @@ def test_EmptyStringAndEmptyAnonTemplateAsParameterUsingDollarLexer():
 
 def test_TruncOp():
     e = St3T(lineSeparator="\n", template='$trunc(names); separator=", "$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -2802,7 +2804,7 @@ def test_ApplyTemplateWithNoFormalArgs():
 
 def test_AnonTemplateWithArgHasNoITArg():
     e = St3T(lineSeparator="\n", template='$names:{n| $n$:$it$}; separator=", "$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     error = None
@@ -2824,7 +2826,7 @@ def test_FirstWithListOfMaps2():
     e["maps"] = m2
     assert str(e) == "x5707"
 
-    e = e.getInstanceOf()
+    e = e.instanceOf
     alist = [m1, m2]
     e["maps"] = alist
     assert str(e) == "x5707"
@@ -2833,7 +2835,7 @@ def test_FirstWithListOfMaps2():
 # @pytest.mark.skip(reason="MismatchedTokenException")
 def test_CatWithTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n", template='$[names:{$it$!},phones]; separator=", "$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -2845,7 +2847,7 @@ def test_CatWithTemplateApplicationAsElement():
 def test_CatWithNullTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n",
               template='$[names:{$it$!},"foo"]:{x}; separator=", "$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["phones"] = "1"
     e["phones"] = "2"
     assert str(e) == "x"  # only one since template application gives nothing
@@ -2855,7 +2857,7 @@ def test_CatWithNullTemplateApplicationAsElement():
 def test_CatWithNestedTemplateApplicationAsElement():
     e = St3T(lineSeparator="\n",
               template='$[names, ["foo","bar"]:{$it$!},phones]; separator=", "$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -2966,7 +2968,7 @@ def test_InvokeIndirectTemplateWithSingleFormalArgs():
 
 def test_ParallelAttributeIteration():
     e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -2978,7 +2980,7 @@ def test_ParallelAttributeIteration():
 
 def test_ParallelAttributeIterationWithNullValue():
     e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $n$@$p$: $s$\n}$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -2996,7 +2998,7 @@ def test_ParallelAttributeIterationWithNullValue():
 
 def test_ParallelAttributeIterationHasI():
     e = St3T(lineSeparator="\n", template="$names,phones,salaries:{n,p,s | $i0$. $n$@$p$: $s$\n}$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -3010,7 +3012,7 @@ def test_ParallelAttributeIterationWithMismatchArgListSizes():
     errors = ErrorBuffer()
     e = St3T(lineSeparator="\n", template="""$names,phones,salaries:{n,p | $n$@$p$}; separator=", "$""")
     e.errorListener = errors
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -3738,7 +3740,7 @@ def test_ListLiteralWithEmptyElements():
     """ Added  feature  for ST - 21 """
     e = St3T(lineSeparator="\n",
               template='$["Ter",,"Jesse"]:{n | $i$:$n$}; separator=", ", null=""$')
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["phones"] = "1"
     e["salaries"] = "big"

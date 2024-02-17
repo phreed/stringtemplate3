@@ -243,10 +243,6 @@ class StringTemplateGroup(object):
         """
         return self._templates
 
-    @templates.setter
-    def templates(self, templates):
-        self._templates = templates
-
     @property
     def maps(self):
         """
@@ -371,7 +367,7 @@ class StringTemplateGroup(object):
 
         st = self.lookupTemplate(name, enclosingInstance)
         if st is not None:
-            st = st.getInstanceOf()
+            st = st.instanceOf
 
             if attributes is not None:
                 st._attributes = attributes
@@ -457,11 +453,11 @@ class StringTemplateGroup(object):
                     )
                 hierarchy = self.getGroupHierarchyStackString()
                 context += "; group hierarchy is " + hierarchy
-                # raise ValueError(
-                #     "Can't load template " +
-                #     self.getFileNameFromTemplateName(name) +
-                #     context
-                # )
+                raise ValueError(
+                    "Can't load template " +
+                    self.getFileNameFromTemplateName(name) +
+                    context
+                )
 
         elif st is StringTemplateGroup.NOT_FOUND_ST:
             return None
@@ -469,12 +465,16 @@ class StringTemplateGroup(object):
         return st
 
     def checkRefreshInterval(self):
+        """
+        If the refresh interval has past.
+        Throw away all pre-compiled references.
+        """
         if self._templatesDefinedInGroupFile:
             return
-        if self._refreshInterval == 0 or \
-                (time.time() - self._lastCheckedDisk) >= \
-                self._refreshInterval:
-            # throw away all pre-compiled references
+        if self._refreshInterval == 0:
+            self._templates = {}
+            self._lastCheckedDisk = time.time()
+        elif (time.time() - self._lastCheckedDisk) >= self._refreshInterval:
             self._templates = {}
             self._lastCheckedDisk = time.time()
 
@@ -577,7 +577,7 @@ class StringTemplateGroup(object):
         st.template = template
         st.errorListener = self._listener
 
-        self.templates[name] = st
+        self._templates[name] = st
         return st
 
     def defineRegionTemplate(self, enclosingTemplate, regionName, template, a_type):

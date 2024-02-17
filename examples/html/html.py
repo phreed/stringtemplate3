@@ -10,10 +10,13 @@ group = stringtemplate3.StringTemplateGroup(
 )
 
 
-# Define an attribute renderer that will escape any string in a HTML save
-# way that is expanded with format="escape".
-# See templage/page.st for an example
 class EscapeRenderer(stringtemplate3.AttributeRenderer):
+    """
+    Define an attribute renderer that will escape any string
+    in an HTML save way that is expanded with format="escape".
+
+    See templage/page.st for an example
+    """
     def toString(self, o, formatName=None):
         if formatName is None:
             # no formatting specified
@@ -55,4 +58,4 @@ page['body'] = body
 
 # At this point all templates are expanded. Because body is now a child of
 # page, the title attribute from page can be expanded in the body template.
-print page.toString()
+print(page.toString())

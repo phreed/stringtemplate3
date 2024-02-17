@@ -214,7 +214,7 @@ class ASTExpr(Expr):
                 break
             argumentContext[self.DEFAULT_INDEX_VARIABLE_NAME] = i + 1
             argumentContext[self.DEFAULT_INDEX0_VARIABLE_NAME] = i
-            embedded = templateToApply.getInstanceOf()
+            embedded = templateToApply.instanceOf
             embedded.enclosingInstance = this
             embedded._argumentContext = argumentContext
             results.append(embedded)
@@ -246,7 +246,7 @@ class ASTExpr(Expr):
                 # a new instance of the embedded template to apply each time
                 # to get new attribute sets etc...
                 args = embedded._argumentsAST
-                embedded = embedded.getInstanceOf()  # make new instance
+                embedded = embedded.instanceOf  # make new instance
                 embedded.enclosingInstance = this
                 embedded._argumentsAST = args
                 argumentContext = {}

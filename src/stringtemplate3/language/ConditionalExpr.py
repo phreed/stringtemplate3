@@ -114,7 +114,7 @@ class ConditionalExpr(ASTExpr):
         We need a new template instance every time we exec this chunk
         to get the new "enclosing instance" pointer.
         """
-        s = subtemplate.getInstanceOf()
+        s = subtemplate.instanceOf
         s.enclosingInstance = this
         # make sure we evaluate in context of enclosing template's
         # group so polymorphism works. :)

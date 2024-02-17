@@ -503,7 +503,8 @@ class StringTemplate(object):
         to.isRegion = fr.isRegion
         to.regionDefType = fr.regionDefType
 
-    def getInstanceOf(self):
+    @property
+    def instanceOf(self):
         """
         Make an instance of self template; it contains an exact copy of
         everything (except the attributes and enclosing instance pointer).

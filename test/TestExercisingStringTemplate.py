@@ -143,19 +143,19 @@ def test_8BitEuroChars():
      *  Please correct to escape the correct character.
      """
     e = St3T("Danish: \u0143 char")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     assert str(e) == "Danish: \u0143 char"
 
 
 def test_16BitUnicodeChar():
     e = St3T("DINGBAT CIRCLED SANS-SERIF DIGIT ONE: \u2780")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     assert str(e) == "DINGBAT CIRCLED SANS-SERIF DIGIT ONE: \u2780"
 
 
 def test_FirstOp():
     e = St3T("$first(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -164,7 +164,7 @@ def test_FirstOp():
 
 def test_RestOp():
     e = St3T("$rest(names); separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -173,15 +173,14 @@ def test_RestOp():
 
 def test_RestOpEmptyList():
     e = St3T("$rest(names); separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = list()
     assert str(e) == ""
 
 
-
 def test_LastOp():
     e = St3T("$last(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -191,7 +190,7 @@ def test_LastOp():
 def test_CombinedOp():
     """ replace first of yours with first of mine """
     e = St3T("$[first(mine),rest(yours)]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["mine"] = "1"
     e["mine"] = "2"
     e["mine"] = "3"
@@ -203,7 +202,7 @@ def test_CombinedOp():
 def test_CatListAndSingleAttribute():
     """ replace first of yours with first of mine """
     e = St3T("$[mine,yours]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["mine"] = "1"
     e["mine"] = "2"
     e["mine"] = "3"
@@ -217,7 +216,7 @@ def test_CatListAndEmptyAttributes():
     """ goes.  In this case, x+mine is a list so everything from their """
     """ to the right becomes list cat. """
     e = St3T("$[x,mine,y,yours,z]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["mine"] = "1"
     e["mine"] = "2"
     e["mine"] = "3"
@@ -228,7 +227,7 @@ def test_CatListAndEmptyAttributes():
 def test_NestedOp():
     """ // gets 2nd element """
     e = St3T("$first(rest(names))$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -239,7 +238,7 @@ def test_FirstWithOneAttributeOp():
     e = St3T(
         "$first(names)$"
     )
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     assert str(e) == "Ter"
 
@@ -248,28 +247,28 @@ def test_LastWithOneAttributeOp():
     e = St3T(
         "$last(names)$"
     )
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     assert str(e) == "Ter"
 
 
 def test_LastWithLengthOneListAttributeOp():
     e = St3T("$last(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = ["Ter"]
     assert str(e) == "Ter"
 
 
 def test_RestWithOneAttributeOp():
     e = St3T("$rest(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     assert str(e) == ""
 
 
 def test_RestWithLengthOneListAttributeOp():
     e = St3T("$rest(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = ["Ter"]
     assert str(e) == ""
 
@@ -277,7 +276,7 @@ def test_RestWithLengthOneListAttributeOp():
 def test_RepeatedRestOp():
     """  // gets 2nd element """
     e = St3T("$rest(names)$, $rest(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     assert str(e) == "Tom, Tom"
@@ -285,7 +284,7 @@ def test_RepeatedRestOp():
 
 def test_IncomingLists():
     e = St3T("$rest(names)$, $rest(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     assert str(e) == "Tom, Tom"
@@ -293,7 +292,7 @@ def test_IncomingLists():
 
 def test_IncomingListsAreNotModified():
     e = St3T("$names; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     names = ["Ter", "Tom"]
     e["names"] = names
     e["names"] = "Sriram"
@@ -304,7 +303,7 @@ def test_IncomingListsAreNotModified():
 
 def test_IncomingListsAreNotModified2():
     e = St3T("$names; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     names = ["Ter", "Tom"]
     e["names"] = "Sriram"  # single element first now
     e["names"] = names
@@ -315,25 +314,23 @@ def test_IncomingListsAreNotModified2():
 
 def test_IncomingArraysAreOk():
     e = St3T("$names; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = ["Ter", "Tom"]
     e["names"] = "Sriram"
     assert str(e) == "Ter, Tom, Sriram"
 
 
-
 def test_AnonTemplateArgs():
     e = St3T("$names:{n| $n$}; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     assert str(e) == "Ter, Tom"
 
 
-
 def test_AnonTemplateArgs2():
     e = St3T("$names:{n| .$n$.}:{ n | _$n$_}; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     assert str(e) == "_.Ter._, _.Tom._"
@@ -341,7 +338,7 @@ def test_AnonTemplateArgs2():
 
 def test_FirstWithCatAttribute():
     e = St3T("$first([names,phones])$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -351,7 +348,7 @@ def test_FirstWithCatAttribute():
 
 def test_FirstWithListOfMaps():
     e = St3T("$first(maps).Ter$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     m1 = dict()
     m2 = dict()
     m1["Ter"] = "x5707"
@@ -360,7 +357,7 @@ def test_FirstWithListOfMaps():
     e["maps"] = m2
     assert str(e) == "x5707"
 
-    e = e.getInstanceOf()
+    e = e.instanceOf
     alist = [m1, m2]
     e["maps"] = alist
     assert str(e) == "x5707"
@@ -368,7 +365,7 @@ def test_FirstWithListOfMaps():
 
 def test_JustCat():
     e = St3T("$[names,phones]$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -378,7 +375,7 @@ def test_JustCat():
 
 def test_Cat2Attributes():
     e = St3T("$[names,phones]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -388,7 +385,7 @@ def test_Cat2Attributes():
 
 def test_Cat2AttributesWithApply():
     e = St3T("$[names,phones]:{a|$a$.}$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -398,7 +395,7 @@ def test_Cat2AttributesWithApply():
 
 def test_Cat3Attributes():
     e = St3T("$[names,phones,salaries]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -407,10 +404,11 @@ def test_Cat3Attributes():
     e["salaries"] = "huge"
     assert str(e) == "Ter, Tom, 1, 2, big, huge"
 
+
 @pytest.mark.skip(reason="infinite loop")
 def test_CatWithIFAsElement():
     e = St3T("$[{$if(names)$doh$endif$},phones]; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["phones"] = "1"
@@ -422,7 +420,7 @@ def test_ParallelAttributeIterationWithDifferentSizes():
     e = St3T(
         "$names,phones,salaries:{n,p,s | $n$@$p$: $s$}; separator=\", \"$"
     )
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -434,7 +432,7 @@ def test_ParallelAttributeIterationWithDifferentSizes():
 
 def test_ParallelAttributeIterationWithSingletons():
     e = St3T("$names,phones,salaries:{n,p,s | $n$@$p$: $s$}; separator=\", \"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["phones"] = "1"
     e["salaries"] = "big"
@@ -445,7 +443,7 @@ def test_ParallelAttributeIterationWithMissingArgs():
     errors = ErrorBuffer()
     e = St3T("$names,phones,salaries:{$n$@$p$}; separator=\", \"$")
     e.errorListener = errors
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Tom"
     e["phones"] = "2"
     e["salaries"] = "big"
@@ -504,7 +502,7 @@ def test_LengthOp():
     e = St3T(
         "$length(names)$"
     )
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     e["names"] = "Tom"
     e["names"] = "Sriram"
@@ -513,7 +511,7 @@ def test_LengthOp():
 
 def test_LengthOpWithMap():
     e = St3T("$length(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     amap = {"Tom": "foo", "Sriram": "foo", "Doug": "foo"}
     e["names"] = amap
     assert str(e) == "3"
@@ -521,7 +519,7 @@ def test_LengthOpWithMap():
 
 def test_LengthOpWithSet():
     e = St3T("$length(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     m = {"Tom", "Sriram", "Doug"}
     e["names"] = m
     assert str(e) == "3"
@@ -529,28 +527,28 @@ def test_LengthOpWithSet():
 
 def test_LengthOpNull():
     e = St3T("$length(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = None
     assert str(e) == "0"
 
 
 def test_LengthOpSingleValue():
     e = St3T("$length(names)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["names"] = "Ter"
     assert str(e) == "1"
 
 
 def test_LengthOpPrimitive():
     e = St3T("$length(ints)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["ints"] = [1, 2, 3, 4]
     assert str(e) == "4"
 
 
 def test_LengthOpOfListWithNulls():
     e = St3T("$length(data)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     data = ["Hi", None, "mom", None]
     e["data"] = data
     assert str(e) == "4"  # Nones are counted
@@ -558,14 +556,15 @@ def test_LengthOpOfListWithNulls():
 
 def test_StripOpOfListWithNulls():
     e = St3T("$strip(data)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     data = ["Hi", None, "mom", None]
     e["data"] = data
     assert str(e) == "Himom"  # Nones are skipped
 
+
 def test_StripOpOfListOfListsWithNulls():
     e = St3T("$strip(data):{list | $strip(list)$}; separator=\",\"$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     data = [
         ["Hi", "mom"],
         None,
@@ -576,20 +575,20 @@ def test_StripOpOfListOfListsWithNulls():
 
 def test_StripOpOfSingleAlt():
     e = St3T("$strip(data)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     e["data"] = "hi"
     assert str(e) == "hi"  # Nones are skipped
 
 
 def test_StripOpOfNull():
     e = St3T("$strip(data)$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     assert str(e) == ""  # Nones are skipped
 
 
 def test_LengthOpOfStrippedListWithNulls():
     e = St3T("$length(strip(data))$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     data = ["Hi", None, "mom", None]
     e["data"] = data
     assert str(e) == "2"  # Nones are counted
@@ -597,7 +596,7 @@ def test_LengthOpOfStrippedListWithNulls():
 
 def test_LengthOpOfStrippedListWithNullsFrontAndBack():
     e = St3T("$length(strip(data))$")
-    e = e.getInstanceOf()
+    e = e.instanceOf
     data = [None, None, None, "Hi", None, None, None, "mom", None, None, None]
     e["data"] = data
     assert str(e) == "2"  # Nones are counted
@@ -657,7 +656,7 @@ def test_DumpMapAndSet():
     st["items"] = m
     assert str(st) == "1,2,3"
 
-    st = st.getInstanceOf()
+    st = st.instanceOf
     s = {"1", "2", "3"}
     st["items"] = s
     split = str(st).split(",")
@@ -665,7 +664,6 @@ def test_DumpMapAndSet():
     assert split[0] == "1"
     assert split[1] == "2"
     assert split[2] == "3"
-
 
 
 def test_SuperTemplateRef():
@@ -1266,7 +1264,7 @@ def test_IFBoolean():
     t["b"] = True
     assert str(t) == "x "
 
-    t = t.getInstanceOf()
+    t = t.instanceOf
     t["b"] = False
     assert " y" == str(t)
 
