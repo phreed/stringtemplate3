@@ -44,19 +44,25 @@ INDENT = 22
 COMMENT = 23
 
 
-# ##/** A parser used to break up a single template into chunks, text literals
-# ## *  and attribute expressions.
+# ##/**
 # ## */
 class Parser(antlr.LLkParser):
+    """
+    A parser used to break up a single template into chunks,
+    text literals, and attribute expressions.
+    """
     # ## user action >>>
-    def reportError(self, e):
+    def reportError(self, ex):
+        if stringtemplate3.crashOnActionParseError:
+            raise ex
+
         group = self._this.group
         if group == stringtemplate3.DEFAULT_GROUP_NAME:
-            self._this.error("template parse error; template context is " + self._this.enclosingInstanceStackString, e)
+            self._this.error("template parse error; template context is " + self._this.enclosingInstanceStackString, ex)
 
         else:
             self._this.error("template parse error in group " + self._this.group.name + " line " + str(
-                self._this.groupFileLine) + "; template context is " + self._this.enclosingInstanceStackString, e)
+                self._this.groupFileLine) + "; template context is " + self._this.enclosingInstanceStackString, ex)
 
     # ## user action <<<
 
@@ -100,7 +106,6 @@ class Parser(antlr.LLkParser):
             self.consumeUntil(_tokenSet_0)
 
     def action(self, this):
-
         a = None
         i = None
         ei = None
@@ -116,7 +121,7 @@ class Parser(antlr.LLkParser):
                 self.match(ACTION)
                 indent = a.indentation
                 c = this.parseAction(a.text)
-                if c:
+                if c is not None and hasattr(c, "indentation"):
                     c.indentation = indent
                     this.addChunk(c)
             elif la1 and la1 in [IF]:
@@ -124,7 +129,7 @@ class Parser(antlr.LLkParser):
                 i = self.LT(1)
                 self.match(IF)
                 c = this.parseAction(i.text)
-                if c:
+                if c is not None and hasattr(c, "subtemplate"):
                     # create and precompile the subtemplate
                     subtemplate = stringtemplate3.StringTemplate(group=this.group)
                     subtemplate.enclosingInstance = this
@@ -132,21 +137,21 @@ class Parser(antlr.LLkParser):
                     this.addChunk(c)
                     self.template(subtemplate)
                     c.subtemplate = subtemplate
-                while True:
-                    if self.LA(1) == ELSEIF:
-                        pass
-                        ei = self.LT(1)
-                        self.match(ELSEIF)
-                        ec = this.parseAction(ei.text)
-                        # create and precompile the subtemplate
-                        elseIfSubtemplate = stringtemplate3.StringTemplate(group=this.group)
-                        elseIfSubtemplate.enclosingInstance = this
-                        elseIfSubtemplate.name = ei.text + "_subtemplate"
-                        self.template(elseIfSubtemplate)
-                        if c and ec:
-                            c.addElseIfSubtemplate(ec, elseIfSubtemplate)
-                    else:
-                        break
+                    while True:
+                        if self.LA(1) == ELSEIF:
+                            pass
+                            ei = self.LT(1)
+                            self.match(ELSEIF)
+                            ec = this.parseAction(ei.text)
+                            if ec:
+                                # create and precompile the subtemplate
+                                elseIfSubtemplate = stringtemplate3.StringTemplate(group=this.group)
+                                elseIfSubtemplate.enclosingInstance = this
+                                elseIfSubtemplate.name = ei.text + "_subtemplate"
+                                self.template(elseIfSubtemplate)
+                                c.addElseIfSubtemplate(ec, elseIfSubtemplate)
+                        else:
+                            break
 
                 la1 = self.LA(1)
                 if False:
@@ -203,9 +208,10 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rr.indentation
                     c = this.parseAction(mangledRef + "()")
-                    if c:
+                    if c is not None:
                         c.indentation = indent
                         this.addChunk(c)
+
             elif la1 and la1 in [REGION_DEF]:
                 pass
                 rd = self.LT(1)
@@ -224,7 +230,7 @@ class Parser(antlr.LLkParser):
                     # treat as regular action: mangled template include
                     indent = rd.indentation
                     c = this.parseAction(regionST.name + "()")
-                    if c:
+                    if c is not None and hasattr(c, "indentation"):
                         c.indentation = indent
                         this.addChunk(c)
 

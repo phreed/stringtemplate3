@@ -65,15 +65,22 @@ WS_CHAR = 43
 # ##/**  */
 class Parser(antlr.LLkParser):
     """ Parse the individual attribute expressions """
-    def reportError(self, e):
+    def reportError(self, ex):
         """ user action """
+        if stringtemplate3.crashOnActionParseError:
+           raise ex
+
         group = self._this.group
         if group.name == stringtemplate3.DEFAULT_GROUP_NAME:
-            self._this.error("action parse error; template context is " + self._this.enclosingInstanceStackString, e)
+            self._this.error("action parse error; template context is " +
+                             self._this.enclosingInstanceStackString, ex)
 
         else:
-            self._this.error("action parse error in group " + self._this.group.name + " line " + str(
-                self._this.groupFileLine) + "; template context is " + self._this.enclosingInstanceStackString, e)
+            self._this.error("action parse error in group " +
+                             self._this.group.name + " line " +
+                             str(self._this.groupFileLine) +
+                             "; template context is " +
+                             self._this.enclosingInstanceStackString, ex)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -483,7 +490,7 @@ class Parser(antlr.LLkParser):
                 anonymous.enclosingInstance = self._this
                 anonymous.template = t.text
                 anonymous.defineFormalArgument(t.args)
-                t_AST.setStringTemplate(anonymous)
+                t_AST.stringTemplate = anonymous
             anonymousTemplate_AST = currentAST.root
 
         except antlr.RecognitionException as ex:

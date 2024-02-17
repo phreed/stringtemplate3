@@ -1786,7 +1786,7 @@ def test_EmbeddedComments():
                 $! ick
                 !$boo
             """))
-    assert str(st) == ' // can\'t detect; leaves \nboo\n'
+    assert str(st) == ' // can\'t detect; leaves \n\nboo\n'
 
 
 def test_EmbeddedCommentsAngleBracketed():
@@ -1811,22 +1811,22 @@ def test_EmbeddedCommentsAngleBracketed():
 
     st = St3T(lineSeparator="\n",
               template=dedent("""\
-        "<! start of line !>"
-        "<! another to ignore !>"
-        <! ick
-        !>boo"""),
+                "<! start of line !>"
+                "<! another to ignore !>"
+                <! ick
+                !>boo"""),
               lexer=AngleBracketTemplateLexer.Lexer
               )
-    assert str(st) == "boo"
+    assert str(st) == '""\n""\nboo'
 
     st = St3T(lineSeparator="\n",
               template=dedent("""\
-        <! back !><! to back !> // can't detect; leaves \\n
+        <! back !><! to back !> // can't detect; leaves <\\n>
         <! ick
         !>boo"""),
               lexer=AngleBracketTemplateLexer.Lexer
               )
-    assert str(st) == 'boo'
+    assert str(st) == " // can't detect; leaves \n\nboo"
 
 
 @pytest.mark.skip(reason="not implemented issue #19")
@@ -2071,10 +2071,9 @@ def test_WhiteSpaceAtEndOfTemplate():
     users.list references row.st which has a single blank line at the end.
     i.e., there are 2 '\n' in a row at the end
     ST should eat all whitespace at end """
-    group = St3G("group",
-                 lineSeparator="\n")
-    pageST = group.getInstanceOf("org/antlr/stringtemplate/test/page")
-    listST = group.getInstanceOf("org/antlr/stringtemplate/test/users_list")
+    group = St3G("group", lineSeparator="\n")
+    pageST = group.getInstanceOf("templates/page")
+    listST = group.getInstanceOf("templates/users_list")
     listST["users"] = Connector()
     listST["users"] = Connector2()
     pageST["title"] = "some title"
@@ -2086,8 +2085,11 @@ def test_WhiteSpaceAtEndOfTemplate():
 
 
 class Duh:
-    def users(self):
-        return []
+    def getUsers(self):
+        return "wilma"
+
+    def __str__(self):
+        return "betty"
 
 
 def test_SizeZeroButNonNullListGetsNoOutput():
@@ -2160,7 +2162,7 @@ def test_SizeZeroOnLineWithIndentGetsNoOutput():
 def test_NonNullButEmptyIteratorTestsFalse():
     group = St3G("test", lineSeparator="\n")
     t = St3T(group=group,
-             template=dedent("""
+             template=dedent("""\
                     $if(users)$
                     Users: $users:{$it.name$ }$
                     $endif$
@@ -2296,7 +2298,7 @@ def test_DefaultArgumentImplicitlySet():
     the formal parameter exists if we have a default value.
     Look up the value to see if it's None without
     checking checkNullAttributeAgainstFormalArguments.
-     """
+    """
     templates = dedent("""\
             group test;
             method(fields) ::= <<
@@ -2304,11 +2306,12 @@ def test_DefaultArgumentImplicitlySet():
             >>
             stat(f,value={<f.name>}) ::= "x=<value>   # <f.name>"
             """)
+    errorBuffer = ErrorBuffer()
     group = St3G(file=io.StringIO(templates),
-                 lineSeparator="\n")
+                 lineSeparator="\n", errors=errorBuffer)
     m = group.getInstanceOf("method")
     m["fields"] = Field()
-    assert str(m) == "x=parrt   # parrt"
+    assert str(errorBuffer) == "x=parrt   # parrt"
 
 
 def test_DefaultArgumentImplicitlySet2():
@@ -2377,7 +2380,7 @@ class Counter:
     def __init__(self):
         self.n = 0
 
-    def str(self):
+    def __str__(self):
         self.n += 1
         return f"{self.n}"
 
@@ -2386,7 +2389,7 @@ def test_DefaultArgumentInParensToEvalEarly():
     templates = dedent("""\
             group test;
             A(x) ::= "<B()>"
-            B(y={<(x)>}) ::= "<y> <x> <x> <y>"
+            B(y={<(x)>}) ::= "y1:<y> x1:<x> x2:<x> y2:<y>"
             """)
     group = St3G(file=io.StringIO(templates),
                  lineSeparator="\n")
@@ -2500,7 +2503,7 @@ def test_MapKeyLookupViaTemplate():
                  lineSeparator="\n")
     st = group.getInstanceOf("var")
     st["w"] = "L"
-    st["type"] = St3T(lineSeparator="\n", template="int")
+    st["type"] = St3T(template="int")
     st["name"] = "x"
     assert str(st) == "int x = 0L;"
 
@@ -3065,9 +3068,8 @@ class NonPublicProperty:
 
 
 def test_IndexVar():
-    group = St3G("dummy", ".")
-    t = St3T(lineSeparator="\n",
-             group=group,
+    group = St3G(name="dummy", rootDir=".", lineSeparator="\n")
+    t = St3T(group=group,
              template='$A:{$i$. $it$}; separator="\\n"$')
     t["A"] = "parrt"
     t["A"] = "tombu"

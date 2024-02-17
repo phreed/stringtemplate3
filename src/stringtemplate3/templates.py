@@ -76,12 +76,12 @@ class Aggregate(object):
 
     $items:{$attr.name$=$attr.type$}$
 
-    This example will call getName() on the objects in items attribute, but
-    what if they aren't objects?  I have perhaps two parallel arrays
-    instead of a single array of objects containing two fields.  One
-    solution is to allow dictionaries to be handled like properties so that
-    it.name would fail getName() but then see that it's a dictionary and
-    do it.get('name') instead.
+    This example will call getName() on the objects in items attribute,
+    but what if they aren't objects?
+    I have perhaps two parallel arrays instead of a single array of objects containing two fields.
+    One solution is to allow dictionaries to be handled like properties
+    so that 'it.name' would fail getName() but then see that
+    it's a dictionary and do it.get('name') instead.
 
     This very clean approach is espoused by some, but the problem is that
     it's a hole in my separation rules.  People can put the logic in the
@@ -108,24 +108,27 @@ class Aggregate(object):
         self._master = master
 
     def __setitem__(self, propName, propValue):
-        """ Allow StringTemplate to add values, but prevent the end user from doing so."""
-        # Instead of relying on data hiding, we check the type of the
-        # master of this aggregate.
+        """ 
+        Allow StringTemplate to add values, but prevent the end user from doing so.
+        Instead of relying on data hiding, we check the type of the master of this aggregate.
+        """
         if isinstance(self._master, StringTemplate):
             self._properties[propName] = propValue
         else:
             raise AttributeError
 
     def get(self, propName, default=None):
-        # Instead of relying on data hiding, we check the type of the
-        # master of this aggregate.
+        """
+        Instead of relying on data hiding, we check the type of the master of this aggregate.
+        """
         if isinstance(self._master, StringTemplate):
             return self._properties.get(propName, default)
         raise AttributeError
 
     def __getitem__(self, propName):
-        # Instead of relying on data hiding, we check the type of the
-        # master of this aggregate.
+        """
+        Instead of relying on data hiding, we check the type of the master of this aggregate.
+        """
         if isinstance(self._master, StringTemplate):
             if propName in self._properties:
                 return self._properties[propName]
@@ -133,8 +136,9 @@ class Aggregate(object):
         raise AttributeError
 
     def __contains__(self, propName):
-        # Instead of relying on data hiding, we check the type of the
-        # master of this aggregate.
+        """
+        Instead of relying on data hiding, we check the type of the master of this aggregate.
+        """
         if isinstance(self._master, StringTemplate):
             return propName in self._properties
         raise AttributeError
@@ -151,7 +155,6 @@ REGION_EMBEDDED = 2
 REGION_EXPLICIT = 3
 
 ANONYMOUS_ST_NAME = "anonymous"
-
 DEFAULT_GROUP_NAME = 'defaultGroup'
 
 # incremental counter for templates IDs
@@ -200,7 +203,6 @@ class StringTemplate(object):
         self._name = ANONYMOUS_ST_NAME if name is None else name
         self._templateID = getNextTemplateCounter()
         self._enclosingInstance = None
-        self._embeddedInstances = None
         self._argumentContext = None
         self._argumentsAST = None
         self._formalArgumentKeys = None
@@ -535,9 +537,6 @@ class StringTemplate(object):
                                  str(self._name) + ' in itself')
         # set the parent for this template
         self._enclosingInstance = enclosingInstance
-        # make the parent track self template as an embedded template
-        if enclosingInstance:
-            self._enclosingInstance.addEmbeddedInstance(self)
 
     @property
     def outermostEnclosingInstance(self):
@@ -545,18 +544,6 @@ class StringTemplate(object):
             return self._enclosingInstance.outermostEnclosingInstance
 
         return self
-
-    @property
-    def embeddedInstance(self):
-        """
-        A list of embedded templates
-        """
-        return self._embeddedInstances
-
-    def addEmbeddedInstance(self, embeddedInstance):
-        if not self._embeddedInstances:
-            self._embeddedInstances = []
-        self._embeddedInstances.append(embeddedInstance)
 
     @property
     def outermostName(self):
@@ -616,6 +603,8 @@ class StringTemplate(object):
             pass
 
     def removeAttribute(self, name):
+        if self._attributes is None:
+            return
         del self._attributes[name]
 
     __delitem__ = removeAttribute
@@ -736,21 +725,15 @@ class StringTemplate(object):
 
     def rawSetAttribute(self, attributes, name, value):
         """
-        Map a value to a named attribute.  Throw KeyError if
-        the named attribute is not formally defined in self's specific template
-        and a formal argument list exists.
+        Map a value to a named attribute.
+        Throw KeyError if the named attribute is not formally defined
+        in self's specific template and a formal argument list exists.
         """
-
-        if self._formalArguments != UNKNOWN_ARGS and \
-                not self.hasFormalArgument(name):
+        if self._formalArguments != UNKNOWN_ARGS and not self.hasFormalArgument(name):
             # a normal call to setAttribute with unknown attribute
             raise KeyError(f"no such attribute: {name} in template context " +
                            self.enclosingInstanceStackString)
         if value is not None:
-            attributes[name] = value
-        elif isinstance(value, list) or \
-                isinstance(value, dict) or \
-                isinstance(value, set):
             attributes[name] = value
 
     def rawSetArgumentAttribute(self, embedded, attributes, name, value):
@@ -761,15 +744,10 @@ class StringTemplate(object):
         something other than "this".
         """
 
-        if embedded.formalArguments != UNKNOWN_ARGS and \
-                not embedded.hasFormalArgument(name):
+        if embedded.formalArguments != UNKNOWN_ARGS and not embedded.hasFormalArgument(name):
             raise KeyError(f"template {embedded.name} has no such attribute: {name} in template context " +
                            self.enclosingInstanceStackString)
-        if value:
-            attributes[name] = value
-        elif isinstance(value, list) or \
-                isinstance(value, dict) or \
-                isinstance(value, set):
+        if value is not None:
             attributes[name] = value
 
     def write(self, out):
@@ -920,12 +898,17 @@ class StringTemplate(object):
             chunkifier = TemplateParser.Parser(chunkStream)
             chunkifier.template(self)
         except Exception as ex:
+            if stringtemplate3.crashOnActionParseError:
+                raise
+
             name = "<unknown>"
-            outerName = self.outermostName
             if self._name:
                 name = self._name
+
+            outerName = self.outermostName
             if outerName and not name == outerName:
                 name = name + ' nested in ' + outerName
+
             self.error('problem parsing template \'' + name + '\' ', ex)
 
     def parseAction(self, action):
@@ -933,22 +916,27 @@ class StringTemplate(object):
         parser = ActionParser.Parser(lexer, self)
         parser.setASTNodeClass(StringTemplateAST)
         lexer.setTokenObjectClass(StringTemplateToken)
-        a = None
         try:
             options = parser.action()
             tree = parser.AST
-            if tree:
-                if tree.type == ActionParser.CONDITIONAL:
-                    a = ConditionalExpr(self, tree)
-                else:
-                    a = ASTExpr(self, tree, options)
+            if not tree:
+                return None
+
+            if tree.type == ActionParser.CONDITIONAL:
+                return ConditionalExpr(self, tree)
+            else:
+                return ASTExpr(self, tree, options)
 
         except antlr.RecognitionException as re:
-            self.error('Can\'t parse chunk: ' + str(action), re)
+            if stringtemplate3.crashOnActionParseError:
+                raise re
+            self.error(f"Can't recognize chunk: {action}", re)
         except antlr.TokenStreamException as tse:
-            self.error('Can\'t parse chunk: ' + str(action), tse)
+            if stringtemplate3.crashOnActionParseError:
+                raise tse
+            self.error(f"Can't parse chunk: {action}", tse)
 
-        return a
+        return None
 
     def addChunk(self, e):
         if not self._chunks:
@@ -1276,11 +1264,11 @@ class StringTemplate(object):
             self.write(wr)
         except IOError as ioe:
             self.error("Got IOError writing to writer" + str(wr.__class__.__name__))
-
-        # reset so next toString() does not wrap;
-        # normally this is a new writer each time,
-        # but just in case they override the group to reuse the writer.
-        wr.lineWidth = StringTemplateWriter.NO_WRAP
+        finally:
+            # reset so next toString() does not wrap;
+            # normally this is a new writer each time,
+            # but just in case they override the group to reuse the writer.
+            wr.lineWidth = StringTemplateWriter.NO_WRAP
 
         return out.getvalue()
 

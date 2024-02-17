@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
 import os
 from builtins import str
 from builtins import object
@@ -32,9 +33,10 @@ import traceback
 import time
 from io import StringIO
 import logging
-from typing import Any
+from pathlib import Path
 
 from stringtemplate3 import antlr
+from stringtemplate3.utils import decodeFile
 
 from stringtemplate3.language import (
     AngleBracketTemplateLexer,
@@ -103,7 +105,8 @@ class StringTemplateGroup(object):
     #  then it is used as an override.
     defaultTemplateLexerClass = DefaultTemplateLexer.Lexer
 
-    def __init__(self, name=None, rootDir=None, lexer=None, file=None, errors=None,
+    def __init__(self, name=None, rootDir=None, lexer=None, 
+                 fileName=None, file=None, errors=None,
                  superGroup=None, lineSeparator=os.linesep):
         # What is the group name
         self._lineSeparator = lineSeparator
@@ -159,6 +162,10 @@ class StringTemplateGroup(object):
             assert superGroup is None or isinstance(superGroup, StringTemplateGroup)
             self._superGroup = superGroup
 
+        if fileName is not None:
+            if file is None:
+                file = decodeFile(open(fileName, 'r'), fileName)
+                
         if file is not None:
             assert hasattr(file, 'read')
 
@@ -416,6 +423,7 @@ class StringTemplateGroup(object):
                 name = name[dot + 1:]
                 return self._superGroup.lookupTemplate(name, enclosingInstance)
             raise ValueError(f'{self._name} has no super group; invalid template: {name}')
+
         self.checkRefreshInterval()
         st = self._templates.get(name, None)
         if not st:
@@ -448,11 +456,11 @@ class StringTemplateGroup(object):
                     )
                 hierarchy = self.getGroupHierarchyStackString()
                 context += "; group hierarchy is " + hierarchy
-                raise ValueError(
-                    "Can't load template " +
-                    self.getFileNameFromTemplateName(name) +
-                    context
-                )
+                # raise ValueError(
+                #     "Can't load template " +
+                #     self.getFileNameFromTemplateName(name) +
+                #     context
+                # )
 
         elif st is StringTemplateGroup.NOT_FOUND_ST:
             return None
@@ -469,39 +477,28 @@ class StringTemplateGroup(object):
             self._templates = {}
             self._lastCheckedDisk = time.time()
 
+    def _loadTemplateFromStream(self, name, stream):
+        template = stream.read().strip()
+        if not template:
+            self.error("no text in template '" + name + "'")
+            return None
+        return self.defineTemplate(name, template)
+    
     def loadTemplate(self, name, src):
+        """
+        If the named file does not exist, return None, causing ST keeps looking in superGroups.
+        If the named file exists, subsequence errors should be treated as real errors.
+        """
+        templateFilePath = Path(name)
         if isinstance(src, str):
-            template = None
-            try:
-                br = open(src, 'r')
-                try:
-                    template = self.loadTemplate(name, br)
-                finally:
-                    br.close()
+            if templateFilePath.is_file():
+                with decodeFile(open(templateFilePath, "r"), str) as stream:
+                    return self._loadTemplateFromStream(name, stream)
 
-            # FIXME: eek, that's ugly
-            except Exception as ex:
-                logger.exception("problem opening {}", src, ex)
-                raise
+        if hasattr(src, "read"):
+            with decodeFile(src, '<template %r from buffer>' % name) as stream:
+                return self._loadTemplateFromStream(name, stream)
 
-            return template
-
-        elif hasattr(src, 'readlines'):
-            buf = src.readlines()
-
-            # strip newlines etc. from front/back since filesystem
-            # may add newlines etc...
-            pattern = str().join(buf).strip()
-
-            if not pattern:
-                self.error("no text in template '" + name + "'")
-                return None
-
-            return self.defineTemplate(name, pattern)
-
-        raise TypeError(
-            'loadTemplate should be called with a file or filename'
-        )
 
     def find_in_pypath(self, name):
         for dirname in sys.path:
@@ -511,12 +508,14 @@ class StringTemplateGroup(object):
         return None, None
 
     def loadTemplateFromBeneathRootDir(self, fileName):
-        """ Load a template whose name is derived from the template filename.
-        If there is a rootDir, try to load the file from there. """
+        """
+        Load a template whose name is derived from the template filename.
+        If there is a rootDir, try to load the file from there.
+
+        If no rootDir, try to load as a resource from 'sys.path'.
+        """
         template = None
         name = self.getTemplateNameFromFileName(fileName)
-        # if no rootDir, try to load as a resource in CLASSPATH
-        # In the Python case that is of course the sys.path
         path_name = None
         if not self._root_dir:
             try:
@@ -539,8 +538,9 @@ class StringTemplateGroup(object):
                     self.error('Cannot close template file: ' + path_name, ioe2)
 
             return template
+
         # load via rootDir
-        template = self.loadTemplate(name, self._root_dir + '/' + fileName)
+        template = self.loadTemplate(name, str(Path(self._root_dir) / fileName))
         return template
 
     def getFileNameFromTemplateName(self, templateName):
@@ -846,15 +846,38 @@ class StringTemplateGroup(object):
 
         self._noDebugStartStopStrings.add(templateName)
 
+    def _emitTemplateDebugString(self, st, out):
+        """
+        Generate the substance of the template debug string.
+        Return None if it fails.
+        """
+        if (self.noDebugStartStopStrings is not None and
+            st.name in self.noDebugStartStopStrings):
+            return None
+
+        if not st.name.startswith("if") and not st.name.startswith("else"):
+            if st.nativeGroup is not None:
+                return st.nativeGroup.name + "." + st.name
+            else:
+                return st.group.name + "." + st.name
+
     def emitTemplateStartDebugString(self, st, out):
-        if (self._noDebugStartStopStrings is None or
-                st.name not in self._noDebugStartStopStrings):
-            out.write("<" + st.name + ">")
+        """
+        Write the start of a template debug string.
+        Return None if it fails.
+        """
+        groupName = self._emitTemplateDebugString(st, out)
+        if groupName is not None:
+            out.write(f"<{groupName}>")
 
     def emitTemplateStopDebugString(self, st, out):
-        if (self._noDebugStartStopStrings is None or
-                st.name not in self._noDebugStartStopStrings):
-            out.write("</" + st.name + ">")
+        """
+        Write the stop of a template debug string.
+        Return None if it fails.
+        """
+        groupName = self._emitTemplateDebugString(st, out)
+        if groupName is not None:
+            out.write(f"</{groupName}>")
 
     def toString(self, showTemplatePatterns=True):
         with StringIO(u'') as buf:

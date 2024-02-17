@@ -7,9 +7,12 @@ from stringtemplate3 import antlr
 from stringtemplate3.language.Expr import Expr
 from stringtemplate3.language import ActionEvaluator
 from stringtemplate3.language.StringTemplateAST import StringTemplateAST
-from stringtemplate3.language.CatIterator import CatList
 from stringtemplate3.language.FormalArgument import UNKNOWN_ARGS
 import stringtemplate3
+
+from stringtemplate3.language.CatIterator import (isiterable,
+                                                  convertAnyCollectionToList,
+                                                  convertAnythingToList)
 
 
 class IllegalStateException(Exception):
@@ -17,53 +20,6 @@ class IllegalStateException(Exception):
     def __init__(self, message=None, *args):
         super().__init__(*args)
         self._message = message
-
-
-def isiterable(o):
-    if isinstance(o, (str, stringtemplate3.StringTemplate)):
-        # don't consider strings and templates as iterables
-        return False
-
-    try:
-        iter(o)
-    except TypeError:
-        return False
-    else:
-        return True
-
-
-def convertAnyCollectionToList(o):
-    list_ = None
-    if isinstance(o, list):
-        list_ = o
-    elif isinstance(o, tuple) or isinstance(o, set):
-        list_ = list(o)
-    elif isinstance(o, dict):
-        list_ = list(o.values())
-    elif isinstance(o, CatList):
-        list_ = []
-        for item in o.lists():
-            list_.append(item)
-    if not list_:
-        return o
-    return list_
-
-
-def convertAnythingToList(o):
-    list_ = None
-    if isinstance(o, list):
-        list_ = o
-    elif isinstance(o, tuple) or isinstance(o, set):
-        list_ = list(o)
-    elif isinstance(o, dict):
-        list_ = list(o.values())
-    elif isinstance(o, CatList):
-        list_ = []
-        for item in o.lists():
-            list_.append(item)
-    if not list_:
-        return [o]
-    return list_
 
 
 class ASTExpr(Expr):
@@ -87,11 +43,16 @@ class ASTExpr(Expr):
     EMPTY_OPTION = "empty expr option"
 
     defaultOptionValues = {
-        "anchor": StringTemplateAST(ActionEvaluator.STRING, "true"),
-        "wrap": StringTemplateAST(ActionEvaluator.STRING, "\n")
+        "anchor": StringTemplateAST(ActionEvaluator.STRING, u"true"),
+        "wrap": StringTemplateAST(ActionEvaluator.STRING, u"\n")
     }
 
-    supportedOptions = {"anchor", "format", "null", "separator", "wrap"}
+    supportedOptions = {
+        "anchor",
+        "format",
+        "null",
+        "separator",
+        "wrap"}
 
     def __init__(self, enclosingTemplate, exprTree, options):
         super(ASTExpr, self).__init__(enclosingTemplate)
@@ -362,82 +323,80 @@ class ASTExpr(Expr):
                 soleArgName = argNames[0]
                 argumentContext[soleArgName] = ithValue
 
-    def getObjectProperty(self, this, o, propertyName):
+    def getObjectProperty(self, this, obj, propertyName):
         """ Return o.getPropertyName() given o and propertyName.
         If o is a stringtemplate then access its attributes looking for propertyName instead
         (don't check any of the enclosing scopes; look directly into that object).
         Also try isXXX() for booleans.
         Allow HashMap, Hashtable as special case (grab value for key).
         """
-        if (not o) or (not propertyName):
+        if obj is None or propertyName is None:
             return None
         value = None
 
+        propertyNameStr = str(propertyName)
+
         # Special case: our automatically created Aggregates via
         # attribute name: "{obj.{prop1,prop2}}"
-        if isinstance(o, stringtemplate3.Aggregate):
+        if isinstance(obj, stringtemplate3.Aggregate):
             # sys.stderr.write("[getObjectProperty] o = " + str(o) + '\n')
-            value = o.get(propertyName, None)
+            value = obj.get(propertyNameStr, None)
             if value is None:
                 # no property defined; if a map in this group
                 # then there may be a default value
-                value = o.get(self.DEFAULT_MAP_VALUE_NAME, None)
+                value = obj.get(self.DEFAULT_MAP_VALUE_NAME, None)
+            return value
 
-        # Or: if it's a dictionary then pull using key not the
-        # property method.
-        elif isinstance(o, dict):
-            if propertyName == 'keys':
-                value = list(o.keys())
+        # Or: if it's a dictionary then pull using key not the property method.
+        if isinstance(obj, dict):
+            if propertyNameStr == 'keys':
+                value = list(obj.keys())
 
-            elif propertyName == 'values':
-                value = list(o.values())
+            elif propertyNameStr == 'values':
+                value = list(obj.values())
 
             else:
-                value = o.get(propertyName, None)
+                value = obj.get(propertyName, None)
                 if value is None:
-                    value = o.get(self.DEFAULT_MAP_VALUE_NAME, None)
+                    value = obj.get(propertyNameStr, None)
+                if value is None:
+                    value = obj.get(self.DEFAULT_MAP_VALUE_NAME, None)
 
             if value is self.MAP_KEY_VALUE:
                 value = propertyName
 
             return value
 
-        # Special case: if it's a template, pull property from
-        # its attribute table.
+        # Special case: if it's a template, pull property from its attribute table.
         # TODO: TJP just asked himself why we can't do inherited attr here?
-        elif isinstance(o, stringtemplate3.StringTemplate):
-            attributes = o.attributes
-            if attributes:
-                if propertyName in attributes:  # prevent KeyError...
-                    value = attributes[propertyName]
-                else:
-                    value = None
+        if isinstance(obj, stringtemplate3.StringTemplate):
+            if obj.attributes is not None:
+                value = obj.attributes.get(str(property), None)
+            return value
 
+        # Special case: none of the other cases.
+        methodSuffix = propertyNameStr[0].upper() + propertyNameStr[1:]
+        m = None
+        if callable(getattr(obj, f'get{methodSuffix}', None)):
+            m = getattr(obj, f'get{methodSuffix}')
+        elif callable(getattr(obj, f'is{methodSuffix}', None)):
+            m = getattr(obj, f'is{methodSuffix}')
+        elif hasattr(obj, propertyNameStr):
+            return getattr(obj, propertyNameStr)
         else:
-            # use getPropertyName() lookup
-            methodSuffix = propertyName[0].upper() + propertyName[1:]
-            m = None
-            if callable(getattr(o, f'get{methodSuffix}', None)):
-                m = getattr(o, f'get{methodSuffix}')
-            elif callable(getattr(o, f'is{methodSuffix}', None)):
-                m = getattr(o, f'is{methodSuffix}')
-            elif hasattr(o, propertyName):
-                return getattr(o, propertyName)
-            else:
+            this.error('Can\'t get property ' + propertyName +
+                       ' using method get/is' + methodSuffix +
+                       ' or direct field access from ' +
+                       obj.__class__.__name__ + ' instance')
+
+        if m is not None:
+            try:
+                value = m()
+            except Exception as e:
                 this.error('Can\'t get property ' + propertyName +
                            ' using method get/is' + methodSuffix +
                            ' or direct field access from ' +
-                           o.__class__.__name__ + ' instance')
-
-            if m is not None:
-                try:
-                    value = m()
-                except Exception as e:
-                    this.error('Can\'t get property ' + propertyName +
-                               ' using method get/is' + methodSuffix +
-                               ' or direct field access from ' +
-                               o.__class__.__name__ + ' instance', e)
-
+                           obj.__class__.__name__ + ' instance', e)
         return value
 
     def testAttributeTrue(self, a):
@@ -602,11 +561,14 @@ class ASTExpr(Expr):
 
     def evaluateExpression(self, this, expr):
         """
-        An expr is normally just a string literal, but is still an AST that
-        we must evaluate.  The expr can be any expression such as a template
-        include or string cat expression etc...  Evaluate with its own writer
-        so that we can convert to string and then reuse, don't want to compute
-        all the time; must precompute w/o writing to output buffer.
+        An expr is normally just a string literal,
+        but is still an AST that we must evaluate.
+        The expr can be any expression such as a template
+        include or string cat expression etc...
+        Evaluate with its own writer,
+        so that we can convert to string and then reuse,
+        don't want to compute all the time;
+        must precompute w/o writing to output buffer.
         """
 
         if expr is None:
@@ -727,31 +689,41 @@ class ASTExpr(Expr):
         return rl
 
     def strip(self, attribute):
-        """Return an iterator that skips all null values."""
+        """Return a new list w/o all None values."""
         if attribute is None:
-            yield None
+            return None
 
         elif isinstance(attribute, str):
             # don't iterate over string
-            yield attribute
+            return attribute
 
         else:
             try:
                 it = iter(attribute)
             except TypeError:
                 # attribute is not iterable
-                yield attribute
+                return attribute
 
             else:
-                for value in it:
-                    if value is not None:
-                        yield value
+                return [value for value in it if value is not None]
 
     def trunc(self, attribute):
         """
         Return all but the last element.  trunc(x)=null if x is single-valued.
         """
-        return None  # not impl.
+        if attribute is None:
+            return None
+
+        attribute = convertAnythingToList(attribute)
+
+        # remove last element
+        attribute = attribute[:-1]
+
+        if not attribute:
+            # trunc(x)==None when x single-valued attribute
+            return None
+
+        return attribute
 
     def length(self, attribute):
         """

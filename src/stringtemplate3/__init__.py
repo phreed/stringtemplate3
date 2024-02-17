@@ -1,7 +1,8 @@
 
 __all__ = ['language']
 
-__version__ = "2024.2.1"
+# Switch to date based version
+__version__ = "24.2.0"
 
 # Track probable issues like setting attribute that is not referenced.
 # Set to true to make StringTemplate check your work as it evaluates templates.
@@ -9,7 +10,7 @@ __version__ = "2024.2.1"
 # Currently, warns when you set attributes that are not used.
 lintMode = False
 
-# Set this to True, if you want parse errors to propagate all the way up to the caller.
+# If you want parse errors to propagate all the way up to the caller.
 # Primarily here to improve unit testing.
 crashOnActionParseError = False
 

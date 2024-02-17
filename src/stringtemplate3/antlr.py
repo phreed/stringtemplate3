@@ -1241,7 +1241,7 @@ class Reader(object):
     When reading Japanese chars, it happens that a stream returns a 'char' of length 2.
     This looks like a bug in the appropriate codecs - but I'm  rather  unsure about this.
     Anyway, if this is the case,
-    I'm going to split this string into a list of chars and put them  on  hold, i.e. on a  buffer.
+    I'm going to split this string into a list of chars and put them on hold, i.e. on a  buffer.
     Next time when called we read from buffer until buffer is empty.
     """
     def __init__(self, stream):
@@ -1254,7 +1254,7 @@ class Reader(object):
         if len(self._buf):
             return self._buf.pop()
 
-        c = self._cin.read(1)
+        c = str(self._cin.read(1))
 
         if not c or len(c) == 1:
             return c

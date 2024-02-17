@@ -31,6 +31,7 @@ import os
 import traceback
 from pathlib import Path
 
+from stringtemplate3.utils import decodeFile
 from stringtemplate3.groups import StringTemplateGroup
 from stringtemplate3.interfaces import StringTemplateGroupInterface
 from stringtemplate3.language import AngleBracketTemplateLexer
@@ -146,11 +147,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
             path = os.path.join(adir, name)
             if os.path.isfile(path):
                 stream = open(path, 'r')
-                # if self.fileCharEncoding is not None:
-                #     reader = codecs.getreader(self.fileCharEncoding)
-                #     return reader(stream, errors='strict')
-
-                return stream
+                return decodeFile(stream, path, self.fileCharEncoding)
 
         return None
 

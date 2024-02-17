@@ -277,11 +277,11 @@ class Walker(antlr.TreeParser):
                 anon = _t
                 self.match(_t, ANONYMOUS_TEMPLATE)
                 _t = _t.nextSibling
-                anonymous = anon.getStringTemplate()
+                anonymous = anon.stringTemplate
                 templatesToApply.append(anonymous)
                 value = self._chunk.applyTemplateToListOfAttributes(
                     self._this,
-                    attributes, anon.getStringTemplate())
+                    attributes, anon.stringTemplate)
                 _t = _t17
                 _t = _t.nextSibling
             else:
@@ -345,7 +345,7 @@ class Walker(antlr.TreeParser):
                     _t = _t35
                     _t = _t.nextSibling
                     if e is not None:
-                        propName = str(e)
+                        propName = e
                 else:
                     raise antlr.NoViableAltException(_t)
 
@@ -552,49 +552,42 @@ class Walker(antlr.TreeParser):
             list_AST_in = _t
         e = None
         elements = []
-        # TODO: verify against v3.2
-        value = CatList(elements)
-        try:  # # for error handling
-            if not _t:
-                _t = antlr.ASTNULL
-            la1 = _t.type
-            if False:
-                pass
-            elif la1 and la1 in [LIST]:
-                pass
-                _t6 = _t
-                tmp17_AST_in = _t
-                self.match(_t, LIST)
-                _t = _t.firstChild
-                _cnt8 = 0
-                while True:
-                    if not _t:
-                        _t = antlr.ASTNULL
-                    if _tokenSet_0.member(_t.type):
-                        pass
-                        e = self.expr(_t)
-                        _t = self._retTree
-                        if e:
-                            from stringtemplate3.language.ASTExpr import convertAnythingToList
-                            e = convertAnythingToList(e)
-                            elements.append(e)
-                    else:
-                        break
+        try:   # # for error handling _t6 = _t
+            pass
+            _t6 = _t
+            tmp17_AST_in = _t
+            self.match(_t, LIST)
+            _t = _t.firstChild
+            _cnt8 = 0
+            while True:
+                if not _t:
+                    _t = antlr.ASTNULL
+                la1 = _t.type
+                if False:
+                    pass
+                elif la1 and la1 in [APPLY, MULTI_APPLY, INCLUDE,
+                                     VALUE, FUNCTION, LIST, ID, PLUS, DOT,
+                                     ANONYMOUS_TEMPLATE, STRING, INT]:
+                    pass
+                    e = self.expr(_t)
+                    _t = self._retTree
+                    if e is not None:
+                        elements.append(e)
+                elif la1 and la1 in [NOTHING]:
+                    pass
+                    tmp18_AST_in = _t
+                    self.match(_t, NOTHING)
+                    _t = _t.nextSibling
+                    element.append([None])
+                else:
+                    break
 
-                    _cnt8 += 1
-                if _cnt8 < 1:
-                    raise antlr.NoViableAltException(_t)
-                _t = _t6
-                _t = _t.nextSibling
-            elif la1 and la1 in [NOTHING]:
-                pass
-                tmp18_AST_in = _t
-                self.match(_t, NOTHING)
-                _t = _t.nextSibling
-                nullSingleton = [None]
-                elements.append(nullSingleton)
-            else:
+                _cnt8 += 1
+            if _cnt8 < 1:
                 raise antlr.NoViableAltException(_t)
+            _t = _t6
+            _t = _t.nextSibling
+            value = CatList(elements)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
@@ -649,7 +642,7 @@ class Walker(antlr.TreeParser):
                 anon = _t
                 self.match(_t, ANONYMOUS_TEMPLATE)
                 _t = _t.nextSibling
-                anonymous = anon.getStringTemplate()
+                anonymous = anon.stringTemplate
                 # to properly see overridden templates, always set
                 # anonymous' group to be self's group
                 anonymous._group = self._this.group
@@ -731,7 +724,7 @@ class Walker(antlr.TreeParser):
             if False:
                 pass
             elif la1 and la1 in [APPLY, MULTI_APPLY, INCLUDE, VALUE,
-                                 FUNCTION, LIST, NOTHING, ID, PLUS, DOT,
+                                 FUNCTION, LIST, ID, PLUS, DOT,
                                  ANONYMOUS_TEMPLATE, STRING, INT]:
                 pass
                 a = self.ifAtom(_t)
