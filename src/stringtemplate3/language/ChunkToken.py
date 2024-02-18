@@ -1,5 +1,4 @@
-from .. import antlr
-from ..utils import deprecated
+from stringtemplate3 import antlr
 
 
 class ChunkToken(antlr.CommonToken):
@@ -10,19 +9,19 @@ class ChunkToken(antlr.CommonToken):
     ASTExpr created for the $...$ attribute reference.
     """
 
-    def __init__(self, type=None, text='', indentation=''):
-        antlr.CommonToken.__init__(self, type=type, text=text)
-        self.indentation = indentation
+    def __init__(self, a_type=None, text='', indentation=''):
+        super().__init__(type=a_type, text=text)
+        self._indentation = indentation
 
-    @deprecated
-    def getIndentation(self):
-        return self.indentation
+    @property
+    def indentation(self):
+        return self._indentation
 
-    @deprecated
-    def setIndentation(self, indentation):
-        self.indentation = indentation
+    @indentation.setter
+    def indentation(self, indentation):
+        self._indentation = indentation
 
     def __str__(self):
         return (antlr.CommonToken.__str__(self) +
-                " <indent='%d'>" % self.indentation
+                " <indent='%d'>" % self._indentation
                 )

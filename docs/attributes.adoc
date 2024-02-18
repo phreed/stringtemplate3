@@ -1,0 +1,150 @@
+= StringTemplate3
+
+== Python 3
+
+=== StringTemplate constructor:
+
+[source,python]
+----
+StringTemplate(template=None, group=None, lexer=None, attributes=None)
+----
+
+=== StringTemplateGroup constructor:
+
+[source,python]
+----
+StringTemplateGroup(name=None, rootDir=None, lexer=None, file=None, errors=None, superGroup=None)
+----
+
+You may either use `StringTemplateGroup(name=..., rootDir=...)`
+or `StringTemplateGroup(file=...)` adding `lexer`, `errors` and `superGroup` attributes as needed.
+`lexer` may be either a lexer class (`stringtemplate3.language.DefaultTemplateLexer.Lexer`, `stringtemplate3.language.AngleBracketLexer.Lexer` or your own implementation)
+or one of the strings "default" and "angle-bracket".
+
+=== StringTemplateGroup.getInstanceOf:
+
+[source,python]
+----
+StringTemplateGroup.getInstanceOf(name, enclosingInstance=None, attributes=None)
+----
+
+The following attributes are available:
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/StringTemplateGroup.html[StringTemplateGroup]
+
+Manages a group of named mutually-referential StringTemplate objects.
+Currently, the templates must all live under a directory so that you can reference them as foo.st or gutter/header.st. To refresh a group of templates, just create a new StringTemplateGroup and start pulling templates from there. Or, set the refresh interval.
+Use getInstanceOf(template-name) to get a string template to fill in. The name of a template is the file name minus ".st" ending if present unless you name it as you load it. You can use the group file format also to define a group of templates (this works better for code gen than for html page gen).
+You must give a Reader to the ctor for it to load the group; this is general and distinguishes it from the ctors for the old-style "load template files from the disk".
+10/2005 I am adding a StringTemplateGroupLoader concept so people can define supergroups within a group and have it load that group automatically.
+
+StringTemplateGroup.superGroup :: Are we derived from another group? Templates not found in this group will be searched for in the superGroup recursively.
+
+StringTemplateGroup.errorListener :: Where to report errors.
+
+StringTemplateGroup.name :: The group name.
+
+StringTemplateGroup.rootDir :: The directory to search for templates.If None, look in PYTHONPATH?
+
+StringTemplateGroup.fileCharEncoding :: A string for the character encoding (e.g. 'utf-8')
+
+StringTemplateGroup.refreshInterval :: The frequency templates are refreshed from disk.
+
+StringTemplateGroup.templateLexerClass :: The template lexer.
+
+StringTemplateGroup.attributeRenderers :: A Map that allows people to register a renderer for a particular kind of object to be displayed for any template in this group. For example, a date should be formatted differently depending on the locale.
+You can set Date.class to an object whose toString(Object) method properly formats a Date attribute according to locale. Or you can have a different renderer object for each locale. These render objects are used way down in the evaluation chain right before an attribute's toString() method would normally be called in ASTExpr.write(). Synchronized at creation time.
+
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/StringTemplate.html[StringTemplate]
+
+A StringTemplate is a "document" with holes in it where you can stick values. StringTemplate breaks up your template into chunks of text and attribute expressions.
+StringTemplate ignores everything outside of attribute expressions, treating it as just text to spit out when you call StringTemplate.toString().
+
+StringTemplate.argumentContext :: If this template is an embedded template such as when you apply a template to an attribute, then the arguments passed to this template represent the argument context--a set of values computed by walking the argument assignment list.
+
+StringTemplate.enclosingInstance :: Enclosing instance if I'm embedded within another template.
+
+StringTemplate.argumentAST :: If this template is embedded in another template, the arguments must be evaluated just before each application when applying template to a list of values.
+
+StringTemplate.name :: The name of the template.
+
+StringTemplate.group :: The group to which the template belongs.
+Even if this template was created from a prototype in a supergroup, its group will be the subgroup.
+
+StringTemplate.nativeGroup :: What group originally defined the prototype for this template? This affects the set of templates I can refer to.
+
+StringTemplate.groupFileLine ::  If this template is defined within a group file, what line number?
+
+StringTemplate.template :: Recover the text for the template.
+
+StringTemplate.errorListener :: Where to report errors.
+
+StringTemplate.templateID :: An integer providing an ID for the template.
+
+StringTemplate.attributes :: A dictionary mapping an attribute name to its value(s).
+These values are set by outside code via st.setAttribute(name, value).
+StringTemplate is like self in that a template is both the "class def" and "instance".
+When you create a StringTemplate or setTemplate, the text is broken up into chunks (i.e., compiled down into a series of chunks that can be evaluated later).
+You can have multiple
+
+StringTemplate.formalArguments :: When templates are defined in a group file format, the attribute list is provided including information about attribute cardinality such as present, optional, ...
+
+StringTemplate.formalArgumentKeys :: The keys of the formal arguments.
+
+StringTemplate.attributeRenderers :: What renderer is registered for this attributeClassType for this template.
+
+StringTemplate.regionDefType :: If someone refs <@r()> in template t, an implicit
+
+StringTemplate.templateDeclaratorString :: ?
+
+StringTemplate.enclosingInstanceStackString :: Enclosing instance if I'm embedded within another template. IF-subtemplates are considered embedded as well.
+
+StringTemplate.chunks :: A list of alternating string and ASTExpr references.
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/PathGroupLoader.html[PathGroupLoader]
+
+A simple loader that looks only in the directory(ies) you specify in the ctor.
+You may specify the char encoding.
+NOTE: this does not work when you jar things up!
+Use CommonGroupLoader instead in that case
+
+PathGroupLoader.fileCharEncoding :: A string for the character encoding (e.g. 'utf-8')
+
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/StringTemplateGroupInterface.html[StringTemplateGroupInterface]
+
+A group interface is like a group without the template implementations; there are just template names/argument-lists like this: interface foo; class(name,fields); method(name,args,body);
+
+StringTemplateGroupInterface.superInterface ::
+Are we derived from another group? Templates not found in this group will be searched for in the superGroup recursively.
+
+StringTemplateGroupInterface.name ::
+The group name.
+
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/language/ASTExpr.html[ASTExpr]
+
+ASTExpr.exprTree ::  The tree interpreted when this template is written out.
+
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/language/ChunkToken.html[ChunkToken]
+Tracks the various string and attribute chunks discovered by the lexer. Subclassed CommonToken so that I could pass the indentation to the parser, which will add it to the ASTExpr created for the $...$ attribute reference.
+
+ChunkToken.indention :: ?
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/language/ConditionalExpr.html[ConditionalExpr]
+
+A conditional reference to an embedded subtemplate.
+
+ConditionalExpr.subtemplate :: ?
+
+ConditionalExpr.elseSubtemplate :: ?
+
+==== link:https://www.stringtemplate.org/api3/org/antlr/stringtemplate/language/Expr.html[Expr]
+
+A string template expression embedded within the template. A template is parsed into a tokenized vector of Expr objects and then executed after the user sticks in attribute values. This list of Expr objects represents a "program" for the StringTemplate evaluator.
+
+Expr.enclosingTemplate :: ?
+
+Expr.indention :: ?

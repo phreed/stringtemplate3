@@ -1,14 +1,23 @@
-from .. import antlr
+from builtins import object
 
-from . import ASTExpr
-from . import ActionEvaluator
-from ..utils import deprecated
+from stringtemplate3 import antlr
+
+from stringtemplate3.language import ASTExpr
+from stringtemplate3.language import ActionEvaluator
 
 
 class ElseIfClauseData(object):
     def __init__(self, expr, st):
-        self.expr = expr
-        self.st = st
+        self._expr = expr
+        self._st = st
+
+    @property
+    def expr(self):
+        return self._expr
+
+    @property
+    def st(self):
+        return self._st
 
 
 class ConditionalExpr(ASTExpr):
@@ -16,32 +25,32 @@ class ConditionalExpr(ASTExpr):
 
     def __init__(self, enclosingTemplate, tree):
         super(ConditionalExpr, self).__init__(enclosingTemplate, tree, None)
-        self.subtemplate = None
-        self.elseIfSubtemplates = None
-        self.elseSubtemplate = None
+        self._subtemplate = None
+        self._elseIfSubtemplates = None
+        self._elseSubtemplate = None
 
-    @deprecated
-    def setSubtemplate(self, subtemplate):
-        self.subtemplate = subtemplate
+    @property
+    def subtemplate(self):
+        return self._subtemplate
 
-    @deprecated
-    def getSubtemplate(self):
-        return self.subtemplate
+    @subtemplate.setter
+    def subtemplate(self, subtemplate):
+        self._subtemplate = subtemplate
 
-    @deprecated
-    def setElseSubtemplate(self, elseSubtemplate):
-        self.elseSubtemplate = elseSubtemplate
+    @property
+    def elseSubtemplate(self):
+        return self._elseSubtemplate
 
-    @deprecated
-    def getElseSubtemplate(self):
-        return self.elseSubtemplate
+    @elseSubtemplate.setter
+    def elseSubtemplate(self, elseSubtemplate):
+        self._elseSubtemplate = elseSubtemplate
 
     def addElseIfSubtemplate(self, conditionalTree, subtemplate):
-        if self.elseIfSubtemplates is None:
-            self.elseIfSubtemplates = []
+        if self._elseIfSubtemplates is None:
+            self._elseIfSubtemplates = []
 
         d = ElseIfClauseData(conditionalTree, subtemplate)
-        self.elseIfSubtemplates.append(d)
+        self._elseIfSubtemplates.append(d)
 
     def write(self, this, out):
         """
@@ -50,7 +59,7 @@ class ConditionalExpr(ASTExpr):
         If result is true, then write subtemplate.
         """
 
-        if self.exprTree is None or this is None or out is None:
+        if self._exprTree is None or this is None or out is None:
             return 0
 
         evaluator = ActionEvaluator.Walker()
@@ -59,7 +68,7 @@ class ConditionalExpr(ASTExpr):
         try:
             testedTrue = False
             # get conditional from tree and compute result
-            cond = self.exprTree.getFirstChild()
+            cond = self._exprTree.firstChild
 
             # eval and write out tree. In case the condition refers to an
             # undefined attribute, we catch the KeyError exception and proceed
@@ -73,11 +82,11 @@ class ConditionalExpr(ASTExpr):
                 n = self.writeSubTemplate(this, out, self.subtemplate)
                 testedTrue = True
 
-            elif (self.elseIfSubtemplates is not None and
-                  len(self.elseIfSubtemplates) > 0):
-                for elseIfClause in self.elseIfSubtemplates:
+            elif (self._elseIfSubtemplates is not None and
+                  len(self._elseIfSubtemplates) > 0):
+                for elseIfClause in self._elseIfSubtemplates:
                     try:
-                        includeSubtemplate = evaluator.ifCondition(elseIfClause.expr.exprTree)
+                        includeSubtemplate = evaluator.ifCondition(elseIfClause.expr.AST)
                     except KeyError as ke:
                         includeSubtemplate = False
                     if includeSubtemplate:
@@ -88,26 +97,27 @@ class ConditionalExpr(ASTExpr):
             if not testedTrue and self.elseSubtemplate is not None:
                 # evaluate ELSE clause if present and IF/ELSEIF conditions
                 # failed
-                n = self.writeSubTemplate(this, out, self.elseSubtemplate)
+                n = self.writeSubTemplate(this, out, self._elseSubtemplate)
 
         except antlr.RecognitionException as re:
             this.error(
-                "can't evaluate tree: " + self.exprTree.toStringList(), re
+                "can't evaluate tree: " + self._exprTree.toStringList(), re
             )
 
         return n
 
     def writeSubTemplate(self, this, out, subtemplate):
-        # To evaluate the IF chunk, make a new instance whose enclosingInstance
-        # points at 'this' so get attribute works. Otherwise, enclosingInstance
-        # points at the template used to make the precompiled code.  We need a
-        # new template instance every time we exec this chunk to get the new
-        # "enclosing instance" pointer.
-
-        s = subtemplate.getInstanceOf()
+        """
+        To evaluate the IF chunk,
+        make a new instance whose enclosingInstance points at 'this' so get attribute works.
+        Otherwise, enclosingInstance points at the template used to make the precompiled code.
+        We need a new template instance every time we exec this chunk
+        to get the new "enclosing instance" pointer.
+        """
+        s = subtemplate.instanceOf
         s.enclosingInstance = this
         # make sure we evaluate in context of enclosing template's
         # group so polymorphism works. :)
-        s.group = this.group
-        s.nativeGroup = this.nativeGroup
+        s._group = this.group
+        s._nativeGroup = this.nativeGroup
         return s.write(out)

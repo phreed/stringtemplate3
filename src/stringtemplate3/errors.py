@@ -13,7 +13,7 @@
 # 3. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -25,12 +25,13 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from builtins import object
 import sys
 import traceback
 
 
-## Lets you specify where errors, warnings go.
 class StringTemplateErrorListener(object):
+    """ Lets you specify where errors, warnings go. """
     def error(self, msg, e):
         raise NotImplementedError
 
@@ -40,17 +41,17 @@ class StringTemplateErrorListener(object):
 
 class DefaultStringTemplateErrorListener(StringTemplateErrorListener):
     def __init__(self, output=None):
-        StringTemplateErrorListener.__init__(self)
+        super().__init__()
 
-        self.output = output or sys.stderr
+        self._output = output or sys.stderr
 
     def error(self, msg, exc):
-        self.output.write(msg + '\n')
+        self._output.write(msg + '\n')
         if exc is not None:
-            traceback.print_exc(file=self.output)
+            traceback.print_exc(file=self._output)
 
     def warning(self, msg):
-        self.output.write(msg + '\n')
+        self._output.write(msg + '\n')
 
 
 DEFAULT_ERROR_LISTENER = DefaultStringTemplateErrorListener()

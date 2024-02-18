@@ -20,9 +20,9 @@ endif::[]
 
 {url-project}[StringTemplate3] provides a python3 implementation of https://github.com/antlr/stringtemplate4
 
-== StringTemplate3
+== StringTemplate3 
 
-include::docs/description.txt[]
+include::docs/description.rst[]
 
 == Requirements
 
@@ -34,50 +34,95 @@ The following mamba environment was used.
 
 [source,shell]
 ----
-mamba install -c conda-forge python-build
-mamba install -c conda-forge twine
-mamba install -c conda-forge pip
-mamba install -c conda-forge pytest
+mamba create -n st3
+mamba install -c conda-forge python==3.11
+mamba install -c conda-forge python-build twine pip pytest
+mamba activate st3
 ----
 
 === Package managers
 
 The two main package managers for Python are `pip` and `conda`.
-(I use the mamba variant.)
+(I use a mamba variant of conda.)
 
 ==== Pip
 
 * https://packaging.python.org/en/latest/tutorials/packaging-projects/
+* https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html
 
-.testing the package
+.build the package
+* https://github.com/pypa/build
+[source,shell]
+----
+python -m build --wheel
+----
+
+Before uploading anywhere the wheel file can be installed.
+.install the wheel locally
+[source,shell]
+----
+python -m pip install ./dist/stringtemplate3-*-py3-*.whl
+----
+
+Before uploading to the official site upload to the test repository.
+
+.publish the test package
 * https://test.pypi.org/help/#apitoken
 
 [source,shell]
 ----
-python -m build --wheel src
+python -m twine upload --repository testpypi dist/*
 ----
+
+Publishing to the official repository.
+
+.publish the official package
+* https://pypi.org/help/#apitoken
 
 [source,shell]
 ----
 python -m twine upload --repository pypi dist/*
 ----
 
-==== Conda
+===== Install
 
+.install from testpypi https://test.pypi.org/project/stringtemplate3/
 [source,shell]
 ----
-grayskull pypi --strict-conda-forge stringtemplate3x
+python -m pip install -i https://test.pypi.org/simple/ stringtemplate3
 ----
+
+.install from pypi https://pypi.org/project/stringtemplate3/
+[source,shell]
+----
+python -m pip install stringtemplate3
+----
+
+==== Conda
+
+Note: handled in a separate project.
+Not yet implemented.
+
+===== Install
+
+.install from conda-forge https://anaconda.org/conda-forge/stringtemplate3
+[source,shell]
+----
+mamba install stringtemplate3
+----
+
+== Usage
+This will be handled via conda-forge which requires a separate feedstock project.
+
+
+
 
 == Contributing
 
-Contributors are welcome but this is largely a discontinued project.
-It provides a path for the discontinued `stringtemplate3` python port.
-It should be used as a last resort.
-The `stringtemplate4` project should be preferred.
-That being said, if you discover errors or omissions in the source code,
-documentation, or website content,
-please do not hesitate to submit an issue or open a pull request with a fix.
+New contributors are always welcome!
+If you discover errors or omissions in the source code, documentation, or website content, please don't hesitate to submit an issue or open a pull request with a fix.
+
+== Getting Help
 
 == Changelog
 

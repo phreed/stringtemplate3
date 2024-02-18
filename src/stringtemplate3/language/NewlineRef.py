@@ -7,5 +7,5 @@ class NewlineRef(StringRef):
     spitting out newlines when the only thing on a line is an attr expr.
     """
 
-    def __init__(self, enclosingTemplate, str):
-        super(NewlineRef, self).__init__(enclosingTemplate, str)
+    def __init__(self, enclosingTemplate, a_str):
+        super(NewlineRef, self).__init__(enclosingTemplate, a_str)

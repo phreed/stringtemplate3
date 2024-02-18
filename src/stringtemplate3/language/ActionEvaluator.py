@@ -1,9 +1,12 @@
-### $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
-### import antlr and other modules ..
-from .. import antlr
+# ## $ANTLR 2.7.7 (2006-11-01): "eval.g" -> "ActionEvaluator.py"$
+# ## import antlr and other modules ..
 
-### header action >>> 
-from .CatIterator import CatList
+from builtins import str
+from builtins import object
+from stringtemplate3 import antlr
+
+# ## header action >>> 
+from stringtemplate3.language.CatIterator import CatList
 
 from io import StringIO
 
@@ -11,14 +14,31 @@ from io import StringIO
 class NameValuePair(object):
 
     def __init__(self):
-        self.name = None
-        self.value = None
+        self._name = None
+        self._value = None
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
 
 
-### header action <<<
+# ## header action <<<
 
-### import antlr.Token 
-### >>>The Known Token Types <<<
+# ## import antlr.Token
+
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -67,32 +87,32 @@ WS = 42
 WS_CHAR = 43
 
 
-### user code>>>
+# ## user code>>>
 
-### user code<<<
+# ## user code<<<
 
 class Walker(antlr.TreeParser):
 
     # ctor ..
     def __init__(self, *args, **kwargs):
-        antlr.TreeParser.__init__(self, *args, **kwargs)
-        self.tokenNames = _tokenNames
-        ### __init__ header action >>> 
-        self.this = None
-        self.out = None
-        self.chunk = None
-        ### __init__ header action <<< 
+        super().__init__(*args, **kwargs)
+        self._tokenNames = _tokenNames
+        # ## __init__ header action >>>
+        self._this = None
+        self._out = None
+        self._chunk = None
+        # ## __init__ header action <<<
 
-    ### user action >>>
+    # ## user action >>>
     def initialize(self, this, chunk, out):
-        self.this = this
-        self.chunk = chunk
-        self.out = out
+        self._this = this
+        self._chunk = chunk
+        self._out = out
 
     def reportError(self, e):
-        self.this.error("eval tree parse error", e)
+        self._this.error("eval tree parse error", e)
 
-    ### user action <<<
+    # ## user action <<<
     def action(self, _t):
         numCharsWritten = 0
 
@@ -100,16 +120,16 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             action_AST_in = _t
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             e = self.expr(_t)
             _t = self._retTree
-            numCharsWritten = self.chunk.writeAttribute(self.this, e, self.out)
+            numCharsWritten = self._chunk.writeAttribute(self._this, e, self._out)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return numCharsWritten
@@ -123,10 +143,10 @@ class Walker(antlr.TreeParser):
         a = None
         b = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [PLUS]:
@@ -134,14 +154,14 @@ class Walker(antlr.TreeParser):
                 _t3 = _t
                 tmp1_AST_in = _t
                 self.match(_t, PLUS)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 a = self.expr(_t)
                 _t = self._retTree
                 b = self.expr(_t)
                 _t = self._retTree
-                value = self.chunk.add(a, b)
+                value = self._chunk.add(a, b)
                 _t = _t3
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
             elif la1 and la1 in [APPLY, MULTI_APPLY]:
                 pass
                 value = self.templateApplication(_t)
@@ -158,7 +178,7 @@ class Walker(antlr.TreeParser):
                 pass
                 value = self.function(_t)
                 _t = self._retTree
-            elif la1 and la1 in [LIST, NOTHING]:
+            elif la1 and la1 in [LIST]:
                 pass
                 value = self.list(_t)
                 _t = self._retTree
@@ -167,32 +187,29 @@ class Walker(antlr.TreeParser):
                 _t4 = _t
                 tmp2_AST_in = _t
                 self.match(_t, VALUE)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 e = self.expr(_t)
                 _t = self._retTree
                 _t = _t4
-                _t = _t.getNextSibling()
-                buf = StringIO()
-                sw = self.this.group.getStringTemplateWriter(buf)
-                n = self.chunk.writeAttribute(self.this, e, sw)
+                _t = _t.nextSibling
+                buf = StringIO(u'')
+                sw = self._this.group.getStringTemplateWriter(buf)
+                n = self._chunk.writeAttribute(self._this, e, sw)
                 if n > 0:
                     value = buf.getvalue()
             else:
                 raise antlr.NoViableAltException(_t)
 
-
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
 
-    ###/** Apply template(s) to an attribute; can be applied to another apply
-    ### *  result.
-    ### */
     def templateApplication(self, _t):
+        """ Apply template(s) to an attribute; can be applied to another apply result."""
         value = None
 
         templateApplication_AST_in = None
@@ -202,10 +219,10 @@ class Walker(antlr.TreeParser):
         a = None
         templatesToApply = []
         attributes = []
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [APPLY]:
@@ -213,14 +230,14 @@ class Walker(antlr.TreeParser):
                 _t14 = _t
                 tmp3_AST_in = _t
                 self.match(_t, APPLY)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 a = self.expr(_t)
                 _t = self._retTree
                 _cnt16 = 0
                 while True:
                     if not _t:
                         _t = antlr.ASTNULL
-                    if (_t.getType() == TEMPLATE):
+                    if _t.type == TEMPLATE:
                         pass
                         self.template(_t, templatesToApply)
                         _t = self._retTree
@@ -230,21 +247,20 @@ class Walker(antlr.TreeParser):
                     _cnt16 += 1
                 if _cnt16 < 1:
                     raise antlr.NoViableAltException(_t)
-                value = self.chunk.applyListOfAlternatingTemplates(self.this, \
-                                                                   a, templatesToApply)
+                value = self._chunk.applyListOfAlternatingTemplates(self._this, a, templatesToApply)
                 _t = _t14
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
             elif la1 and la1 in [MULTI_APPLY]:
                 pass
                 _t17 = _t
                 tmp4_AST_in = _t
                 self.match(_t, MULTI_APPLY)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 _cnt19 = 0
                 while True:
                     if not _t:
                         _t = antlr.ASTNULL
-                    if (_tokenSet_0.member(_t.getType())):
+                    if _tokenSet_0.member(_t.type):
                         pass
                         a = self.expr(_t)
                         _t = self._retTree
@@ -257,24 +273,24 @@ class Walker(antlr.TreeParser):
                     raise antlr.NoViableAltException(_t)
                 tmp5_AST_in = _t
                 self.match(_t, COLON)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 anon = _t
                 self.match(_t, ANONYMOUS_TEMPLATE)
-                _t = _t.getNextSibling()
-                anonymous = anon.getStringTemplate()
+                _t = _t.nextSibling
+                anonymous = anon.stringTemplate
                 templatesToApply.append(anonymous)
-                value = self.chunk.applyTemplateToListOfAttributes(self.this, \
-                                                                   attributes, anon.getStringTemplate())
+                value = self._chunk.applyTemplateToListOfAttributes(
+                    self._this,
+                    attributes, anon.stringTemplate)
                 _t = _t17
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
             else:
                 raise antlr.NoViableAltException(_t)
-
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
@@ -293,10 +309,10 @@ class Walker(antlr.TreeParser):
         obj = None
         propName = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [DOT]:
@@ -304,78 +320,78 @@ class Walker(antlr.TreeParser):
                 _t33 = _t
                 tmp6_AST_in = _t
                 self.match(_t, DOT)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 obj = self.expr(_t)
                 _t = self._retTree
                 if not _t:
                     _t = antlr.ASTNULL
-                la1 = _t.getType()
+                la1 = _t.type
                 if False:
                     pass
                 elif la1 and la1 in [ID]:
                     pass
                     prop = _t
                     self.match(_t, ID)
-                    _t = _t.getNextSibling()
-                    propName = prop.getText()
+                    _t = _t.nextSibling
+                    propName = prop.text
                 elif la1 and la1 in [VALUE]:
                     pass
                     _t35 = _t
                     tmp7_AST_in = _t
                     self.match(_t, VALUE)
-                    _t = _t.getFirstChild()
+                    _t = _t.firstChild
                     e = self.expr(_t)
                     _t = self._retTree
                     _t = _t35
-                    _t = _t.getNextSibling()
-                    if e: propName = str(e)
+                    _t = _t.nextSibling
+                    if e is not None:
+                        propName = e
                 else:
                     raise antlr.NoViableAltException(_t)
 
                 _t = _t33
-                _t = _t.getNextSibling()
-                value = self.chunk.getObjectProperty(self.this, obj, propName)
+                _t = _t.nextSibling
+                value = self._chunk.getObjectProperty(self._this, obj, propName)
             elif la1 and la1 in [ID]:
                 pass
                 i3 = _t
                 self.match(_t, ID)
-                _t = _t.getNextSibling()
-                value = self.this.getAttribute(i3.getText())
+                _t = _t.nextSibling
+                value = self._this.getAttribute(i3.text)
             elif la1 and la1 in [INT]:
                 pass
                 i = _t
                 self.match(_t, INT)
-                _t = _t.getNextSibling()
-                value = int(i.getText())
+                _t = _t.nextSibling
+                value = int(i.text)
             elif la1 and la1 in [STRING]:
                 pass
                 s = _t
                 self.match(_t, STRING)
-                _t = _t.getNextSibling()
-                value = s.getText()
+                _t = _t.nextSibling
+                value = s.text
             elif la1 and la1 in [ANONYMOUS_TEMPLATE]:
                 pass
                 at = _t
                 self.match(_t, ANONYMOUS_TEMPLATE)
-                _t = _t.getNextSibling()
-                value = at.getText();
-                if at.getText():
+                _t = _t.nextSibling
+                value = at.text
+                if at.text:
                     from stringtemplate3.templates import StringTemplate
                     valueST = StringTemplate(
-                        group=self.this.group,
-                        template=at.getText()
+                        group=self._this.group,
+                        template=at.text
                     )
-                    valueST.enclosingInstance = self.this
-                    valueST.name = "<anonymous template argument>"
+                    valueST.enclosingInstance = self._this
+                    valueST._name = "<anonymous template argument>"
                     value = valueST
             else:
                 raise antlr.NoViableAltException(_t)
 
-
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
@@ -386,61 +402,63 @@ class Walker(antlr.TreeParser):
         templateInclude_AST_in = None
         if _t != antlr.ASTNULL:
             templateInclude_AST_in = _t
-        id = None
+        ident = None
         a1 = None
         a2 = None
         args = None
         name = ""
         n = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t10 = _t
             tmp8_AST_in = _t
             self.match(_t, INCLUDE)
-            _t = _t.getFirstChild()
+            _t = _t.firstChild
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [ID]:
                 pass
-                id = _t
+                ident = _t
                 self.match(_t, ID)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a1 = _t
                 if not _t:
                     raise antlr.MismatchedTokenException()
-                _t = _t.getNextSibling()
-                name = id.getText();
+                _t = _t.nextSibling
+                name = ident.text
                 args = a1
             elif la1 and la1 in [VALUE]:
                 pass
                 _t12 = _t
                 tmp9_AST_in = _t
                 self.match(_t, VALUE)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 n = self.expr(_t)
                 _t = self._retTree
                 a2 = _t
                 if not _t:
                     raise antlr.MismatchedTokenException()
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 _t = _t12
-                _t = _t.getNextSibling()
-                if n: name = str(n); args = a2
+                _t = _t.nextSibling
+                if n:
+                    name = str(n)
+                    args = a2
             else:
                 raise antlr.NoViableAltException(_t)
 
             _t = _t10
-            _t = _t.getNextSibling()
+            _t = _t.nextSibling
             if name:
-                value = self.chunk.getTemplateInclude(self.this, name, args)
+                value = self._chunk.getTemplateInclude(self._this, name, args)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
@@ -452,81 +470,81 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             function_AST_in = _t
         a = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t21 = _t
             tmp10_AST_in = _t
             self.match(_t, FUNCTION)
-            _t = _t.getFirstChild()
+            _t = _t.firstChild
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [LITERAL_first]:
                 pass
                 tmp11_AST_in = _t
                 self.match(_t, LITERAL_first)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.first(a)
+                value = self._chunk.first(a)
             elif la1 and la1 in [LITERAL_rest]:
                 pass
                 tmp12_AST_in = _t
                 self.match(_t, LITERAL_rest)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.rest(a)
+                value = self._chunk.rest(a)
             elif la1 and la1 in [LITERAL_last]:
                 pass
                 tmp13_AST_in = _t
                 self.match(_t, LITERAL_last)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.last(a)
+                value = self._chunk.last(a)
             elif la1 and la1 in [LITERAL_length]:
                 pass
                 tmp14_AST_in = _t
                 self.match(_t, LITERAL_length)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.length(a)
+                value = self._chunk.length(a)
             elif la1 and la1 in [LITERAL_strip]:
                 pass
                 tmp15_AST_in = _t
                 self.match(_t, LITERAL_strip)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.strip(a)
+                value = self._chunk.strip(a)
             elif la1 and la1 in [LITERAL_trunc]:
                 pass
                 tmp16_AST_in = _t
                 self.match(_t, LITERAL_trunc)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 a = self.singleFunctionArg(_t)
                 _t = self._retTree
-                value = self.chunk.trunc(a)
+                value = self._chunk.trunc(a)
             else:
                 raise antlr.NoViableAltException(_t)
 
             _t = _t21
-            _t = _t.getNextSibling()
+            _t = _t.nextSibling
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
 
-    ###/** create a new list of expressions as a new multi-value attribute */
     def list(self, _t):
+        """ create a new list of expressions as a new multi-value attribute """
         value = None
 
         list_AST_in = None
@@ -534,61 +552,52 @@ class Walker(antlr.TreeParser):
             list_AST_in = _t
         e = None
         elements = []
-        value = CatList(elements)
-        try:  ## for error handling
-            if not _t:
-                _t = antlr.ASTNULL
-            la1 = _t.getType()
-            if False:
-                pass
-            elif la1 and la1 in [LIST]:
-                pass
-                _t6 = _t
-                tmp17_AST_in = _t
-                self.match(_t, LIST)
-                _t = _t.getFirstChild()
-                _cnt8 = 0
-                while True:
-                    if not _t:
-                        _t = antlr.ASTNULL
-                    if (_tokenSet_0.member(_t.getType())):
-                        pass
-                        e = self.expr(_t)
-                        _t = self._retTree
-                        if e:
-                            from stringtemplate3.language.ASTExpr import convertAnythingToList
-                            e = convertAnythingToList(e)
-                            elements.append(e)
-                    else:
-                        break
+        try:   # # for error handling _t6 = _t
+            pass
+            _t6 = _t
+            tmp17_AST_in = _t
+            self.match(_t, LIST)
+            _t = _t.firstChild
+            _cnt8 = 0
+            while True:
+                if not _t:
+                    _t = antlr.ASTNULL
+                la1 = _t.type
+                if False:
+                    pass
+                elif la1 and la1 in [APPLY, MULTI_APPLY, INCLUDE,
+                                     VALUE, FUNCTION, LIST, ID, PLUS, DOT,
+                                     ANONYMOUS_TEMPLATE, STRING, INT]:
+                    pass
+                    e = self.expr(_t)
+                    _t = self._retTree
+                    if e is not None:
+                        elements.append(e)
+                elif la1 and la1 in [NOTHING]:
+                    pass
+                    tmp18_AST_in = _t
+                    self.match(_t, NOTHING)
+                    _t = _t.nextSibling
+                    element.append([None])
+                else:
+                    break
 
-                    _cnt8 += 1
-                if _cnt8 < 1:
-                    raise antlr.NoViableAltException(_t)
-                _t = _t6
-                _t = _t.getNextSibling()
-            elif la1 and la1 in [NOTHING]:
-                pass
-                tmp18_AST_in = _t
-                self.match(_t, NOTHING)
-                _t = _t.getNextSibling()
-                nullSingleton = [None]
-                element.append(nullSingleton)
-            else:
+                _cnt8 += 1
+            if _cnt8 < 1:
                 raise antlr.NoViableAltException(_t)
-
+            _t = _t6
+            _t = _t.nextSibling
+            value = CatList(elements)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
 
-    def template(self, _t,
-                 templatesToApply
-                 ):
+    def template(self, _t, templatesToApply):
 
         template_AST_in = None
         if _t != antlr.ASTNULL:
@@ -599,80 +608,80 @@ class Walker(antlr.TreeParser):
         args2 = None
         argumentContext = {}
         n = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t26 = _t
             tmp19_AST_in = _t
             self.match(_t, TEMPLATE)
-            _t = _t.getFirstChild()
+            _t = _t.firstChild
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [ID]:
                 pass
                 t = _t
                 self.match(_t, ID)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 args = _t
                 if not _t:
                     raise antlr.MismatchedTokenException()
-                _t = _t.getNextSibling()
-                templateName = t.getText()
-                group = self.this.group
+                _t = _t.nextSibling
+                templateName = t.text
+                group = self._this.group
                 embedded = group.getEmbeddedInstanceOf(
                     templateName,
-                    self.this
+                    self._this
                 )
                 if embedded:
-                    embedded.argumentsAST = args
+                    embedded._argumentsAST = args
                     templatesToApply.append(embedded)
             elif la1 and la1 in [ANONYMOUS_TEMPLATE]:
                 pass
                 anon = _t
                 self.match(_t, ANONYMOUS_TEMPLATE)
-                _t = _t.getNextSibling()
-                anonymous = anon.getStringTemplate()
+                _t = _t.nextSibling
+                anonymous = anon.stringTemplate
                 # to properly see overridden templates, always set
                 # anonymous' group to be self's group
-                anonymous.group = self.this.group
+                anonymous._group = self._this.group
                 templatesToApply.append(anonymous)
             elif la1 and la1 in [VALUE]:
                 pass
                 _t28 = _t
                 tmp20_AST_in = _t
                 self.match(_t, VALUE)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 n = self.expr(_t)
                 _t = self._retTree
                 args2 = _t
                 if not _t:
                     raise antlr.MismatchedTokenException()
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 embedded = None
                 if n:
                     templateName = str(n)
-                    group = self.this.group
+                    group = self._this.group
                     embedded = group.getEmbeddedInstanceOf(
                         templateName,
-                        self.this
+                        self._this
                     )
                     if embedded:
-                        embedded.argumentsAST = args2
+                        embedded._argumentsAST = args2
                         templatesToApply.append(embedded)
                 _t = _t28
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
             else:
                 raise antlr.NoViableAltException(_t)
 
             _t = _t26
-            _t = _t.getNextSibling()
+            _t = _t.nextSibling
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
 
@@ -682,21 +691,21 @@ class Walker(antlr.TreeParser):
         singleFunctionArg_AST_in = None
         if _t != antlr.ASTNULL:
             singleFunctionArg_AST_in = _t
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t24 = _t
             tmp21_AST_in = _t
             self.match(_t, SINGLEVALUEARG)
-            _t = _t.getFirstChild()
+            _t = _t.firstChild
             value = self.expr(_t)
             _t = self._retTree
             _t = _t24
-            _t = _t.getNextSibling()
+            _t = _t.nextSibling
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
@@ -708,37 +717,37 @@ class Walker(antlr.TreeParser):
         if _t != antlr.ASTNULL:
             ifCondition_AST_in = _t
         a = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
-            elif la1 and la1 in [APPLY, MULTI_APPLY, INCLUDE, VALUE, FUNCTION, LIST, NOTHING, ID, PLUS, DOT,
+            elif la1 and la1 in [APPLY, MULTI_APPLY, INCLUDE, VALUE,
+                                 FUNCTION, LIST, ID, PLUS, DOT,
                                  ANONYMOUS_TEMPLATE, STRING, INT]:
                 pass
                 a = self.ifAtom(_t)
                 _t = self._retTree
-                value = self.chunk.testAttributeTrue(a)
+                value = self._chunk.testAttributeTrue(a)
             elif la1 and la1 in [NOT]:
                 pass
                 _t30 = _t
                 tmp22_AST_in = _t
                 self.match(_t, NOT)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 a = self.ifAtom(_t)
                 _t = self._retTree
                 _t = _t30
-                _t = _t.getNextSibling()
-                value = not self.chunk.testAttributeTrue(a)
+                _t = _t.nextSibling
+                value = not self._chunk.testAttributeTrue(a)
             else:
                 raise antlr.NoViableAltException(_t)
-
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
@@ -749,7 +758,7 @@ class Walker(antlr.TreeParser):
         ifAtom_AST_in = None
         if _t != antlr.ASTNULL:
             ifAtom_AST_in = _t
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             value = self.expr(_t)
             _t = self._retTree
@@ -757,19 +766,16 @@ class Walker(antlr.TreeParser):
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return value
 
-    ###/** self is assumed to be the enclosing context as foo(x=y) must find y in
-    ### *  the template that encloses the ref to foo(x=y).  We must pass in
-    ### *  the embedded template (the one invoked) so we can check formal args
-    ### *  in rawSetArgumentAttribute.
-    ### */
-    def argList(self, _t,
-                embedded, initialContext
-                ):
+    def argList(self, _t, embedded, initialContext):
+        """ self is assumed to be the enclosing context as foo(x=y) must find y in
+        the template that encloses the ref to foo(x=y).
+        We must pass in the embedded template (the one invoked)
+        so we can check formal args in rawSetArgumentAttribute."""
         argumentContext = None
 
         argList_AST_in = None
@@ -778,10 +784,10 @@ class Walker(antlr.TreeParser):
         argumentContext = initialContext
         if not argumentContext:
             argumentContext = {}
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [ARGS]:
@@ -789,11 +795,11 @@ class Walker(antlr.TreeParser):
                 _t37 = _t
                 tmp23_AST_in = _t
                 self.match(_t, ARGS)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 while True:
                     if not _t:
                         _t = antlr.ASTNULL
-                    if (_t.getType() == ASSIGN or _t.getType() == DOTDOTDOT):
+                    if _t.type == ASSIGN or _t.type == DOTDOTDOT:
                         pass
                         self.argumentAssignment(_t, embedded, argumentContext)
                         _t = self._retTree
@@ -801,7 +807,7 @@ class Walker(antlr.TreeParser):
                         break
 
                 _t = _t37
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
             elif la1 and la1 in [SINGLEVALUEARG]:
                 pass
                 self.singleTemplateArg(_t, embedded, argumentContext)
@@ -809,28 +815,25 @@ class Walker(antlr.TreeParser):
             else:
                 raise antlr.NoViableAltException(_t)
 
-
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
         return argumentContext
 
-    def argumentAssignment(self, _t,
-                           embedded, argumentContext
-                           ):
+    def argumentAssignment(self, _t, embedded, argumentContext):
 
         argumentAssignment_AST_in = None
         if _t != antlr.ASTNULL:
             argumentAssignment_AST_in = _t
         arg = None
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             if not _t:
                 _t = antlr.ASTNULL
-            la1 = _t.getType()
+            la1 = _t.type
             if False:
                 pass
             elif la1 and la1 in [ASSIGN]:
@@ -838,59 +841,57 @@ class Walker(antlr.TreeParser):
                 _t43 = _t
                 tmp24_AST_in = _t
                 self.match(_t, ASSIGN)
-                _t = _t.getFirstChild()
+                _t = _t.firstChild
                 arg = _t
                 self.match(_t, ID)
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 e = self.expr(_t)
                 _t = self._retTree
                 _t = _t43
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
                 if e:
-                    self.this.rawSetArgumentAttribute(embedded, argumentContext, \
-                                                      arg.getText(), e)
+                    self._this.rawSetArgumentAttribute(
+                        embedded, argumentContext,
+                        arg.text, e)
             elif la1 and la1 in [DOTDOTDOT]:
                 pass
                 tmp25_AST_in = _t
                 self.match(_t, DOTDOTDOT)
-                _t = _t.getNextSibling()
-                embedded.passThroughAttributes = True
+                _t = _t.nextSibling
+                embedded._passThroughAttributes = True
             else:
                 raise antlr.NoViableAltException(_t)
-
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
 
-    def singleTemplateArg(self, _t,
-                          embedded, argumentContext
-                          ):
-
+    def singleTemplateArg(self, _t, embedded, argumentContext):
+        soleArgName = None
         singleTemplateArg_AST_in = None
         if _t != antlr.ASTNULL:
             singleTemplateArg_AST_in = _t
         e = None
-        try:  ## for error handling
+        try:  # # for error handling
             pass
             _t41 = _t
             tmp26_AST_in = _t
             self.match(_t, SINGLEVALUEARG)
-            _t = _t.getFirstChild()
+            _t = _t.firstChild
             e = self.expr(_t)
             _t = self._retTree
             _t = _t41
-            _t = _t.getNextSibling()
+            _t = _t.nextSibling
             if e:
                 soleArgName = None
                 # find the sole defined formal argument for embedded
                 error = False
                 formalArgs = embedded.formalArguments
                 if formalArgs:
-                    argNames = formalArgs.keys()
+                    argNames = list(formalArgs.keys())
                     if len(argNames) == 1:
                         soleArgName = argNames[0]
                         # sys.stderr.write("sole formal arg of " +
@@ -901,18 +902,17 @@ class Walker(antlr.TreeParser):
             else:
                 error = True
             if error:
-                self.this.error("template " + embedded.name +
-                                " must have exactly one formal arg in" +
-                                " template context " +
-                                self.this.enclosingInstanceStackString)
+                self._this.error("template " + embedded.name +
+                                 " must have exactly one formal arg in" +
+                                 " template context " +
+                                 self._this.enclosingInstanceStackString)
             else:
-                self.this.rawSetArgumentAttribute(embedded, \
-                                                  argumentContext, soleArgName, e)
+                self._this.rawSetArgumentAttribute(embedded, argumentContext, soleArgName, e)
 
         except antlr.RecognitionException as ex:
             self.reportError(ex)
             if _t:
-                _t = _t.getNextSibling()
+                _t = _t.nextSibling
 
         self._retTree = _t
 
@@ -965,10 +965,9 @@ _tokenNames = [
 ]
 
 
-### generate bit set
 def mk_tokenSet_0():
-    ### var1
-    data = [60180949680, 0]
+    """ generate bit set """
+    data = [60180933296, 0]
     return data
 
 

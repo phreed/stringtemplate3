@@ -1,9 +1,11 @@
-### $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceLexer.py"$
-### import antlr and other modules ..
-import sys
-from .. import antlr
+# ## $ANTLR 2.7.7 (2006-11-01): "interface.g" -> "InterfaceLexer.py"$
+# ## import antlr and other modules ..
+from builtins import str
+from builtins import range
 
-### header action >>> 
+from stringtemplate3 import antlr
+
+# ## header action >>> 
 #
 # [The "BSD licence"]
 # Copyright (c) 2003-2004 Terence Parr
@@ -20,7 +22,7 @@ from .. import antlr
 # 3. The name of the author may not be used to endorse or promote products
 # derived from this software without specific prior written permission.
 # 
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -33,24 +35,17 @@ from .. import antlr
 # 
 
 
-import sys
-import traceback
+# ## header action <<<
+# ## preamble action >>> 
 
-from . import FormalArgument
+# ## preamble action <<< 
+# ## >>>The Literals<<<
+literals = {u"interface": 4, u"optional": 7}
 
-### header action <<<
-### preamble action >>> 
+# ## import antlr.Token
+from stringtemplate3.antlr import Token
 
-### preamble action <<< 
-### >>>The Literals<<<
-literals = {}
-literals[u"interface"] = 4
-literals[u"optional"] = 7
-
-### import antlr.Token
-from ..antlr import Token
-
-### >>>The Known Token Types <<<
+# ## >>>The Known Token Types <<<
 SKIP = antlr.SKIP
 INVALID_TYPE = antlr.INVALID_TYPE
 EOF_TYPE = antlr.EOF_TYPE
@@ -71,23 +66,24 @@ WS = 14
 
 
 class Lexer(antlr.CharScanner):
-    ### user action >>>
-    ### user action <<<
+    # ## user action >>>
+    # ## user action <<<
     def __init__(self, *argv, **kwargs):
-        antlr.CharScanner.__init__(self, *argv, **kwargs)
-        self.caseSensitiveLiterals = True
-        self.setCaseSensitive(True)
-        self.literals = literals
+        super().__init__(*argv, **kwargs)
+        self._caseSensitiveLiterals = True
+        self._caseSensitive = True
+        self._literals = literals
 
+    @property
     def nextToken(self):
         while True:
-            try:  ### try again ..
+            try:  # ## try again ..
                 while True:
                     _token = None
                     _ttype = INVALID_TYPE
                     self.resetText()
-                    try:  ## for char stream error handling
-                        try:  ##for lexical error handling
+                    try:  # # for char stream error handling
+                        try:  # #for lexical error handling
                             la1 = self.LA(1)
                             if False:
                                 pass
@@ -132,15 +128,15 @@ class Lexer(antlr.CharScanner):
                                     self.default(self.LA(1))
 
                             if not self._returnToken:
-                                raise antlr.TryAgain  ### found SKIP token
-                            ### option { testLiterals=true } 
+                                raise antlr.TryAgain  # found SKIP token
+                            # ## option { testLiterals=true }
                             self.testForLiteral(self._returnToken)
-                            ### return token to caller
+                            # ## return token to caller
                             return self._returnToken
-                        ### handle lexical errors ....
-                        except antlr.RecognitionException as rce:
-                            raise antlr.TokenStreamRecognitionException(rce)
-                    ### handle char stream errors ...
+                        # ## handle lexical errors ....
+                        except antlr.RecognitionException as re:
+                            raise antlr.TokenStreamRecognitionException(re)
+                    # ## handle char stream errors ...
                     except antlr.CharStreamException as cse:
                         if isinstance(cse, antlr.CharStreamIOException):
                             raise antlr.TokenStreamIOException(cse.io)
@@ -152,7 +148,7 @@ class Lexer(antlr.CharScanner):
     def mID(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = ID
         _saveIndex = 0
         pass
@@ -198,7 +194,7 @@ class Lexer(antlr.CharScanner):
     def mLPAREN(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = LPAREN
         _saveIndex = 0
         pass
@@ -208,7 +204,7 @@ class Lexer(antlr.CharScanner):
     def mRPAREN(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = RPAREN
         _saveIndex = 0
         pass
@@ -218,7 +214,7 @@ class Lexer(antlr.CharScanner):
     def mCOMMA(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = COMMA
         _saveIndex = 0
         pass
@@ -228,7 +224,7 @@ class Lexer(antlr.CharScanner):
     def mSEMI(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = SEMI
         _saveIndex = 0
         pass
@@ -238,7 +234,7 @@ class Lexer(antlr.CharScanner):
     def mCOLON(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = COLON
         _saveIndex = 0
         pass
@@ -248,7 +244,7 @@ class Lexer(antlr.CharScanner):
     def mSL_COMMENT(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = SL_COMMENT
         _saveIndex = 0
         pass
@@ -274,26 +270,27 @@ class Lexer(antlr.CharScanner):
                 self.raise_NoViableAlt(self.LA(1))
 
             self.match('\n')
-        else:  ## <m4>
+        else:  # # <m4>
             pass
 
-        _ttype = Token.SKIP;
-        self.newline();
+        _ttype = Token.SKIP
+        self.newline()
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
     def mML_COMMENT(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = ML_COMMENT
         _saveIndex = 0
         pass
         self.match("/*")
         while True:
-            ###  nongreedy exit test
-            if ((self.LA(1) == u'*') and (self.LA(2) == u'/')):
+            # ##  nongreedy exit test
+            if (self.LA(1) == u'*') and (self.LA(2) == u'/'):
                 break
-            if (self.LA(1) == u'\n' or self.LA(1) == u'\r') and ((self.LA(2) >= u'\u0000' and self.LA(2) <= u'\ufffe')):
+            if ((self.LA(1) == u'\n' or self.LA(1) == u'\r') and
+                    (u'\u0000' <= self.LA(2) <= u'\ufffe')):
                 pass
                 la1 = self.LA(1)
                 if False:
@@ -307,22 +304,22 @@ class Lexer(antlr.CharScanner):
                     self.raise_NoViableAlt(self.LA(1))
 
                 self.match('\n')
-                self.newline();
-            elif ((self.LA(1) >= u'\u0000' and self.LA(1) <= u'\ufffe')) and (
-            (self.LA(2) >= u'\u0000' and self.LA(2) <= u'\ufffe')):
+                self.newline()
+            elif ((u'\u0000' <= self.LA(1) <= u'\ufffe') and
+                  (u'\u0000' <= self.LA(2) <= u'\ufffe')):
                 pass
                 self.matchNot(antlr.EOF_CHAR)
             else:
                 break
 
         self.match("*/")
-        _ttype = Token.SKIP;
+        _ttype = Token.SKIP
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
     def mWS(self, _createToken):
         _ttype = 0
         _token = None
-        _begin = self.text.length()
+        _begin = self._text.length()
         _ttype = WS
         _saveIndex = 0
         pass
@@ -354,20 +351,20 @@ class Lexer(antlr.CharScanner):
                     self.raise_NoViableAlt(self.LA(1))
 
                 self.match('\n')
-                self.newline();
+                self.newline()
             else:
                 break
 
             _cnt32 += 1
         if _cnt32 < 1:
             self.raise_NoViableAlt(self.LA(1))
-        _ttype = Token.SKIP;
+        _ttype = Token.SKIP
         self.set_return_token(_createToken, _token, _ttype, _begin)
 
 
-### generate bit set
 def mk_tokenSet_0():
-    data = [0] * 2048  ### init list
+    """ generate bit set """
+    data = [0] * 2048  # ## init list
     data[0] = -9217
     for x in range(1, 1023):
         data[x] = -1
@@ -377,17 +374,16 @@ def mk_tokenSet_0():
 
 _tokenSet_0 = antlr.BitSet(mk_tokenSet_0())
 
-### __main__ header action >>> 
 if __name__ == '__main__':
-    import sys
-    import antlr
-    import InterfaceLexer
+    """ __main__ header action >>> """
+    from stringtemplate3 import antlr
+    from . import InterfaceLexer
 
-    ### create lexer - shall read from stdin
+    # ## create lexer - shall read from stdin
     try:
         for token in InterfaceLexer.Lexer():
             print(token)
 
     except antlr.TokenStreamException as e:
         print("error: exception caught while lexing: ", e)
-### __main__ header action <<<
+# ## __main__ header action <<<

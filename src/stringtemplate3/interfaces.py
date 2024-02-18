@@ -13,7 +13,7 @@
 # 3. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 # OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -25,23 +25,50 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from builtins import str
+from builtins import object
 from io import StringIO
+import logging
 
 from stringtemplate3.language import (
     InterfaceLexer, InterfaceParser
 )
 
-from stringtemplate3.utils import deprecated
 from stringtemplate3.errors import DEFAULT_ERROR_LISTENER
+logger = logging.getLogger(__name__)
 
 
 class TemplateDefinition(object):
     """All the info we need to track for a template defined in an interface"""
 
     def __init__(self, name, formalArgs, optional):
-        self.name = name
-        self.formalArgs = formalArgs
-        self.optional = optional
+        self._name = name
+        self._formalArgs = formalArgs
+        self._optional = optional
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property
+    def formalArgs(self):
+        return self._formalArgs
+
+    @formalArgs.setter
+    def formalArgs(self, formalArgs):
+        self._formalArgs = formalArgs
+
+    @property
+    def optional(self):
+        return self._optional
+
+    @optional.setter
+    def optional(self, optional):
+        self._optional = optional
 
 
 class StringTemplateGroupInterface(object):
@@ -57,32 +84,32 @@ class StringTemplateGroupInterface(object):
     def __init__(self, file, errors=None, superInterface=None):
         """Create an interface from the input stream"""
 
-        ## What is the group name
-        self.name = None
+        # # What is the group name
+        self._name = None
 
-        ## Maps template name to TemplateDefinition object
-        self.templates = {}
+        # # Maps template name to TemplateDefinition object
+        self._templates = {}
 
-        ## Are we derived from another group?  Templates not found in this
+        # # Are we derived from another group?  Templates not found in this
         # group will be searched for in the superGroup recursively.
-        self.superInterface = superInterface
+        self._super_interface = superInterface
 
-        ## Where to report errors.  All string templates in this group
+        # # Where to report errors.  All string templates in this group
         #  use this error handler by default.
         if errors is not None:
-            self.listener = errors
+            self._listener = errors
         else:
-            self.listener = DEFAULT_ERROR_LISTENER
+            self._listener = DEFAULT_ERROR_LISTENER
 
         self.parseInterface(file)
 
-    @deprecated
-    def getSuperInterface(self):
-        return self.superInterface
+    @property
+    def superInterface(self):
+        return self._super_interface
 
-    @deprecated
-    def setSuperInterface(self, superInterface):
-        self.superInterface = superInterface
+    @superInterface.setter
+    def superInterface(self, superInterface):
+        self._super_interface = superInterface
 
     def parseInterface(self, r):
         try:
@@ -90,13 +117,17 @@ class StringTemplateGroupInterface(object):
             parser = InterfaceParser.Parser(lexer)
             parser.groupInterface(self)
 
-        except RuntimeError as exc:  # FIXME:  Exception
-            name = self.name or "<unknown>"
-            self.error("problem parsing group " + name + ": " + str(exc), exc)
+        except RuntimeError as rtex:
+            name = self._name or "<unknown>"
+            self.error("problem parsing group " + name + ": " + str(rtex), rtex)
+        except TypeError as tex:
+            logger.exception("problem parsing", tex)
+        except Exception as ex:
+            logger.exception("problem parsing", ex)
 
     def defineTemplate(self, name, formalArgs, optional):
         d = TemplateDefinition(name, formalArgs, optional)
-        self.templates[d.name] = d
+        self._templates[d.name] = d
 
     def getMissingTemplates(self, group):
         """
@@ -106,7 +137,7 @@ class StringTemplateGroupInterface(object):
 
         missing = []
 
-        templates = self.templates.items()
+        templates = list(self._templates.items())
         templates.sort()
         for name, d in templates:
             if not d.optional and not group.isDefined(d.name):
@@ -122,7 +153,7 @@ class StringTemplateGroupInterface(object):
 
         mismatched = []
 
-        templates = self.templates.items()
+        templates = list(self._templates.items())
         templates.sort()
         for name, d in templates:
             if group.isDefined(d.name):
@@ -135,8 +166,8 @@ class StringTemplateGroupInterface(object):
                     ack = True
 
                 if not ack:
-                    for argName in formalArgs.keys():
-                        if d.formalArgs.get(argName, None) == None:
+                    for argName in list(formalArgs.keys()):
+                        if d.formalArgs.get(argName, None) is None:
                             ack = True
                             break
 
@@ -145,24 +176,24 @@ class StringTemplateGroupInterface(object):
 
         return mismatched or None
 
-    @deprecated
-    def getName(self):
-        return self.name
+    @property
+    def name(self):
+        return self._name
 
-    @deprecated
-    def setName(self, name):
-        self.name = name
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     def error(self, msg, exc=None):
-        if self.listener is not None:
-            self.listener.error(msg, exc)
+        if self._listener is not None:
+            self._listener.error(msg, exc)
 
     def toString(self):
-        buf = StringIO()
+        buf = StringIO(u'')
         buf.write("interface ")
-        buf.write(self.name)
+        buf.write(self._name)
         buf.write(";\n")
-        templates = self.templates.items()
+        templates = list(self._templates.items())
         templates.sort()
         for name, d in templates:
             buf.write(self.getTemplateSignature(d))
@@ -173,14 +204,14 @@ class StringTemplateGroupInterface(object):
     __str__ = toString
 
     def getTemplateSignature(self, d):
-        buf = StringIO()
+        buf = StringIO(u'')
         if d.optional:
             buf.write("optional ")
 
         buf.write(d.name)
         if d.formalArgs is not None:
             buf.write('(')
-            args = d.formalArgs.keys()
+            args = list(d.formalArgs.keys())
             args.sort()
             buf.write(", ".join(args))
             buf.write(')')

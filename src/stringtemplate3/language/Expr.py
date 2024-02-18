@@ -1,4 +1,4 @@
-from stringtemplate3.utils import deprecated
+from builtins import object
 
 
 class Expr(object):
@@ -12,29 +12,29 @@ class Expr(object):
     """
 
     def __init__(self, enclosingTemplate):
-        ## The StringTemplate object surrounding this expr
-        self.enclosingTemplate = enclosingTemplate
+        # The StringTemplate object surrounding this expr
+        self._enclosingTemplate = enclosingTemplate
 
-        ## Anything spit out as a chunk (even plain text) must be indented
+        # Anything spit out as a chunk (even plain text) must be indented
         #  according to whitespace before the action that generated it.  So,
         #  plain text in the outermost template is never indented, but the
         #  text and attribute references in a nested template will all be
         #  indented by the amount seen directly in front of the attribute
         #  reference that initiates construction of the nested template.
-        self.indentation = ''
+        self._indentation = ''
 
     def write(self, this, out):
         """How to write this node to output"""
         raise NotImplementedError
 
-    @deprecated
-    def getEnclosingTemplate(self):
-        return self.enclosingTemplate
+    @property
+    def enclosingTemplate(self):
+        return self._enclosingTemplate
 
-    @deprecated
-    def getIndentation(self):
-        return self.indentation
+    @property
+    def indentation(self):
+        return self._indentation
 
-    @deprecated
-    def setIndentation(self, indentation):
-        self.indentation = indentation
+    @indentation.setter
+    def indentation(self, indentation):
+        self._indentation = indentation

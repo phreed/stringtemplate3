@@ -1,0 +1,1 @@
+SELECT $column; separator=","$ FROM $table$;
