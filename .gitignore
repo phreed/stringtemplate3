@@ -5,7 +5,7 @@
 .idea/
 build/
 dist/
-src/*.egg-info
-/stringtemplate3x.egg-info/
+/*.egg-info/
 
 /__pycache__/
+/src/stringtemplate3.egg-info/

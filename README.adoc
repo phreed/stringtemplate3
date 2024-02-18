@@ -37,6 +37,7 @@ The following mamba environment was used.
 mamba create -n st3
 mamba install -c conda-forge python==3.11
 mamba install -c conda-forge python-build twine pip pytest
+mamba activate st3
 ----
 
 === Package managers
@@ -60,12 +61,12 @@ Before uploading anywhere the wheel file can be installed.
 .install the wheel locally
 [source,shell]
 ----
-python -m pip install ./dist/stringtemplate3x-*-py3-*.whl
+python -m pip install ./dist/stringtemplate3-*-py3-*.whl
 ----
 
 Before uploading to the official site upload to the test repository.
 
-.testing the package
+.publish the test package
 * https://test.pypi.org/help/#apitoken
 
 [source,shell]
@@ -75,7 +76,7 @@ python -m twine upload --repository testpypi dist/*
 
 Publishing to the official repository.
 
-.publish the package
+.publish the official package
 * https://pypi.org/help/#apitoken
 
 [source,shell]
@@ -85,16 +86,16 @@ python -m twine upload --repository pypi dist/*
 
 ===== Install
 
-.install from testpypi https://test.pypi.org/project/stringtemplate3x/
+.install from testpypi https://test.pypi.org/project/stringtemplate3/
 [source,shell]
 ----
-python -m pip install -i https://test.pypi.org/simple/ stringtemplate3x
+python -m pip install -i https://test.pypi.org/simple/ stringtemplate3
 ----
 
-.install from pypi https://pypi.org/project/stringtemplate3x/
+.install from pypi https://pypi.org/project/stringtemplate3/
 [source,shell]
 ----
-python -m pip install stringtemplate3x
+python -m pip install stringtemplate3
 ----
 
 ==== Conda

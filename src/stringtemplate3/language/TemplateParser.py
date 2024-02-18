@@ -56,6 +56,9 @@ class Parser(antlr.LLkParser):
         if stringtemplate3.crashOnActionParseError:
             raise ex
 
+        if not self._this or hasattr(self._this, 'group'):
+            raise ex
+
         group = self._this.group
         if group == stringtemplate3.DEFAULT_GROUP_NAME:
             self._this.error("template parse error; template context is " + self._this.enclosingInstanceStackString, ex)

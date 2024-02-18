@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 #build-backend = "flit_core.buildapi"
 
 [project]
-name = "stringtemplate3x"
-version = "2023.12.0-dev3"
+name = "stringtemplate3"
+version = "24.2.0"
 authors = [
   { name="Terence Parr", email="parrt-spam@antlr.org" },
   { name="Marq Kole", email="marq.kole-spam@philips.com" },
