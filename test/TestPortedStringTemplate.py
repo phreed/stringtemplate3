@@ -82,7 +82,7 @@ def test_MissingInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -109,7 +109,7 @@ def test_MissingOptionalInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -137,7 +137,7 @@ def test_MismatchedInterfaceTemplate():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors, lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -811,7 +811,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
     """
     with temppathlib.TemporaryDirectory() as tmp_dir:
         page_file = tmp_dir.path / "page.st"
-        with open(page_file, "w", encoding="utf-8") as writer:
+        with open(page_file, "wt", encoding="utf-8", newline='') as writer:
             writer.write(dedent("""
                 <html><head>
                   <title>PeerScope: $title$</title>
@@ -823,7 +823,7 @@ def test_ApplyingTemplateFromDiskWithPrecompiledIF():
                 """))
 
         terse_file = tmp_dir.path / "terse.st"
-        with open(terse_file, "w", encoding="utf-8") as writer:
+        with open(terse_file, "wt", encoding="utf-8", newline='') as writer:
             writer.write("""
             "$it.firstName$ $it.lastName$ (<tt>$it.email$</tt>)"
             """)
@@ -1847,7 +1847,7 @@ def test_LineBreak():
               <\\t>  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1863,7 +1863,7 @@ def test_LineBreak2():
               <\\t>  bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1879,7 +1879,7 @@ def test_LineBreakNoWhiteSpace():
             bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1894,7 +1894,7 @@ def test_LineBreakDollar():
               $\\t$  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1909,7 +1909,7 @@ def test_LineBreakDollar2():
               $\\t$  bar"""),
               lexer=DefaultTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1924,7 +1924,7 @@ def test_LineBreakNoWhiteSpaceDollar():
             bar"""),
               lexer=DefaultTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar"
 
 
@@ -1939,19 +1939,19 @@ def test_CharLiterals():
             Foo <\\r\\n> <\\n> <\\t> bar"""),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo \r\n \n \t bar"
 
     st = St3T(template=dedent("""\
             Foo $\\n$$\\t$ bar"""))
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo \n\t bar"
 
     st = St3T(lineSeparator="\n",
               template="Foo$\\ $bar$\\n$")
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo bar\n"
 
 
@@ -1968,7 +1968,7 @@ def test_NewlineNormalizationInTemplateString():
               lexer=AngleBracketTemplateLexer.Lexer
               )
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo\nbar\n"
 
 
@@ -1984,7 +1984,7 @@ def test_NewlineNormalizationInTemplateStringPC():
             """),
               lexer=AngleBracketTemplateLexer.Lexer)
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\r\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\r\n"))
     assert sw.getvalue() == "Foo\r\nBar\r\n"
 
 
@@ -2000,7 +2000,7 @@ def test_NewlineNormalizationInAttribute():
               lexer=AngleBracketTemplateLexer.Lexer)
     st["name"] = "a\nb\r\nc"
     sw = io.StringIO(u'')
-    st.write(AutoIndentWriter(sw, newline="\n"))
+    st.write(AutoIndentWriter(sw, line_sep="\n"))
     assert sw.getvalue() == "Foo\na\nb\nc"
 
 
@@ -3188,7 +3188,7 @@ def test_LineWrapWithNormalizedNewlines():
                    4, 9, 20, 2, 1, 4, 63, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 6, 32, 5, 6, 77,
                    3, 9, 20, 2, 1, 4, 6, 32, 5, 6, 77, 888, 1, 6, 32, 5]
     sw = io.StringIO(u'')
-    stw = AutoIndentWriter(sw, newline='\n')
+    stw = AutoIndentWriter(sw, line_sep='\n')
     stw.lineWidth = 40
     a.write(stw)
     assert sw.getvalue() == (

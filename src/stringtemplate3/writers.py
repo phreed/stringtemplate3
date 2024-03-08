@@ -141,7 +141,7 @@ class AutoIndentWriter(StringTemplateWriter):
     ST will generate the right thing.
     Override the default (locale) newline by passing in a string to the constructor.
     """
-    def __init__(self, out, newline=os.linesep):
+    def __init__(self, out, line_sep=os.linesep):
         super().__init__()
 
         # # stack of indents
@@ -153,7 +153,7 @@ class AutoIndentWriter(StringTemplateWriter):
         self._out = out
         self._atStartOfLine = True
 
-        self._newline = newline
+        self._line_sep = line_sep
 
         self._charPosition = 0
         self._lineWidth = self.NO_WRAP
@@ -206,12 +206,13 @@ class AutoIndentWriter(StringTemplateWriter):
 
     def write(self, text, wrap=None):
         """
-        Write out a string literal or attribute expression or expression
-        element.
+        Write out a string literal or attribute expression or expression element.
 
         If doing line wrap, then check wrap before emitting this str.
-        If at or beyond desired line width then emit a \n and any indentation
+        If at or beyond desired line width then emit a line-separator and any indentation
         before spitting out this str.
+
+        If a line-separator is encountered, write it out unchanged.
         """
         assert isinstance(text, str), repr(text)
 
@@ -219,21 +220,17 @@ class AutoIndentWriter(StringTemplateWriter):
         if wrap is not None:
             n += self.writeWrapSeparator(wrap)
 
-        # Ignore the \n after a \r
-        skipLF = False
+        # Ignore any \r respond only to \n
         for ch in text:
-            if ch in '\n\r':
-                if ch == '\n' and skipLF:
-                    skipLF = False
-                    continue
-                if ch == '\r':
-                    skipLF = True
+            if ch in '\r':
+                continue
 
+            if ch in '\n':
                 self._atStartOfLine = True
                 self._charPosition = -1  # set so the write below sets to 0
-                n += len(self._newline)
-                self._out.write(self._newline)
-                self._charPosition += n  # wrote n more char
+                n += len(self._line_sep)
+                self._out.write(self._line_sep)
+                self._charPosition += n
                 continue
 
             if self._atStartOfLine:

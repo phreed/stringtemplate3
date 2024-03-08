@@ -90,7 +90,7 @@ class IllegalArgumentException(Exception):
         super().__init__(*args)
 
 
-with open('logging_config.yml', 'r', encoding="utf-8") as cfg:
+with open('logging_config.yml', 'rt', encoding="utf-8", newline='') as cfg:
     config = yaml.safe_load(cfg.read())
 
 # logging.config.dictConfig(config)

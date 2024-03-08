@@ -164,8 +164,8 @@ class StringTemplateGroup(object):
 
         if fileName is not None:
             if file is None:
-                file = open(fileName, 'r', encoding="utf-8")
-                # file = decodeFile(open(fileName, 'r', encoding="utf-8"), fileName)
+                file = open(fileName, 'rt', encoding="utf-8", newline='')
+                # file = decodeFile(open(fileName, 'rt', encoding="utf-8", newline=''), fileName)
                 
         if file is not None:
             assert hasattr(file, 'read')
@@ -498,8 +498,8 @@ class StringTemplateGroup(object):
         if isinstance(src, str) or isinstance(src, Path):
             if not templateFilePath.is_file():
                 return None
-            # with decodeFile(open(templateFilePath, "r", encoding="utf-8"), str) as stream:
-            with open(templateFilePath, "r", encoding="utf-8") as stream:
+            # with decodeFile(open(templateFilePath, "rt", encoding="utf-8", newline=''), str) as stream:
+            with open(templateFilePath, "rt", encoding="utf-8", newline='') as stream:
                 return self._loadTemplateFromStream(name, stream)
 
         if hasattr(src, "read"):
@@ -717,7 +717,7 @@ class StringTemplateGroup(object):
                 self.error('problems getting StringTemplateWriter', e)
 
         if not stw:
-            stw = AutoIndentWriter(w, self._lineSeparator)
+            stw = AutoIndentWriter(w, line_sep=self._lineSeparator)
         return stw
 
     def registerRenderer(self, attributeClassType, renderer):

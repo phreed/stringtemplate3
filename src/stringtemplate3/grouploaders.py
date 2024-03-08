@@ -148,7 +148,7 @@ class PathGroupLoader(StringTemplateGroupLoader):
         for adir in self._dirs:
             path = Path(adir, name)
             if path.is_file():
-                stream = open(path, 'r', encoding="utf-8")
+                stream = open(path, 'rt', encoding="utf-8", newline='')
                 return stream
                 # return decodeFile(stream, path, self.fileCharEncoding)
 

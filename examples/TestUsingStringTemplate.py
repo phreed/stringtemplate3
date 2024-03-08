@@ -177,8 +177,8 @@ def test_demo_auto_indent(simple_group):
 # tag::demo_auto_indent_of_file[]
 def test_demo_auto_indent_of_file(local_dir_path):
     stg_path = local_dir_path / "templates" / "demo_auto_indent.stg"
-    with open(stg_path, mode="r", encoding="utf-8") as stg_file:
-        group = St3G(name="demo_auto_indent", file=stg_file,  lexer="default", lineSeparator="\n")
+    with open(stg_path, mode="rt", encoding="utf-8", newline='') as stg_file:
+        group = St3G(name="demo_auto_indent", file=stg_file, lexer="default", lineSeparator="\n")
         # print("group templates: {}", group.templateNamesAsStrings)
         function = group.getInstanceOf("function")
         function["name"] = "foo"

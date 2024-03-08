@@ -1309,11 +1309,10 @@ class CharScanner(TokenStream):
 
         # case 2:
         # if arg1 is a string,
-        # we assume it's a file name and  open  a  stream  using 2nd argument as open
-        # mode. If there's no 2nd argument we fall back to
-        # mode '+rb'.
+        # we assume it's a file name and open a stream using 2nd argument as open mode.
+        # If there's no 2nd argument we fall back to mode '+rb'.
         if is_string_type(arg1):
-            f = open(arg1, "r", encoding="utf-8")
+            f = open(arg1, "rt", encoding="utf-8", newline='')
             self.setInput(f)
             self.filename = arg1
             return

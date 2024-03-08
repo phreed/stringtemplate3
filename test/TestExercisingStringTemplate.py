@@ -1,6 +1,7 @@
 
 import io
 import logging
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
@@ -50,6 +51,10 @@ https://docs.python.org/3/howto/logging.html
 https://theantlrguy.atlassian.net/wiki/spaces/ST/pages/1409137/StringTemplate+3.0+Printable+Documentation
 """
 
+@pytest.fixture
+def local_dir_path():
+    return Path(__file__).parent
+
 
 def test_AaaNoGroupLoader():
     templates = dedent("""
@@ -62,7 +67,7 @@ def test_AaaNoGroupLoader():
     with temppathlib.TemporaryDirectory() as tmp_dir:
         stg_path = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_path, "r", encoding="utf-8") as reader:
+        with open(stg_path, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors, lexer="angle-bracket", lineSeparator="\n")
             logger.debug(f"group: {group}")
 
@@ -722,7 +727,7 @@ def test_CannotFindInterfaceFile():
 
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -780,7 +785,7 @@ def test_GroupSatisfiesSingleInterface():
             """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors)
             logger.debug(f"group: {group}")
 
@@ -805,7 +810,7 @@ def test_GroupExtendsSuperGroup():
 
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, lexer=DefaultTemplateLexer.Lexer, errors=errors)
 
         st = group.getInstanceOf("main")
@@ -831,7 +836,7 @@ def test_GroupExtendsSuperGroupWithAngleBrackets():
         """)
         stg_file = tsh.write_file(tmp_dir.path / "testG.stg", templates)
 
-        with open(stg_file, "r", encoding="utf-8") as reader:
+        with open(stg_file, "rt", encoding="utf-8", newline='') as reader:
             group = St3G(file=reader, errors=errors)
         st = group.getInstanceOf("main")
         st["x"] = "foo"
@@ -1236,7 +1241,6 @@ def test_RepeatedApplicationOfTemplateToMultiValuedAttributeWithSeparator():
     assert str(item) == "<b><b>Jim</b></b>,<b><b>Mike</b></b>,<b><b>Ashar</b></b>"
 
 
-
 def test_IFCondWithParensTemplate():
     group = St3G("dummy", ".", lexer=AngleBracketTemplateLexer.Lexer)
     t = St3T(group=group, template='<if(map.(type))><type> <prop>=<map.(type)>;<endif>')
@@ -1337,3 +1341,4 @@ def test_ComputedPropertyName():
     t["propName"] = "type"
     assert "" == str(errors)
     assert str(t) == "variable property type=int"
+
